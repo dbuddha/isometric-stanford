@@ -95,8 +95,9 @@ the schema nor the compiler can emit people or vehicles.
 
 The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
-image smoothing disabled, and reports missing release configuration. No DZI
-release is committed or published.
+image smoothing disabled, bounds decoded-tile counts from an explicit memory
+policy, starts phone-width screens at a legible zoom, and reports missing
+release configuration. No DZI release is committed or published.
 
 ## Binding invariants
 
