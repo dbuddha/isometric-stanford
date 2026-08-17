@@ -1,0 +1,8 @@
+{
+  "schema": "isometric-world-fixture/v1",
+  "license": "CC-BY-4.0",
+  "origin": "original synthetic fixture",
+  "contains_source_pixels": false,
+  "contains_transients": false,
+  "description": "Small synthetic scene corresponding to World::reference_fixture"
+}

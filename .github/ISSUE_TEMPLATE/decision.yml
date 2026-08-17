@@ -1,0 +1,37 @@
+name: Decision
+description: Consequential owner-approved choice under one Requirement
+title: "[Decision] "
+labels: ["kind:decision"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Parent Requirement
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and forces
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options and evidence
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision and consequences
+    validations:
+      required: true
+  - type: textarea
+    id: owner
+    attributes:
+      label: Human-owned approval
+      description: Record approval before implementation changes the boundary.
+    validations:
+      required: true

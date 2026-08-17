@@ -1,0 +1,15 @@
+[package]
+name = "isometric-validate"
+description = "Fail-closed validation for Isometric Stanford artifacts"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+isometric-style = { path = "../isometric-style", version = "0.1.0" }
+isometric-world = { path = "../isometric-world", version = "0.1.0" }
+
+[lints]
+workspace = true

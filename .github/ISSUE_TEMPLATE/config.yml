@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Engineering guide
+    url: https://dbuddha.github.io/isometric-stanford/
+    about: Read the durable architecture, provenance, art, and testing guidance.

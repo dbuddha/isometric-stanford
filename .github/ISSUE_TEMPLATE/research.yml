@@ -1,0 +1,36 @@
+name: Research
+description: Time-bounded evidence gathering under an approved Requirement
+title: "[Research] "
+labels: ["kind:research"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Parent Requirement
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision-relevant question
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Method, fixtures, and source tiers
+    validations:
+      required: true
+  - type: textarea
+    id: stop
+    attributes:
+      label: Stop condition and deliverable
+    validations:
+      required: true
+  - type: input
+    id: estimate
+    attributes:
+      label: Focused engineer-day estimate
+    validations:
+      required: true

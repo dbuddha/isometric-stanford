@@ -1,0 +1,16 @@
+[package]
+name = "isometric-render"
+description = "Deterministic fixed-point CPU rendering for Isometric Stanford"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+isometric-core = { path = "../isometric-core", version = "0.1.0" }
+isometric-style = { path = "../isometric-style", version = "0.1.0" }
+isometric-world = { path = "../isometric-world", version = "0.1.0" }
+
+[lints]
+workspace = true

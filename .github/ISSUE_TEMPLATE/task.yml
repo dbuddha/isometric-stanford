@@ -1,0 +1,44 @@
+name: Task
+description: Focused executable leaf work under one approved Requirement
+title: "[Task] "
+labels: ["kind:task"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Parent Requirement
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: input
+    id: capability
+    attributes:
+      label: Parent Capability
+      placeholder: "#45"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: State the narrow implementation boundary and exclusions.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List exact tests, metrics, artifacts, and documentation updates.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and blocked-by relationships
+  - type: input
+    id: estimate
+    attributes:
+      label: Focused engineer-day estimate
+      description: Leaf work only. Clear this estimate if the task is decomposed.
+    validations:
+      required: true

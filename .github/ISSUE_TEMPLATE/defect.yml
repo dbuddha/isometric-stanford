@@ -1,0 +1,37 @@
+name: Defect
+description: Reproducible violation of an accepted contract
+title: "[Defect] "
+labels: ["kind:defect"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Affected Requirement
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior and reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected contract
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, hashes, screenshots, or traces
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: [Critical, High, Medium, Low]
+    validations:
+      required: true

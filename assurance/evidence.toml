@@ -1,0 +1,25 @@
+schema = "isometric-evidence/v1"
+
+[[claim]]
+id = "BOOT-DET-001"
+statement = "The original bootstrap fixture renders identical indexed bytes across repeated calls in one pinned process."
+evidence = ["cargo test -p isometric-render reference_render_is_byte_deterministic"]
+status = "implemented"
+
+[[claim]]
+id = "BOOT-STYLE-001"
+statement = "Every bootstrap pixel is an index into a palette containing at most 128 colors."
+evidence = ["cargo test -p isometric-render every_pixel_is_in_the_palette", "cargo test -p isometric-style"]
+status = "implemented"
+
+[[claim]]
+id = "BOOT-TRANSIENT-001"
+statement = "The v1 semantic enum and committed style assets cannot represent a person or vehicle."
+evidence = ["cargo test --workspace", "scripts/check-policy.sh"]
+status = "implemented"
+
+[[claim]]
+id = "VS-QUAL-001"
+statement = "The complete Stanford vertical slice satisfies all accepted qualification gates."
+evidence = []
+status = "not-implemented"

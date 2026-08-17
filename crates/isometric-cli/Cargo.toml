@@ -1,0 +1,21 @@
+[package]
+name = "isometric-cli"
+description = "Command-line orchestration for Isometric Stanford"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "isometric-stanford"
+path = "src/main.rs"
+
+[dependencies]
+isometric-render = { path = "../isometric-render", version = "0.1.0" }
+isometric-style = { path = "../isometric-style", version = "0.1.0" }
+isometric-validate = { path = "../isometric-validate", version = "0.1.0" }
+isometric-world = { path = "../isometric-world", version = "0.1.0" }
+
+[lints]
+workspace = true
