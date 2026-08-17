@@ -77,12 +77,13 @@ requires byte equality with the monolithic reference. The 250 millimeter scale
 probe renders the approximately 8K layout through the same bounded API. The
 publisher encodes each palette tile as lossless RGB WebP, derives lower levels
 from canonical indexed parents, records a complete hash chain, and atomically
-promotes the staged pyramid. General detailed roof grammar and the qualified
-art style remain unfinished layers.
+promotes the staged pyramid. Survey-derived roof geometry and the qualified art
+style remain unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, `validate release`, `render region`,
-`publish dzi`, `style candidate-a`, and `style candidate-b`. Source
+`publish dzi`, `style candidate-a`, `style candidate-b`, and `style
+candidate-c`. Source
 synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
 records before use. Hero compilation projects WGS84 vector geometry into
 EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
@@ -107,6 +108,15 @@ anchored in absolute projected coordinates. Four-tone tree crowns remain
 seeded by stable object IDs. Conservative roof bounds participate in spatial
 tile selection, and Candidate B guarded tiles must reconstruct the monolithic
 scene exactly.
+
+Candidate C is the final bounded style stage on the same raster architecture.
+It adds diagonal roof-tile accents in absolute projected coordinates so both
+hip and complex planar roofs receive seamless treatment. Stable object IDs
+select facade omissions, glazing tones, lintels, and door positions without
+runtime randomness. Hero openings use the Candidate C material ramp, while
+road and path accents use sparse world-anchored dash cadence. The monotonic
+detail-level enum prevents incompatible boolean combinations and keeps earlier
+candidate constructors byte-stable.
 
 The vector world currently contains 2,820 objects in 72 partitions. Its
 387,096 ppm unknown-cell result is expected because NAIP land cover and LiDAR

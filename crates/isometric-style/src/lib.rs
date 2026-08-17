@@ -13,6 +13,17 @@ pub struct Rgb8 {
     pub blue: u8,
 }
 
+/// Monotonic procedural-detail stage for independently reviewable candidates.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum DetailLevel {
+    /// Original landmark-only baseline.
+    Bootstrap,
+    /// Ordinary facade, roof, parking, and canopy detail.
+    CandidateB,
+    /// Final bounded roof, facade, landmark, and circulation treatment.
+    CandidateC,
+}
+
 /// Deterministic ordinary-scene grammar owned by the style pack.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct OrdinaryGrammar {
@@ -26,6 +37,8 @@ pub struct OrdinaryGrammar {
     pub building: [u8; 3],
     /// Two alternating detailed roof-plane indexes.
     pub roof_faces: [u8; 2],
+    /// World-anchored roof-tile accent index.
+    pub roof_pattern: u8,
     /// Light and dark facade-window indexes.
     pub windows: [u8; 2],
     /// Facade-door palette index.
@@ -36,6 +49,12 @@ pub struct OrdinaryGrammar {
     pub path: u8,
     /// Parking fill and world-anchored marking indexes.
     pub parking: [u8; 2],
+    /// Road center-marking palette index.
+    pub road_marking: u8,
+    /// Path edge-highlight palette index.
+    pub path_highlight: u8,
+    /// Facade accent palette index.
+    pub facade_accent: u8,
     /// Hard cast-shadow palette index.
     pub shadow: u8,
     /// One-logical-pixel outline palette index.
@@ -56,10 +75,12 @@ pub struct OrdinaryGrammar {
     pub athletic_dither_period: u8,
     /// Parking marking period in projected logical pixels.
     pub parking_line_period: u8,
-    /// Enables ordinary facade openings.
-    pub facade_details: bool,
-    /// Enables convex multi-plane roofs.
-    pub roof_details: bool,
+    /// Roof-tile cadence in projected logical pixels.
+    pub roof_pattern_period: u8,
+    /// Road and path marking cadence in projected logical pixels.
+    pub circulation_pattern_period: u8,
+    /// Monotonic procedural-detail stage.
+    pub detail_level: DetailLevel,
     /// Horizontal world-space spacing between facade bays.
     pub facade_bay_spacing_mm: i64,
     /// Vertical world-space spacing between facade floors.
@@ -143,11 +164,15 @@ impl StylePack {
                 athletic: [12, 13],
                 building: [5, 7, 6],
                 roof_faces: [5, 5],
+                roof_pattern: 5,
                 windows: [11, 11],
                 door: 11,
                 road: 9,
                 path: 8,
                 parking: [9, 9],
+                road_marking: 9,
+                path_highlight: 8,
+                facade_accent: 7,
                 shadow: 10,
                 outline: 11,
                 shadow_x_mm: 12_000,
@@ -158,8 +183,9 @@ impl StylePack {
                 terrain_dither_period: 16,
                 athletic_dither_period: 8,
                 parking_line_period: 24,
-                facade_details: false,
-                roof_details: false,
+                roof_pattern_period: 8,
+                circulation_pattern_period: 24,
+                detail_level: DetailLevel::Bootstrap,
                 facade_bay_spacing_mm: 6_000,
                 facade_floor_spacing_mm: 4_000,
                 window_mm: [2_200, 1_800],
@@ -208,8 +234,33 @@ impl StylePack {
         style.ordinary.tree_spacing_mm = 13_000;
         style.ordinary.tree_radius_mm = 5_800;
         style.ordinary.tree_height_mm = 13_000;
-        style.ordinary.facade_details = true;
-        style.ordinary.roof_details = true;
+        style.ordinary.detail_level = DetailLevel::CandidateB;
+        style
+    }
+
+    /// Returns the final bounded procedural Candidate C style iteration.
+    #[must_use]
+    pub fn stanford_v1_candidate_c() -> Self {
+        let mut style = Self::stanford_v1_candidate_b();
+        style.id = "stanford_v1.candidate_c.1";
+        style.palette.extend([
+            rgb(225, 128, 87),
+            rgb(167, 86, 62),
+            rgb(237, 221, 181),
+            rgb(194, 177, 142),
+            rgb(105, 124, 126),
+            rgb(125, 92, 68),
+        ]);
+        style.ordinary.roof_pattern = 27;
+        style.ordinary.facade_accent = 28;
+        style.ordinary.road_marking = 29;
+        style.ordinary.path_highlight = 30;
+        style.ordinary.windows = [19, 31];
+        style.ordinary.door = 32;
+        style.ordinary.roof_pattern_period = 7;
+        style.ordinary.circulation_pattern_period = 28;
+        style.ordinary.facade_bay_spacing_mm = 5_500;
+        style.ordinary.detail_level = DetailLevel::CandidateC;
         style
     }
 
@@ -241,6 +292,7 @@ impl StylePack {
             self.ordinary.building[2],
             self.ordinary.roof_faces[0],
             self.ordinary.roof_faces[1],
+            self.ordinary.roof_pattern,
             self.ordinary.windows[0],
             self.ordinary.windows[1],
             self.ordinary.door,
@@ -248,6 +300,9 @@ impl StylePack {
             self.ordinary.path,
             self.ordinary.parking[0],
             self.ordinary.parking[1],
+            self.ordinary.road_marking,
+            self.ordinary.path_highlight,
+            self.ordinary.facade_accent,
             self.ordinary.shadow,
             self.ordinary.outline,
         ];
@@ -263,6 +318,8 @@ impl StylePack {
             || self.ordinary.terrain_dither_period == 0
             || self.ordinary.athletic_dither_period == 0
             || self.ordinary.parking_line_period == 0
+            || self.ordinary.roof_pattern_period == 0
+            || self.ordinary.circulation_pattern_period == 0
             || self.ordinary.facade_bay_spacing_mm <= 0
             || self.ordinary.facade_floor_spacing_mm <= 0
             || self.ordinary.window_mm.into_iter().any(|value| value <= 0)
@@ -291,6 +348,26 @@ impl StylePack {
             return Err(StyleError::InvalidLandmarkGrammar);
         }
         Ok(())
+    }
+}
+
+impl OrdinaryGrammar {
+    /// Whether ordinary facade openings are enabled.
+    #[must_use]
+    pub fn facade_details(self) -> bool {
+        self.detail_level >= DetailLevel::CandidateB
+    }
+
+    /// Whether convex multi-plane roofs are enabled.
+    #[must_use]
+    pub fn roof_details(self) -> bool {
+        self.detail_level >= DetailLevel::CandidateB
+    }
+
+    /// Whether final bounded roof and surface patterns are enabled.
+    #[must_use]
+    pub fn candidate_c_details(self) -> bool {
+        self.detail_level >= DetailLevel::CandidateC
     }
 }
 
@@ -345,9 +422,22 @@ mod tests {
         let style = StylePack::stanford_v1_candidate_b();
         style.validate().expect("Candidate B must validate");
         assert_eq!(style.palette.len(), 27);
-        assert!(style.ordinary.facade_details);
-        assert!(style.ordinary.roof_details);
+        assert!(style.ordinary.facade_details());
+        assert!(style.ordinary.roof_details());
         assert_ne!(style.ordinary.parking[0], style.ordinary.road);
+    }
+
+    #[test]
+    fn candidate_c_is_valid_and_enables_final_bounded_details() {
+        let style = StylePack::stanford_v1_candidate_c();
+        style.validate().expect("Candidate C must validate");
+        assert_eq!(style.palette.len(), 33);
+        assert!(style.ordinary.candidate_c_details());
+        assert!(
+            !StylePack::stanford_v1_candidate_b()
+                .ordinary
+                .candidate_c_details()
+        );
     }
 
     #[test]

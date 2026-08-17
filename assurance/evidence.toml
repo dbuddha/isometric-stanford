@@ -97,6 +97,12 @@ evidence = ["cargo test -p isometric-style candidate_b_is_valid_and_enables_boun
 status = "implemented-not-approved"
 
 [[claim]]
+id = "PROTO-STYLE-C-001"
+statement = "Candidate C adds deterministic complex-roof surface treatment, object-stable facade variation, landmark materials, and semantic circulation accents while preserving Candidates A and B exactly."
+evidence = ["cargo test -p isometric-style candidate_c_is_valid_and_enables_final_bounded_details", "cargo test -p isometric-render candidate_c_adds_deterministic_bounded_style_treatment", "cargo test -p isometric-render guarded_tiles_reassemble_to_the_exact_full_scene", "cargo run --release --locked -- style candidate-c artifacts/style/candidate-c", "research/2026-08-17-style-candidate-c.md", "CI artifact deterministic-render-evidence"]
+status = "implemented-not-approved"
+
+[[claim]]
 id = "PROTO-WEB-POLICY-001"
 statement = "The OpenSeadragon viewer derives bounded decoded-tile cache counts from explicit mobile and desktop byte budgets and gives phone-width screens a legible initial view without changing Home behavior."
 evidence = ["npm --prefix web test -- --run", "web/src/viewer-policy.test.ts", "docs/chapters/web-delivery.md"]

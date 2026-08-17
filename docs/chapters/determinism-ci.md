@@ -39,11 +39,12 @@ scheduled release-only probe renders the complete 250 millimeter tile set,
 checks its aggregate `bf0604f68bc38d2c` hash, and enforces the per-tile pixel
 memory ceiling.
 
-Ordinary CI regenerates Candidates A and B from the same locked world and
+Ordinary CI regenerates Candidates A, B, and C from the same locked world and
 requires their indexed and encoded contact-sheet hashes to match the frozen
-review records. Candidate A therefore cannot drift while later grammar is
-added. Scheduled assurance also generates Candidate B twice and requires a
-recursive byte-for-byte artifact comparison.
+review records. Earlier candidates therefore cannot drift while later grammar
+is added. Scheduled assurance also generates Candidate C twice, recursively
+compares every artifact byte, and rechecks the encoded Candidate A and B
+hashes.
 
 The publisher uses pinned pure-Rust `image-webp` 0.2.4. Ordinary Rust tests
 publish the same fixture twice, compare every artifact byte, decode every WebP

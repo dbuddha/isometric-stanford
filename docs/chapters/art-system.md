@@ -55,3 +55,12 @@ pathological source complexity. Candidate A remains byte-identical,
 which makes the [Candidate B review
 record](https://github.com/dbuddha/isometric-stanford/blob/main/research/2026-08-17-style-candidate-b.md)
 a controlled comparison rather than a moving baseline.
+
+Candidate C is the final bounded procedural pass. It applies a restrained tile
+cadence to every roof material, including the complex planar fallback, varies
+ordinary openings from stable object identity, gives hero openings their own
+glazing and door materials, and distinguishes roads and paths with sparse
+world-anchored accents. Candidates A and B remain byte-identical. The
+[Candidate C review
+record](https://github.com/dbuddha/isometric-stanford/blob/main/research/2026-08-17-style-candidate-c.md)
+contains the final deterministic evidence and the remaining visual risks.

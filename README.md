@@ -49,14 +49,20 @@ qualified, and no map release has been published.
 Candidate A can now be generated as a complete visual-review pack. It proves
 the deterministic review boundary, but its recorded evidence shows that the
 art remains materially sparser and more diagrammatic than the intended
-Isometric NYC analogue. It is awaiting owner review and is not an approved
-style.
+Isometric NYC analogue. Its engineering evidence remains preserved, but it was
+rejected as the final style and is not approved.
 
 Candidate B addresses the measured first-pass deficiencies with deterministic
 ordinary windows, doors, convex hip roofs, a broader original material palette,
 denser varied canopy, and distinct parking grammar. It raises fixed-scene edge
 density by 15 to 50 percent while preserving Candidate A byte for byte. It is a
-review candidate, not an approved or published style.
+preserved, rejected review candidate, not an approved or published style.
+
+Candidate C is the final bounded procedural iteration. It adds world-anchored
+roof-tile cadence to simple and complex roofs, object-stable facade variation,
+clearer landmark openings, and restrained semantic circulation treatment. It
+preserves Candidates A and B byte for byte. Its engineering evidence is
+implemented, while the final visual decision remains pending.
 
 ## Development
 
@@ -132,13 +138,14 @@ Generate the four-scene Candidate A review pack:
 ```sh
 cargo run --release --locked -- style candidate-a artifacts/style/candidate-a
 cargo run --release --locked -- style candidate-b artifacts/style/candidate-b
+cargo run --release --locked -- style candidate-c artifacts/style/candidate-c
 ```
 
 The ignored output includes native WebP scenes, landmark masks, a contact
 sheet, indexed metrics, and known deviations. Hosted CI regenerates and uploads
 the same evidence. Candidate A is evidence for review, not a released style.
-Candidate B writes the same stable scene set so the two procedural iterations
-can be compared without crop drift.
+Candidates B and C write the same stable scene set so all three procedural
+iterations can be compared without crop drift.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the

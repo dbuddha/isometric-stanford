@@ -564,7 +564,7 @@ fn ordinary_roof_max_z(
     style: &StylePack,
     source_max_z: i64,
 ) -> Result<i64, RenderError> {
-    if object.class() != SemanticClass::Building || !style.ordinary.roof_details {
+    if object.class() != SemanticClass::Building || !style.ordinary.roof_details() {
         return Ok(source_max_z);
     }
     source_max_z
@@ -739,10 +739,10 @@ fn append_object(
             continue;
         }
         append_walls(output, polygon, object, style, view, &mut ordinal)?;
-        if style.ordinary.facade_details {
+        if style.ordinary.facade_details() {
             append_facade_details(output, polygon, object, style, view, &mut ordinal)?;
         }
-        if !style.ordinary.roof_details
+        if !style.ordinary.roof_details()
             || !append_hip_roof(output, polygon, object, style, view, &mut ordinal)?
         {
             let roof_rings = scene_rings(
@@ -831,8 +831,8 @@ fn append_facade_details(
     }
     let floor_count = ((height - 2_000) / style.ordinary.facade_floor_spacing_mm).clamp(1, 8);
     let mut detail_count = 0_usize;
-    'facades: for ring in polygon.rings() {
-        for edge in ring.points().windows(2) {
+    'facades: for (ring_index, ring) in polygon.rings().iter().enumerate() {
+        for (edge_index, edge) in ring.points().windows(2).enumerate() {
             let dx = edge[1].x_mm - edge[0].x_mm;
             let dy = edge[1].y_mm - edge[0].y_mm;
             let edge_length = dx.abs().max(dy.abs());
@@ -854,6 +854,10 @@ fn append_facade_details(
                     if detail_count == MAX_FACADE_QUADS_PER_OBJECT {
                         break 'facades;
                     }
+                    let variant = facade_variant(object.id(), ring_index, edge_index, floor, bay);
+                    if style.ordinary.candidate_c_details() && variant.is_multiple_of(13) {
+                        continue;
+                    }
                     let center = point_between(edge[0], edge[1], bay + 1, bay_count + 1)?;
                     let along_x = dx
                         .checked_mul(half_width)
@@ -863,58 +867,117 @@ fn append_facade_details(
                         .checked_mul(half_width)
                         .ok_or(RenderError::ArithmeticOverflow)?
                         / edge_length;
+                    let color = if style.ordinary.candidate_c_details() {
+                        style.ordinary.windows[usize::try_from(variant % 2).unwrap_or(0)]
+                    } else {
+                        window_color
+                    };
+                    let left =
+                        WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm);
+                    let right =
+                        WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm);
                     append_facade_quad(
                         output,
-                        WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm),
-                        WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm),
+                        left,
+                        right,
                         bottom + 50,
                         top + 50,
-                        window_color,
+                        color,
                         object.id(),
                         style,
                         view,
                         ordinal,
                     )?;
                     detail_count += 1;
+                    if style.ordinary.candidate_c_details()
+                        && variant.is_multiple_of(5)
+                        && detail_count < MAX_FACADE_QUADS_PER_OBJECT
+                        && top + 450 < height
+                    {
+                        append_facade_quad(
+                            output,
+                            left,
+                            right,
+                            top + 200,
+                            top + 450,
+                            style.ordinary.facade_accent,
+                            object.id(),
+                            style,
+                            view,
+                            ordinal,
+                        )?;
+                        detail_count += 1;
+                    }
                 }
             }
         }
     }
 
-    if let Some(edge) = polygon.rings()[0].points().windows(2).max_by_key(|edge| {
+    append_facade_door(output, polygon, object, style, view, ordinal)
+}
+
+fn append_facade_door(
+    output: &mut Vec<Triangle>,
+    polygon: &Polygon,
+    object: &WorldObject,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let height = i64::from(object.height_mm());
+    let edge = polygon.rings()[0].points().windows(2).max_by_key(|edge| {
         (edge[1].x_mm - edge[0].x_mm)
             .abs()
             .max((edge[1].y_mm - edge[0].y_mm).abs())
-    }) {
-        let dx = edge[1].x_mm - edge[0].x_mm;
-        let dy = edge[1].y_mm - edge[0].y_mm;
-        let edge_length = dx.abs().max(dy.abs());
-        if edge_length >= style.ordinary.door_mm[0] * 2 {
-            let center = point_between(edge[0], edge[1], 1, 2)?;
-            let half_width = style.ordinary.door_mm[0] / 2;
-            let along_x = dx
-                .checked_mul(half_width)
-                .ok_or(RenderError::ArithmeticOverflow)?
-                / edge_length;
-            let along_y = dy
-                .checked_mul(half_width)
-                .ok_or(RenderError::ArithmeticOverflow)?
-                / edge_length;
-            append_facade_quad(
-                output,
-                WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm),
-                WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm),
-                100,
-                style.ordinary.door_mm[1].min(height - 500),
-                style.ordinary.door,
-                object.id(),
-                style,
-                view,
-                ordinal,
-            )?;
-        }
+    });
+    let Some(edge) = edge else {
+        return Ok(());
+    };
+    let dx = edge[1].x_mm - edge[0].x_mm;
+    let dy = edge[1].y_mm - edge[0].y_mm;
+    let edge_length = dx.abs().max(dy.abs());
+    if edge_length < style.ordinary.door_mm[0] * 2 {
+        return Ok(());
     }
-    Ok(())
+    let (numerator, denominator) = if style.ordinary.candidate_c_details() {
+        (i64::from(object.id().variation(3)) + 1, 4)
+    } else {
+        (1, 2)
+    };
+    let center = point_between(edge[0], edge[1], numerator, denominator)?;
+    let half_width = style.ordinary.door_mm[0] / 2;
+    let along_x = dx
+        .checked_mul(half_width)
+        .ok_or(RenderError::ArithmeticOverflow)?
+        / edge_length;
+    let along_y = dy
+        .checked_mul(half_width)
+        .ok_or(RenderError::ArithmeticOverflow)?
+        / edge_length;
+    append_facade_quad(
+        output,
+        WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm),
+        WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm),
+        100,
+        style.ordinary.door_mm[1].min(height - 500),
+        style.ordinary.door,
+        object.id(),
+        style,
+        view,
+        ordinal,
+    )
+}
+
+fn facade_variant(object_id: ObjectId, ring: usize, edge: usize, floor: i64, bay: i64) -> u64 {
+    let ring = u64::try_from(ring).unwrap_or(u64::MAX);
+    let edge = u64::try_from(edge).unwrap_or(u64::MAX);
+    mix64(
+        object_id.get()
+            ^ ring.rotate_left(11)
+            ^ edge.rotate_left(23)
+            ^ floor.cast_unsigned().rotate_left(37)
+            ^ bay.cast_unsigned().rotate_left(49),
+    )
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1322,7 +1385,32 @@ fn apply_world_patterns(
         let absolute_y = y * scale - view.offset_y_subpx;
         let pattern =
             mix64(absolute_x.cast_unsigned().rotate_left(13) ^ absolute_y.cast_unsigned());
-        if *pixel == style.ordinary.terrain[0]
+        let logical_x = absolute_x.div_euclid(scale);
+        let logical_y = absolute_y.div_euclid(scale);
+        if style.ordinary.candidate_c_details()
+            && (style.ordinary.roof_faces.contains(pixel) || *pixel == style.ordinary.building[0])
+            && (logical_x - logical_y).rem_euclid(i64::from(style.ordinary.roof_pattern_period))
+                == 0
+            && (logical_x + logical_y).rem_euclid(4) < 2
+        {
+            *pixel = style.ordinary.roof_pattern;
+        } else if style.ordinary.candidate_c_details()
+            && *pixel == style.ordinary.road
+            && (logical_x + logical_y)
+                .rem_euclid(i64::from(style.ordinary.circulation_pattern_period) * 2)
+                == 0
+            && (logical_x - logical_y).rem_euclid(8) < 4
+        {
+            *pixel = style.ordinary.road_marking;
+        } else if style.ordinary.candidate_c_details()
+            && *pixel == style.ordinary.path
+            && (logical_x - logical_y)
+                .rem_euclid(i64::from(style.ordinary.circulation_pattern_period))
+                == 0
+            && (logical_x + logical_y).rem_euclid(6) < 2
+        {
+            *pixel = style.ordinary.path_highlight;
+        } else if *pixel == style.ordinary.terrain[0]
             && pattern.is_multiple_of(u64::from(style.ordinary.terrain_dither_period))
         {
             *pixel = style.ordinary.terrain[1];
@@ -1365,9 +1453,12 @@ fn apply_outlines(image: &mut IndexedImage, style: &StylePack) {
 
 fn outline_family(index: u8, style: &StylePack) -> u8 {
     if style.ordinary.building.contains(&index)
-        || (style.ordinary.roof_details && style.ordinary.roof_faces.contains(&index))
-        || (style.ordinary.facade_details
-            && (style.ordinary.windows.contains(&index) || index == style.ordinary.door))
+        || (style.ordinary.roof_details() && style.ordinary.roof_faces.contains(&index))
+        || (style.ordinary.candidate_c_details() && index == style.ordinary.roof_pattern)
+        || (style.ordinary.facade_details()
+            && (style.ordinary.windows.contains(&index)
+                || index == style.ordinary.door
+                || (style.ordinary.candidate_c_details() && index == style.ordinary.facade_accent)))
     {
         1
     } else if style.ordinary.canopy.contains(&index) {
@@ -1630,6 +1721,7 @@ mod tests {
         for style in [
             StylePack::stanford_v1(),
             StylePack::stanford_v1_candidate_b(),
+            StylePack::stanford_v1_candidate_c(),
         ] {
             let layout = render_layout(&compiled.world, &style).expect("layout");
             let full = render_world(&compiled.world, &style).expect("full render");
@@ -1704,6 +1796,28 @@ mod tests {
                 .iter()
                 .all(|color| first.pixels().contains(color))
         );
+    }
+
+    #[test]
+    fn candidate_c_adds_deterministic_bounded_style_treatment() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let style = StylePack::stanford_v1_candidate_c();
+        let first = render_world(&compiled.world, &style).expect("Candidate C renders");
+        let second = render_world(&compiled.world, &style).expect("Candidate C rerenders");
+        assert_eq!(first, second);
+        for color in [
+            style.ordinary.roof_pattern,
+            style.ordinary.facade_accent,
+            style.ordinary.road_marking,
+            style.ordinary.path_highlight,
+            style.ordinary.windows[1],
+            style.ordinary.door,
+        ] {
+            assert!(
+                first.pixels().contains(&color),
+                "missing palette index {color}"
+            );
+        }
     }
 
     #[test]
