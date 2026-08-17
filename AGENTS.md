@@ -76,13 +76,18 @@ must have a GitHub task with observable acceptance evidence before coding.
   artifacts. Source changes use `review:provenance`; measured hot-path changes
   use `review:performance`.
 - Squash merge only after `ci-pass` succeeds and conversations are resolved.
+- The agent may ready and squash-merge its own PR when every applicable
+  automated gate passes, required evidence is present, and no human-owned
+  decision below is implicated. Do not request routine merge approval.
 
 ## Human-owned decisions
 
-The owner must approve the initial `stanford_v1` style, global camera or palette
-changes, hero-landmark acceptance, source-rights exceptions, architecture
-expansion after a failed gate, final vertical-slice qualification, and release
-publication. Automation may prepare but may not publish a release.
+The owner must approve the initial final `stanford_v1` style, global palette
+changes, source-rights exceptions, architecture expansion after a failed gate,
+final vertical-slice qualification, and release publication. Engineering
+baselines, measured scale choices, dependencies, pull requests, and issue state
+may be accepted autonomously when their explicit gates pass. Automation may
+prepare but may not publish a release.
 
 ## Verification and done
 

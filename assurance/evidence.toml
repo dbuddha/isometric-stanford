@@ -91,6 +91,12 @@ evidence = ["npm --prefix web test -- --run", "web/src/viewer-policy.test.ts", "
 status = "implemented"
 
 [[claim]]
+id = "PROTO-PR-GATE-001"
+statement = "Hosted ci-pass rejects pull requests without a conventional title, required evidence sections, a linked issue, and exactly one release-impact label."
+evidence = ["python scripts/test_validate_pr.py", "scripts/validate_pr.py", ".github/workflows/ci.yml"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []
