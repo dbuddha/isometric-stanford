@@ -1,19 +1,20 @@
 # Data rights and provenance
 
-The production baseline is open data. Candidate sources are 2024 USDA NAIP
-imagery, 2020 Santa Clara County LiDAR, OpenStreetMap, Overture Buildings,
-Microsoft US Building Footprints, and owner-approved Stanford references. Each
-exact release requires a Research issue and a source-lock record before use.
+The production baseline is open data. The prototype source families are 2024
+USDA NAIP imagery, approved 2020 Santa Clara County or USGS LiDAR,
+OpenStreetMap, Overture 2026-06-17.0 Buildings, and original owner-approved
+Stanford overrides. Each exact artifact requires a source-lock record before
+use. Overture already incorporates complementary open building sources, so the
+prototype does not ingest a separate Microsoft footprint layer.
 
 Source precedence is:
 
 1. Approved authoritative Stanford data
 2. OpenStreetMap and Overture
-3. Microsoft building footprints
-4. LiDAR-derived geometry
-5. NAIP semantic predictions
-6. Heuristics
-7. Explicit unknown
+3. LiDAR-derived geometry
+4. NAIP semantic predictions
+5. Deterministic heuristics
+6. Explicit unknown
 
 Google content is not approved. Written permission must explicitly authorize
 retrieval, derivative production, storage, and public redistribution before a

@@ -7,20 +7,19 @@ renderer turns that world into crisp, late-1990s city-builder-style pixel art,
 then a static OpenSeadragon viewer serves a DZI/WebP pyramid efficiently on
 desktop and mobile.
 
-The project begins with a qualification slice bounded by:
+The project now begins with a prototype hero area bounded by:
 
 | Edge | Coordinate |
 | --- | ---: |
-| West | -122.1900 |
-| East | -122.1580 |
-| South | 37.4195 |
-| North | 37.4375 |
+| West | -122.1722 |
+| East | -122.1653 |
+| South | 37.4245 |
+| North | 37.4299 |
 
-The slice includes Lake Lagunita, the Main Quad, Memorial Church, Hoover Tower,
-central campus, Stanford Stadium, parking, paths, athletic surfaces, dense
-vegetation, and dry terrain. Full-estate work will not begin until this slice
-passes semantic, visual, determinism, seam, performance, provenance, and web
-qualification.
+The continuous approximately 600 by 600 meter prototype contains Hoover Tower,
+the Main Quad, Memorial Church, roads, paths, ordinary campus buildings, and
+vegetation. It must prove the complete deterministic source-to-browser path
+before the original 2.8 by 2.0 kilometer qualification slice resumes.
 
 ## Non-negotiable boundaries
 
@@ -37,8 +36,9 @@ qualification.
 
 ## Status
 
-Repository foundation is established. Vertical-slice implementation is in progress, and the slice is not yet qualified
-and no map release has been published.
+Repository foundation and the prototype-first delivery model are established.
+Source compilation and production rendering are not implemented, the prototype
+is not qualified, and no map release has been published.
 
 ## Development
 

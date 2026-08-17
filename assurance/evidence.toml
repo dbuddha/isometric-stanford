@@ -23,3 +23,15 @@ id = "VS-QUAL-001"
 statement = "The complete Stanford vertical slice satisfies all accepted qualification gates."
 evidence = []
 status = "not-implemented"
+
+[[claim]]
+id = "PROTO-CONTRACT-001"
+statement = "The exact hero bounds, epoch, source roles, Google exclusion, visual comparison protocol, and stop conditions are versioned and policy-validated."
+evidence = ["source.lock.json", "ADR 0004", "ADR 0005", "research/2026-08-17-prototype-source-contract.md", "python scripts/validate_manifests.py"]
+status = "implemented"
+
+[[claim]]
+id = "PROTO-QUAL-001"
+statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
+evidence = []
+status = "not-implemented"

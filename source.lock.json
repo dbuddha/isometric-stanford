@@ -1,11 +1,13 @@
 {
   "schema": "isometric-source-lock/v1",
+  "region_id": "stanford-hero-v1",
   "slice": {
-    "west": -122.1900,
-    "east": -122.1580,
-    "south": 37.4195,
-    "north": 37.4375,
-    "epoch_policy": "pending D-001"
+    "west": -122.1722,
+    "east": -122.1653,
+    "south": 37.4245,
+    "north": 37.4299,
+    "guard_meters": 50,
+    "epoch_policy": "prototype epoch 2026-08-17; retain each source acquisition date and expose temporal disagreement"
   },
   "sources": [],
   "status": "unqualified",

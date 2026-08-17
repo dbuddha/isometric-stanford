@@ -1,9 +1,9 @@
 # Visual qualification
 
-The canonical scene set covers Hoover Tower, Main Quad, Memorial Church, Green
-Library, Stanford Stadium, athletic surfaces, dense broadleaf canopy, sparse
-landscaped trees, Lake Lagunita shoreline, dry terrain, roads and parking, and
-mixed-height campus buildings.
+The prototype scene set covers Hoover Tower, Memorial Church and the Main Quad,
+roads and empty parking, and dense canopy with mixed ordinary buildings. The
+later qualification set adds Green Library, Stanford Stadium, athletic
+surfaces, sparse landscaped trees, Lake Lagunita shoreline, and dry terrain.
 
 Every candidate produces native-resolution scene images, a full contact sheet,
 palette report, silhouette masks, edge-frequency and detail-density metrics,
