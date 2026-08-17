@@ -15,7 +15,8 @@ roofs, materials, confidence, provenance, reviewed overrides, fixed
 EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
 has no transient people or vehicle variants. `isometric-style` owns the bounded
 indexed palette and projection scales. `isometric-render` owns the
-deterministic CPU reference projection and bootstrap raster.
+deterministic CPU reference projection, bootstrap grammar, and bounded
+fixed-point triangle and integer-depth raster core.
 `isometric-validate` owns fail-closed semantic and style checks.
 `isometric-cli` exposes the complete planned command names, verifies and
 compiles the vector hero world, executes reference rendering and validation,
@@ -43,11 +44,15 @@ flowchart LR
     publish -. "static release" .-> web
 ```
 
-The current renderer is an original deterministic reference grammar of
-world-anchored diamonds and columns. It proves fixed-point 2:1 projection,
-stable-ID variation, bounded indexed images, palette-only output, and byte
-repeatability. It is not the production triangle rasterizer, depth buffer,
-guarded-supertile renderer, landmark system, or qualified art style.
+The original reference grammar still renders world-anchored diamonds and
+columns. The production raster core now accepts one canonical triangle batch,
+sorts it by stable primitive key, clips work to the bounded viewport, applies a
+half-open shared-edge rule at fixed pixel centers, interpolates integer depth,
+and writes palette indices only when depth is closer. Equal-depth fragments
+retain the lower stable key without an owner buffer. A tile owns exactly one
+palette byte and one 32-bit depth value per pixel. World-to-triangle scene
+construction, guarded supertiles, landmarks, and the qualified art style remain
+separate unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, and `render region`. Source
@@ -81,7 +86,8 @@ release is committed or published.
    Holes and multipolygon components may not cross or overlap.
 4. Style palettes contain 1 to 128 colors. Every saved pixel is a palette
    index before encoding.
-5. Output dimensions are non-zero and at most 16,384 pixels per image.
+5. Reference-output dimensions are non-zero and at most 16,384 pixels per
+   image. Production raster surfaces are capped at 4,096 pixels per side.
 6. Projection arithmetic checks overflow and fails without partial output.
 7. Final renderable semantic types cannot express people or vehicles.
 8. Unknown semantic objects fail qualification instead of becoming invented
@@ -117,7 +123,7 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- Production triangle rasterization, depth, occlusion, shadows, outlines,
+- World-to-triangle pass composition, occlusion policy, shadows, outlines,
   dithering, guarded supertiles, and seam oracle
 - Landmark and vegetation grammar
 - DZI/WebP publication

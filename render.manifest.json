@@ -1,6 +1,6 @@
 {
   "schema": "isometric-render-manifest/v1",
-  "status": "bootstrap-fixture-only",
+  "status": "raster-core-only",
   "renderer": "isometric-render 0.1.0",
   "canonical_platform": "x86_64-unknown-linux-gnu",
   "outputs": [],
