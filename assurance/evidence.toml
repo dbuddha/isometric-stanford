@@ -85,6 +85,12 @@ evidence = ["cargo test -p isometric-render all_three_landmark_grammars_emit_dis
 status = "implemented-not-approved"
 
 [[claim]]
+id = "PROTO-WEB-POLICY-001"
+statement = "The OpenSeadragon viewer derives bounded decoded-tile cache counts from explicit mobile and desktop byte budgets and gives phone-width screens a legible initial view without changing Home behavior."
+evidence = ["npm --prefix web test -- --run", "web/src/viewer-policy.test.ts", "docs/chapters/web-delivery.md"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []

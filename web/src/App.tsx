@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type OpenSeadragon from "openseadragon";
 
-const RELEASE_DZI = import.meta.env.VITE_DZI_URL as string | undefined;
+import { viewerPolicy } from "./viewer-policy";
 
-function cacheLimit(): number {
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  return memory !== undefined && memory <= 4 ? 48 : 128;
-}
+const RELEASE_DZI = import.meta.env.VITE_DZI_URL as string | undefined;
 
 export function App() {
   const host = useRef<HTMLDivElement>(null);
@@ -23,6 +20,9 @@ export function App() {
       if (disposed || !host.current) {
         return;
       }
+      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const policy = viewerPolicy(window.innerWidth, memory, coarsePointer);
       const instance = createViewer({
         element: host.current,
         tileSources: RELEASE_DZI,
@@ -30,7 +30,7 @@ export function App() {
         showNavigationControl: false,
         showNavigator: false,
         imageSmoothingEnabled: false,
-        maxImageCacheCount: cacheLimit(),
+        maxImageCacheCount: policy.maxImageCacheCount,
         immediateRender: false,
         blendTime: 0.08,
         animationTime: 0.45,
@@ -41,7 +41,13 @@ export function App() {
           flickEnabled: true,
         },
       });
-      instance.addHandler("open", () => setStatus("Artwork ready"));
+      instance.addHandler("open", () => {
+        if (policy.initialZoomFactor > 1) {
+          instance.viewport.zoomBy(policy.initialZoomFactor);
+          instance.viewport.applyConstraints();
+        }
+        setStatus("Artwork ready");
+      });
       instance.addHandler("open-failed", () => setStatus("Artwork unavailable. Retry shortly."));
       viewer.current = instance;
     });

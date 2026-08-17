@@ -5,6 +5,16 @@ OpenSeadragon owns pan, zoom, pinch, tile selection, and cache integration. The
 application owns release metadata, accessibility, responsive controls, cache
 budgets, missing-tile behavior, context recovery, attribution, and observability.
 
+The cache policy treats phone-width, coarse-pointer, and low-memory devices as
+constrained even when the nonstandard `deviceMemory` browser property is
+unavailable. It permits 48 decoded 512-pixel RGBA tiles on constrained devices
+and 128 on capable desktop screens. Those images consume at most 48 MiB and 128
+MiB respectively, leaving half of the accepted 96 MiB mobile and 256 MiB
+desktop budgets for OpenSeadragon, canvas or WebGL copies, and browser
+bookkeeping. A phone-width screen begins at 2.25 times the full-map home zoom so
+the wide hero scene is legible, while the Home control still returns to the
+complete artwork.
+
 The viewer disables image smoothing above native scale and avoids a continuous
 render loop. It adapts decoded cache capacity to the device memory budget,
 prefers current-view requests, cancels stale work, and displays a recoverable
