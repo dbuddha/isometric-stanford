@@ -1,8 +1,27 @@
 {
   "schema": "isometric-world-manifest/v1",
-  "status": "bootstrap-fixture-only",
-  "semantic_version": "0.1.0",
-  "partitions": [],
-  "unknown_fraction": null,
+  "status": "prototype-vector-world",
+  "semantic_version": "0.2.0",
+  "region_id": "stanford-hero-v1",
+  "world_sha256": "f3a6a16e1a32a5272dbc0fe7e03163c27762ca94769e7753229a1e124ec7d5a0",
+  "object_count": 2820,
+  "partition_count": 72,
+  "unknown_fraction_ppm": 387096,
+  "source_sha256": {
+    "osm-2026-07-15-hero": "0ec274128b61387e5b28c8aac4e15bcf2a2199af71c04240fafbee1f2efc585f",
+    "overture-2026-06-17-buildings": "eeba6bbf6a6382db1339cdfaff44d362b43aa250c059bc7f43a0b369ce5cd5e9"
+  },
+  "deferred_source_ids": [
+    "naip-2024-hero",
+    "usgs-lidar-07509800",
+    "usgs-lidar-07509825",
+    "usgs-lidar-07759800",
+    "usgs-lidar-07759825"
+  ],
+  "landmarks": [
+    "Hoover Tower",
+    "Main Quad",
+    "Memorial Church"
+  ],
   "dirty_bounds": []
 }

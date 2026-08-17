@@ -37,10 +37,12 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 ## Status
 
 Repository foundation and the prototype-first delivery model are established.
-Approved prototype sources can now be synchronized into a verified local
-content cache, and the validated polygonal canonical-world contract is
-implemented. Hero source fusion and production rendering are not implemented,
-the prototype is not qualified, and no map release has been published.
+The Rust compiler now turns the locked OSM and Overture vectors into a
+deterministic, inspectable hero world. The current artifact contains 2,820
+objects across 72 spatial partitions, including measured Hoover Tower geometry
+and OSM geometry for Memorial Church. NAIP and LiDAR evidence, production
+rendering, and publication remain unfinished. The prototype is not qualified,
+and no map release has been published.
 
 ## Development
 
@@ -72,8 +74,21 @@ transfer, into the ignored content-addressed cache:
 cargo run --locked -- source sync
 ```
 
-Remaining CLI command names are reserved and fail closed until their tracked
-implementation tasks merge. See the
+Compile and inspect the current vector-only hero world:
+
+```sh
+cargo run --release --locked -- world compile
+cargo run --locked -- world inspect
+```
+
+Compilation verifies every locked source before use and writes ignored
+artifacts under `artifacts/world/`. The committed `world.manifest.json` freezes
+the expected vector-world hash and reports 387,096 ppm unknown coverage. That
+large unknown fraction is deliberate evidence that NAIP and LiDAR compilation
+must happen before qualification.
+
+Other remaining CLI command names are reserved and fail closed until their
+tracked implementation tasks merge. See the
 [engineering guide](https://dbuddha.github.io/isometric-stanford/) and
 [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented boundary.
 

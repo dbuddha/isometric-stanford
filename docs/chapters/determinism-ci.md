@@ -18,3 +18,11 @@ traces run when selected by risk or schedule.
 
 CI must not rerun a failed job until the cause is understood, weaken a threshold
 to obtain green status, or treat hosted timing as fixed-device qualification.
+
+The hero compiler runs twice in the Rust test suite and compares complete JSON
+bytes. The second comparison checks the generated manifest against the
+committed `world.manifest.json`, which pins the world SHA-256 and both vector
+source SHA-256 values. On the measured development machine, a release build
+compiled 2,820 objects using approximately 16 MB maximum resident memory after
+the one-time Rust build. Source verification is streamed separately with a 64
+KiB copy buffer.

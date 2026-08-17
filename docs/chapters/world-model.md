@@ -36,3 +36,23 @@ The portable contract fixture in `fixtures/world/representative.json` freezes
 the first polygon, hole, multipolygon, building-part, confidence, source, and
 unknown examples and is parsed directly by the Rust world model. Its companion
 negative fixtures prove that undeclared provenance fails closed.
+
+## Hero vector compilation
+
+`isometric-stanford world compile` verifies the complete locked source bundle,
+then compiles the OSM and Overture vector artifacts. It uses Overture as the
+primary building-footprint and height source, enriches matching features with
+OSM names, floors, and roof tags, and uses nonduplicated OSM buildings as a
+fallback. OSM ways become deterministic roads, paths, parking, water, athletic
+surfaces, vegetation, and mapped terrain. Construction-tagged ways are omitted.
+
+WGS84 coordinates are projected into UTM zone 10N and rounded once into local
+integer millimeters. Rasterization never receives longitude, latitude, or
+floating-point world coordinates. Object IDs use a stable source-identity hash,
+not collection position, and compilation order cannot change canonical output.
+
+The current vector-only hero world has 2,820 objects in 72 partitions. A 20
+meter review grid marks cells without accepted vector surface evidence as
+unknown, producing 387,096 ppm unknown coverage. This is a progress metric, not
+a qualification claim. The committed manifest explicitly defers NAIP and four
+LiDAR tiles to the later perception and terrain compiler.

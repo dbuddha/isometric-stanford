@@ -1,5 +1,9 @@
 //! Immutable polygonal semantic-world contracts with no transient classes.
 
+mod compiler;
+
+pub use compiler::{CompileReport, CompiledHero, compile_hero};
+
 use std::{
     collections::{BTreeMap, BTreeSet},
     error::Error,
@@ -10,6 +14,7 @@ use isometric_core::{ObjectId, WorldPoint};
 use serde::Deserialize;
 
 const FIXTURE_SCHEMA: &str = "isometric-world-fixture/v1";
+const ARTIFACT_SCHEMA: &str = "isometric-world/v1";
 const PARTITION_SIZE_MM: i64 = 128_000;
 const MAX_PARTITIONS_PER_OBJECT: usize = 4_096;
 const MAX_RING_POINTS: usize = 2_049;
@@ -477,6 +482,8 @@ impl WorldOrigin {
 pub struct WorldObjectInput {
     /// Stable source-derived identity.
     pub id: ObjectId,
+    /// Optional source-provided display name used for inspection and landmarks.
+    pub name: Option<String>,
     /// Permanent renderable semantic class.
     pub class: SemanticClass,
     /// Polygonal local-millimeter geometry.
@@ -505,6 +512,7 @@ pub struct WorldObjectInput {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WorldObject {
     id: ObjectId,
+    name: Option<String>,
     class: SemanticClass,
     geometry: Geometry,
     height_mm: u32,
@@ -529,6 +537,13 @@ impl WorldObject {
     /// Returns an error for invalid metadata, source ordering, extents, or
     /// incompatible class-specific fields.
     pub fn try_new(mut input: WorldObjectInput) -> Result<Self, WorldError> {
+        if input
+            .name
+            .as_deref()
+            .is_some_and(|name| name.trim().is_empty() || name.len() > 256)
+        {
+            return Err(WorldError::Invalid("object name is empty or too long"));
+        }
         if input.source_ids.is_empty() {
             return Err(WorldError::Invalid("world object requires provenance"));
         }
@@ -574,6 +589,7 @@ impl WorldObject {
         let radius_mm = derive_radius_mm(bounds)?;
         Ok(Self {
             id: input.id,
+            name: input.name,
             class: input.class,
             geometry: input.geometry,
             height_mm: input.height_mm,
@@ -601,6 +617,12 @@ impl WorldObject {
     #[must_use]
     pub const fn id(&self) -> ObjectId {
         self.id
+    }
+
+    /// Returns the optional source-provided name.
+    #[must_use]
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 
     /// Returns the permanent semantic class.
@@ -772,13 +794,38 @@ impl World {
     pub fn from_fixture_json(json: &str) -> Result<Self, WorldError> {
         let fixture: RawFixture = serde_json::from_str(json)?;
         if fixture.schema != FIXTURE_SCHEMA
-            || fixture.license != "CC-BY-4.0"
+            || fixture.license.as_deref() != Some("CC-BY-4.0")
             || fixture.crs != "local integer millimeters derived from EPSG:26910"
             || fixture.contains_source_pixels
             || fixture.contains_transients
         {
             return Err(WorldError::Invalid("fixture policy metadata is invalid"));
         }
+        Self::from_raw(fixture)
+    }
+
+    /// Decodes and validates a compiled portable world artifact.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for malformed JSON, the wrong hero region, source
+    /// pixels or transients, or any invalid world invariant.
+    pub fn from_artifact_json(json: &str) -> Result<Self, WorldError> {
+        let artifact: RawFixture = serde_json::from_str(json)?;
+        if artifact.schema != ARTIFACT_SCHEMA
+            || artifact.region_id.as_deref() != Some("stanford-hero-v1")
+            || artifact.crs != "local integer millimeters derived from EPSG:26910"
+            || artifact.contains_source_pixels
+            || artifact.contains_transients
+        {
+            return Err(WorldError::Invalid(
+                "world artifact policy metadata is invalid",
+            ));
+        }
+        Self::from_raw(artifact)
+    }
+
+    fn from_raw(fixture: RawFixture) -> Result<Self, WorldError> {
         let origin = WorldOrigin::new(
             fixture.origin.epsg,
             fixture.origin.easting_mm,
@@ -849,6 +896,7 @@ impl World {
             };
             WorldObject::try_new(WorldObjectInput {
                 id: ObjectId::new(id).expect("fixture IDs are nonzero"),
+                name: None,
                 class,
                 geometry: rectangle(x_mm, y_mm, z_mm, radius_mm)
                     .expect("fixture rectangles are valid"),
@@ -918,7 +966,10 @@ impl From<serde_json::Error> for WorldError {
 #[derive(Deserialize)]
 struct RawFixture {
     schema: String,
-    license: String,
+    #[serde(default)]
+    license: Option<String>,
+    #[serde(default)]
+    region_id: Option<String>,
     crs: String,
     origin: RawOrigin,
     contains_source_pixels: bool,
@@ -945,6 +996,8 @@ struct RawSource {
 #[derive(Deserialize)]
 struct RawFeature {
     id: u64,
+    #[serde(default)]
+    name: Option<String>,
     class: SemanticClass,
     geometry: RawGeometry,
     #[serde(default)]
@@ -983,6 +1036,7 @@ impl TryFrom<RawFeature> for WorldObject {
     fn try_from(raw: RawFeature) -> Result<Self, Self::Error> {
         Self::try_new(WorldObjectInput {
             id: ObjectId::new(raw.id).map_err(|_| WorldError::Invalid("object ID is reserved"))?,
+            name: raw.name,
             class: raw.class,
             geometry: raw.geometry.try_into()?,
             height_mm: raw.height_mm,

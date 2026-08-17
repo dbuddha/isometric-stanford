@@ -17,8 +17,9 @@ has no transient people or vehicle variants. `isometric-style` owns the bounded
 indexed palette and projection scales. `isometric-render` owns the
 deterministic CPU reference projection and bootstrap raster.
 `isometric-validate` owns fail-closed semantic and style checks.
-`isometric-cli` exposes the complete planned command names,
-executes reference rendering and validation, and rejects unfinished commands.
+`isometric-cli` exposes the complete planned command names, verifies and
+compiles the vector hero world, executes reference rendering and validation,
+and rejects unfinished commands.
 
 ```mermaid
 flowchart LR
@@ -32,7 +33,7 @@ flowchart LR
     web["OpenSeadragon viewer shell"]
 
     source -. "future semantic extraction" .-> perception
-    source -. "future vector compile" .-> world
+    source -->|"locked OSM + Overture"| world
     perception -. "future fusion" .-> world
     world --> render
     style --> render
@@ -48,12 +49,22 @@ stable-ID variation, bounded indexed images, palette-only output, and byte
 repeatability. It is not the production triangle rasterizer, depth buffer,
 guarded-supertile renderer, landmark system, or qualified art style.
 
-The CLI currently implements `source sync`, `validate semantic`, `validate
-render`, and `render region`. Source synchronization rejects unapproved,
-mis-hashed, insecure, or Google-derived records before use. All other
+The CLI currently implements `source sync`, `world compile`, `world inspect`,
+`validate semantic`, `validate render`, and `render region`. Source
+synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
+records before use. Hero compilation projects WGS84 vector geometry into
+EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
+derives stable content IDs, normalizes buildings and buffered road segments,
+and records uncovered 20 meter cells as explicit unknowns. All other
 documented command names fail with an explicit not-implemented error. This
-prevents scaffolding from being mistaken for a working semantic ingestion or
-publication pipeline.
+prevents the working vector compiler from being mistaken for completed
+perception, rendering, or publication.
+
+The vector world currently contains 2,820 objects in 72 partitions. Its
+387,096 ppm unknown-cell result is expected because NAIP land cover and LiDAR
+terrain and canopy have not been compiled. The manifest names those five
+deferred inputs explicitly. OSM construction features are omitted, and neither
+the schema nor the compiler can emit people or vehicles.
 
 The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
@@ -93,16 +104,19 @@ flowchart LR
     rm --> rel["release.json"]
 ```
 
-Bootstrap manifests deliberately describe an unqualified state. The manifest
-validator rejects malformed hashes, wrong slice bounds, unknown schema
-versions, and a release marked published before qualification.
+The source and world manifests now form the first verified production segment
+of the artifact chain. The world manifest pins both vector source hashes and
+the canonical generated world hash. The manifest validator rejects malformed
+hashes, mismatched source inputs, unaccounted deferred inputs, wrong bounds,
+unknown schemas, and a release marked published before qualification.
 
 ## Not implemented
 
 - Object storage and resumable remote acquisition
-- OSM, Overture, NAIP, or LiDAR semantic ingestion
+- NAIP or LiDAR semantic ingestion
 - Perception model execution and correction workflow
-- Source fusion, confidence, dirty-region propagation, and unknown accounting
+- Raster evidence fusion, dirty-region propagation, and qualification-level
+  unknown resolution
 - Production triangle rasterization, depth, occlusion, shadows, outlines,
   dithering, guarded supertiles, and seam oracle
 - Landmark and vegetation grammar
