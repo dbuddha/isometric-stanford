@@ -45,3 +45,10 @@ back to approved palette colors, and prove corrupt bytes fail validation.
 Scheduled assurance compiles the locked hero world, publishes two clean
 pyramids, validates both complete hash chains, and requires a recursive
 byte-for-byte directory comparison.
+
+The ordinary web gate runs desktop and mobile Playwright checks against a
+minimal lossless DZI, including descriptor retry, exhausted tile retry, Canvas
+context restoration, keyboard-accessible controls, and painted output. The
+scheduled browser gate replaces that fixture with a newly compiled complete
+hero pyramid. This separates fast recovery-contract feedback from full-artifact
+integration evidence.
