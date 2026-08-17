@@ -5,8 +5,10 @@ GitHub issues and mdBook design chapters until code makes it current.
 
 ## Implemented bootstrap
 
-The Rust workspace contains six safe-Rust crates with a one-way dependency
-graph. `isometric-core` owns validated IDs, integer world coordinates, fixed
+The Rust workspace contains seven safe-Rust crates with a one-way dependency
+graph. `isometric-source` validates the approved source lock and synchronizes
+content-addressed artifacts through a bounded-memory cache. `isometric-core`
+owns validated IDs, integer world coordinates, fixed
 screen coordinates, and palette indexes. `isometric-world` owns a sorted,
 immutable semantic object list whose class enum intentionally has no transient
 people or vehicle variants. `isometric-style` owns the bounded indexed palette
@@ -17,7 +19,7 @@ executes reference rendering and validation, and rejects unfinished commands.
 
 ```mermaid
 flowchart LR
-    source["Approved source records"]
+    source["isometric-source\napproved content cache"]
     perception["Pinned perception artifacts"]
     world["isometric-world\nimmutable semantic objects"]
     style["isometric-style\noriginal procedural rules"]
@@ -26,7 +28,8 @@ flowchart LR
     publish["DZI/WebP publisher\nnot implemented"]
     web["OpenSeadragon viewer shell"]
 
-    source -. "future compiler" .-> perception
+    source -. "future semantic extraction" .-> perception
+    source -. "future vector compile" .-> world
     perception -. "future fusion" .-> world
     world --> render
     style --> render
@@ -42,10 +45,12 @@ stable-ID variation, bounded indexed images, palette-only output, and byte
 repeatability. It is not the production triangle rasterizer, depth buffer,
 guarded-supertile renderer, landmark system, or qualified art style.
 
-The CLI currently implements `validate semantic`, `validate render`, and
-`render region`. All other documented command names fail with an explicit
-not-implemented error. This prevents scaffolding from being mistaken for a
-working ingestion or publication pipeline.
+The CLI currently implements `source sync`, `validate semantic`, `validate
+render`, and `render region`. Source synchronization rejects unapproved,
+mis-hashed, insecure, or Google-derived records before use. All other
+documented command names fail with an explicit not-implemented error. This
+prevents scaffolding from being mistaken for a working semantic ingestion or
+publication pipeline.
 
 The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
@@ -89,8 +94,8 @@ versions, and a release marked published before qualification.
 
 ## Not implemented
 
-- Network source retrieval and object storage
-- OSM, Overture, Microsoft, NAIP, or LiDAR ingestion
+- Object storage and resumable remote acquisition
+- OSM, Overture, NAIP, or LiDAR semantic ingestion
 - Perception model execution and correction workflow
 - Source fusion, confidence, dirty-region propagation, and unknown accounting
 - Production triangle rasterization, depth, occlusion, shadows, outlines,
