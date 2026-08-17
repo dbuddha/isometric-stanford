@@ -4,12 +4,13 @@ use isometric_core::{ObjectId, WorldPoint};
 use isometric_style::StylePack;
 use isometric_world::{Polygon, SemanticClass, WorldObject};
 
-use super::{Viewport, append_polygon_fill, push_triangle, scene_rings, scene_vertex};
+use super::{
+    MAIN_QUAD_OBJECT_ID, Viewport, append_polygon_fill, push_triangle, scene_rings, scene_vertex,
+};
 use crate::{RasterVertex, RenderError, Triangle};
 
 const PASS_LANDMARK: u8 = 6;
 const PASS_DETAIL: u8 = 7;
-const MAIN_QUAD_OBJECT_ID: u64 = 7_375_667_649_447_908_307;
 
 /// Replaces an ordinary extrusion when the source object names a hero landmark.
 pub(super) fn append_hero_landmark(

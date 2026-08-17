@@ -90,6 +90,18 @@ pub struct PublishReport {
     pub tile_set_sha256: String,
 }
 
+/// Encodes one indexed image as deterministic lossless RGB WebP.
+///
+/// # Errors
+///
+/// Returns an error when a pixel is outside the supplied palette or encoding fails.
+pub fn encode_lossless_webp(
+    image: &IndexedImage,
+    palette: &[Rgb8],
+) -> Result<Vec<u8>, PublishError> {
+    encode_webp(&RawTile::from_image(image), palette)
+}
+
 /// Publishes a lossless WebP DZI and canonical indexed level tiles.
 ///
 /// The maximum level is rendered as independently guarded tiles. Every lower

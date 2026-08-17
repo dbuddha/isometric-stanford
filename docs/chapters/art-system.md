@@ -36,3 +36,13 @@ Tower, Memorial Church and the Main Quad, roads and empty parking, and dense
 canopy with mixed ordinary buildings. The later qualification slice expands to
 twelve scenes. Automated metrics constrain drift, but the owner decides whether
 the art is compelling enough to continue.
+
+Candidate A is implemented as a reproducible review artifact, not an approved
+style. It demonstrates the complete deterministic crop, mask, metric, and
+contact-sheet workflow. Its measured detail density and tonal variation remain
+well below the live reference, while ordinary roofs, facade cadence, canopy
+variation, and parking legibility remain visibly incomplete. The versioned
+[review record](https://github.com/dbuddha/isometric-stanford/blob/main/research/2026-08-17-style-candidate-a.md)
+recommends using
+Candidate B to correct those art-system deficiencies without changing the
+world, renderer, DZI, or viewer boundaries.

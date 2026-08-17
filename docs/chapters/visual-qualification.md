@@ -14,3 +14,10 @@ The owner approves the initial style, hero silhouettes, global palette or
 camera changes, and the final qualification. Three deliberate style iterations
 are allowed. A failed third review triggers a continue, pivot, or stop decision.
 Manual painting of individual saved tiles is disqualifying.
+
+Candidate A is the first implementation of this contract. CI regenerates its
+four scenes, contact sheet, landmark masks, metrics, and deviations from locked
+inputs and uploads them as review evidence. Its engineering evidence is
+implemented, while style and landmark approval remain explicitly pending. The
+current project recommendation is to reject A as the final style and proceed to
+the bounded Candidate B iteration.

@@ -136,12 +136,14 @@ dependencies = [
 name = "isometric-cli"
 version = "0.1.0"
 dependencies = [
+ "isometric-core",
  "isometric-publish",
  "isometric-render",
  "isometric-source",
  "isometric-style",
  "isometric-validate",
  "isometric-world",
+ "serde_json",
 ]
 
 [[package]]

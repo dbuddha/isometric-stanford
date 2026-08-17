@@ -46,6 +46,12 @@ in the responsive viewer. NAIP and LiDAR evidence, style approval, fixed-device
 qualification, and release publication remain unfinished. The prototype is not
 qualified, and no map release has been published.
 
+Candidate A can now be generated as a complete visual-review pack. It proves
+the deterministic review boundary, but its recorded evidence shows that the
+art remains materially sparser and more diagrammatic than the intended
+Isometric NYC analogue. It is awaiting owner review and is not an approved
+style.
+
 ## Development
 
 Prerequisites are Rust 1.94.0, Python 3.12, Node.js 24, mdBook 0.5.4, and
@@ -114,6 +120,16 @@ cargo run --release --locked -- validate release artifacts/dzi/hero
 Publication is atomic and fails if the destination already exists. The
 candidate retains canonical indexed tiles for exact validation and serves only
 the lossless WebP pyramid to OpenSeadragon.
+
+Generate the four-scene Candidate A review pack:
+
+```sh
+cargo run --release --locked -- style candidate-a artifacts/style/candidate-a
+```
+
+The ignored output includes native WebP scenes, landmark masks, a contact
+sheet, indexed metrics, and known deviations. Hosted CI regenerates and uploads
+the same evidence. Candidate A is evidence for review, not a released style.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the

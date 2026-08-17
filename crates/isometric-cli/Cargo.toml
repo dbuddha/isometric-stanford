@@ -12,12 +12,14 @@ name = "isometric-stanford"
 path = "src/main.rs"
 
 [dependencies]
+isometric-core = { path = "../isometric-core", version = "0.1.0" }
 isometric-publish = { path = "../isometric-publish", version = "0.1.0" }
 isometric-render = { path = "../isometric-render", version = "0.1.0" }
 isometric-source = { path = "../isometric-source", version = "0.1.0" }
 isometric-style = { path = "../isometric-style", version = "0.1.0" }
 isometric-validate = { path = "../isometric-validate", version = "0.1.0" }
 isometric-world = { path = "../isometric-world", version = "0.1.0" }
+serde_json.workspace = true
 
 [lints]
 workspace = true
