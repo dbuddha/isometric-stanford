@@ -6,6 +6,24 @@ verifies the declared length and SHA-256 hash, and atomically promotes each
 artifact into `artifacts/source-cache/sha256`. Existing cache entries are
 rehashed before reuse. A hash or length mismatch leaves no accepted artifact.
 
+HTTPS acquisition applies separate 30 second connection, 60 second response
+header, and 300 second response-body deadlines. It makes at most
+three attempts and retries only connect, timeout, stalled-body, interrupted
+stream, and explicitly transient HTTP status failures. Permanent HTTP status,
+locked-length, digest, local I/O, and partial-file failures are not retried.
+Every failed attempt removes its partial file, and every operator-facing line
+names the stable source ID and acquisition stage without printing its URL.
+Byte-range resume is deliberately deferred until an upstream-specific range
+contract can prove that resumed bytes are immutable and equivalent to a clean
+download.
+
+Scheduled assurance caches `artifacts/source-cache` under a key containing the
+entire `source.lock.json` digest. No prefix restore is allowed. A workflow
+dispatch namespace makes a deliberate first run cold and a second run warm;
+both still rehash all restored artifacts before compilation. The uploaded
+`source-sync.log` records whether each source was downloaded, the attempt
+count, or a verified cache hit.
+
 A changed hash invalidates perception artifacts, world partitions, shadow dependencies,
 guarded render tiles, DZI ancestors, and the release candidate through explicit
 dirty bounds.

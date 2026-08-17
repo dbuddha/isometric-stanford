@@ -97,6 +97,12 @@ transfer, into the ignored content-addressed cache:
 cargo run --locked -- source sync
 ```
 
+Source synchronization retries only bounded transient network failures. It
+uses fixed connection, response-header, and response-body deadlines, starts
+each retry from a new partial file, verifies the locked length and SHA-256, and
+reports stable source IDs plus attempt counts without exposing acquisition
+URLs. Permanent HTTP responses and integrity failures fail immediately.
+
 Recompile the frozen semantic evidence from the exact approximately 450 MB
 source cache when source or compiler verification is required:
 

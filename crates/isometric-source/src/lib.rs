@@ -6,6 +6,7 @@ use std::{
     fs::{self, File, OpenOptions},
     io::{self, BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
+    thread,
     time::Duration,
 };
 
@@ -15,7 +16,10 @@ use sha2::{Digest, Sha256};
 const LOCK_SCHEMA: &str = "isometric-source-lock/v1";
 const COPY_BUFFER_BYTES: usize = 64 * 1024;
 const HTTP_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
-const HTTP_RESPONSE_TIMEOUT: Duration = Duration::from_secs(180);
+const HTTP_RESPONSE_TIMEOUT: Duration = Duration::from_secs(60);
+const HTTP_BODY_TIMEOUT: Duration = Duration::from_secs(300);
+const HTTP_MAX_ATTEMPTS: u8 = 3;
+const HTTP_RETRY_BACKOFF: Duration = Duration::from_millis(250);
 
 /// A validated source lock used by the acquisition pipeline.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -92,6 +96,8 @@ pub struct SyncedArtifact {
     pub path: PathBuf,
     /// Whether an already verified cache entry was reused.
     pub reused: bool,
+    /// Acquisition attempts made in this invocation, or zero for a cache hit.
+    pub attempts: u8,
 }
 
 /// Fail-closed source acquisition error.
@@ -103,8 +109,17 @@ pub enum SourceError {
     Io(io::Error),
     /// JSON decoding failed.
     Json(serde_json::Error),
-    /// Network retrieval failed.
-    Http(Box<ureq::Error>),
+    /// One approved source could not be acquired safely.
+    Acquisition {
+        /// Stable source identifier, never its possibly sensitive URL.
+        source_id: String,
+        /// Bounded acquisition stage that failed.
+        stage: &'static str,
+        /// Attempts made before returning the failure.
+        attempts: u8,
+        /// Sanitized upstream or stream failure.
+        detail: String,
+    },
 }
 
 impl Display for SourceError {
@@ -113,7 +128,15 @@ impl Display for SourceError {
             Self::Invalid(message) => formatter.write_str(message),
             Self::Io(error) => write!(formatter, "source I/O failed: {error}"),
             Self::Json(error) => write!(formatter, "source lock JSON failed: {error}"),
-            Self::Http(error) => write!(formatter, "source HTTP request failed: {error}"),
+            Self::Acquisition {
+                source_id,
+                stage,
+                attempts,
+                detail,
+            } => write!(
+                formatter,
+                "source {source_id} acquisition failed during {stage} after {attempts} attempt(s): {detail}"
+            ),
         }
     }
 }
@@ -193,10 +216,47 @@ pub fn sync_selected(
     let mut outputs = Vec::with_capacity(selected.len());
 
     for source in selected {
-        outputs.push(sync_one(source, lock_root, cache_root)?);
+        outputs.push(sync_one(
+            source,
+            lock_root,
+            cache_root,
+            RetryPolicy::production(),
+        )?);
     }
 
     Ok(outputs)
+}
+
+#[derive(Clone, Copy)]
+struct RetryPolicy {
+    max_attempts: u8,
+    backoff: Duration,
+    connect_timeout: Duration,
+    response_timeout: Duration,
+    body_timeout: Duration,
+}
+
+impl RetryPolicy {
+    const fn production() -> Self {
+        Self {
+            max_attempts: HTTP_MAX_ATTEMPTS,
+            backoff: HTTP_RETRY_BACKOFF,
+            connect_timeout: HTTP_CONNECT_TIMEOUT,
+            response_timeout: HTTP_RESPONSE_TIMEOUT,
+            body_timeout: HTTP_BODY_TIMEOUT,
+        }
+    }
+}
+
+struct AttemptFailure {
+    stage: &'static str,
+    detail: String,
+    retryable: bool,
+}
+
+enum CopyFailure {
+    Io(io::Error),
+    Invalid(String),
 }
 
 fn validate_lock(lock: &SourceLock) -> Result<(), SourceError> {
@@ -317,6 +377,7 @@ fn sync_one(
     source: &SourceRecord,
     lock_root: &Path,
     cache_root: &Path,
+    retry_policy: RetryPolicy,
 ) -> Result<SyncedArtifact, SourceError> {
     let filename = match &source.acquisition {
         Acquisition::Https { filename, .. } | Acquisition::Local { filename, .. } => filename,
@@ -333,6 +394,7 @@ fn sync_one(
             id: source.id.clone(),
             path: destination,
             reused: true,
+            attempts: 0,
         });
     }
 
@@ -341,18 +403,24 @@ fn sync_one(
         .ok_or_else(|| SourceError::Invalid("cache destination lacks a parent".into()))?;
     fs::create_dir_all(parent)?;
     let partial = parent.join(format!(".{filename}.partial-{}", std::process::id()));
-    let result = acquire_to_partial(source, lock_root, &partial);
-    if let Err(error) = result {
+    let attempts = match acquire_to_partial(source, lock_root, &partial, retry_policy) {
+        Ok(attempts) => attempts,
+        Err(error) => {
+            let _ = fs::remove_file(&partial);
+            return Err(error);
+        }
+    };
+    if let Err(error) = verify_file(&partial, source) {
         let _ = fs::remove_file(&partial);
         return Err(error);
     }
-    verify_file(&partial, source)?;
     fs::rename(&partial, &destination)?;
 
     Ok(SyncedArtifact {
         id: source.id.clone(),
         path: destination,
         reused: false,
+        attempts,
     })
 }
 
@@ -360,34 +428,106 @@ fn acquire_to_partial(
     source: &SourceRecord,
     lock_root: &Path,
     partial: &Path,
-) -> Result<(), SourceError> {
+    retry_policy: RetryPolicy,
+) -> Result<u8, SourceError> {
+    match &source.acquisition {
+        Acquisition::Https { url, .. } => acquire_https(source, url, partial, retry_policy),
+        Acquisition::Local { path, .. } => {
+            let file = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .open(partial)
+                .map_err(|error| acquisition_error(source, "partial file creation", 1, error))?;
+            let mut output = BufWriter::new(file);
+            let mut input = BufReader::new(
+                File::open(lock_root.join(path))
+                    .map_err(|error| acquisition_error(source, "local source open", 1, error))?,
+            );
+            copy_bounded(&mut input, &mut output, source.size_bytes)
+                .map_err(|error| copy_failure_to_acquisition_error(source, error))?;
+            output
+                .flush()
+                .map_err(|error| acquisition_error(source, "partial file flush", 1, error))?;
+            Ok(1)
+        }
+    }
+}
+
+fn acquire_https(
+    source: &SourceRecord,
+    url: &str,
+    partial: &Path,
+    retry_policy: RetryPolicy,
+) -> Result<u8, SourceError> {
+    debug_assert!(retry_policy.max_attempts > 0);
+    for attempt in 1..=retry_policy.max_attempts {
+        let _ = fs::remove_file(partial);
+        match acquire_https_once(source, url, partial, retry_policy) {
+            Ok(()) => return Ok(attempt),
+            Err(failure) => {
+                let _ = fs::remove_file(partial);
+                if !failure.retryable || attempt == retry_policy.max_attempts {
+                    return Err(SourceError::Acquisition {
+                        source_id: source.id.clone(),
+                        stage: failure.stage,
+                        attempts: attempt,
+                        detail: failure.detail,
+                    });
+                }
+                let multiplier = 1_u32 << u32::from(attempt - 1);
+                thread::sleep(retry_policy.backoff.saturating_mul(multiplier));
+            }
+        }
+    }
+    unreachable!("a positive bounded attempt loop returns")
+}
+
+fn acquire_https_once(
+    source: &SourceRecord,
+    url: &str,
+    partial: &Path,
+    retry_policy: RetryPolicy,
+) -> Result<(), AttemptFailure> {
+    let config = ureq::Agent::config_builder()
+        .timeout_connect(Some(retry_policy.connect_timeout))
+        .timeout_recv_response(Some(retry_policy.response_timeout))
+        .timeout_recv_body(Some(retry_policy.body_timeout))
+        .user_agent("isometric-stanford/0.1 source-sync")
+        .build();
+    let agent: ureq::Agent = config.into();
+    let response = agent.get(url).call().map_err(|error| AttemptFailure {
+        stage: "response headers",
+        detail: http_error_detail(&error),
+        retryable: retryable_http_error(&error),
+    })?;
     let file = OpenOptions::new()
         .create_new(true)
         .write(true)
-        .open(partial)?;
+        .open(partial)
+        .map_err(|error| AttemptFailure {
+            stage: "partial file creation",
+            detail: error.to_string(),
+            retryable: false,
+        })?;
     let mut output = BufWriter::new(file);
-
-    match &source.acquisition {
-        Acquisition::Https { url, .. } => {
-            let config = ureq::Agent::config_builder()
-                .timeout_connect(Some(HTTP_CONNECT_TIMEOUT))
-                .timeout_recv_response(Some(HTTP_RESPONSE_TIMEOUT))
-                .user_agent("isometric-stanford/0.1 source-sync")
-                .build();
-            let agent: ureq::Agent = config.into();
-            let response = agent
-                .get(url)
-                .call()
-                .map_err(|error| SourceError::Http(Box::new(error)))?;
-            let mut reader = response.into_body().into_reader();
-            copy_bounded(&mut reader, &mut output, source.size_bytes)?;
-        }
-        Acquisition::Local { path, .. } => {
-            let mut input = BufReader::new(File::open(lock_root.join(path))?);
-            copy_bounded(&mut input, &mut output, source.size_bytes)?;
-        }
-    }
-    output.flush()?;
+    let mut reader = response.into_body().into_reader();
+    copy_bounded(&mut reader, &mut output, source.size_bytes).map_err(|error| match error {
+        CopyFailure::Io(error) => AttemptFailure {
+            stage: "response body",
+            detail: io_error_detail(&error),
+            retryable: retryable_io_error(&error),
+        },
+        CopyFailure::Invalid(detail) => AttemptFailure {
+            stage: "response body length",
+            detail,
+            retryable: false,
+        },
+    })?;
+    output.flush().map_err(|error| AttemptFailure {
+        stage: "partial file flush",
+        detail: error.to_string(),
+        retryable: false,
+    })?;
     Ok(())
 }
 
@@ -395,30 +535,108 @@ fn copy_bounded(
     input: &mut impl Read,
     output: &mut impl Write,
     expected_bytes: u64,
-) -> Result<(), SourceError> {
+) -> Result<(), CopyFailure> {
     let mut buffer = vec![0_u8; COPY_BUFFER_BYTES];
     let mut copied = 0_u64;
     loop {
-        let count = input.read(&mut buffer)?;
+        let count = input.read(&mut buffer).map_err(CopyFailure::Io)?;
         if count == 0 {
             break;
         }
         copied = copied
             .checked_add(u64::try_from(count).expect("buffer length fits u64"))
-            .ok_or_else(|| SourceError::Invalid("source byte count overflowed".into()))?;
+            .ok_or_else(|| CopyFailure::Invalid("source byte count overflowed".into()))?;
         if copied > expected_bytes {
-            return Err(SourceError::Invalid(format!(
+            return Err(CopyFailure::Invalid(format!(
                 "source exceeded locked length of {expected_bytes} bytes"
             )));
         }
-        output.write_all(&buffer[..count])?;
+        output
+            .write_all(&buffer[..count])
+            .map_err(CopyFailure::Io)?;
     }
     if copied != expected_bytes {
-        return Err(SourceError::Invalid(format!(
+        return Err(CopyFailure::Invalid(format!(
             "source length {copied} does not match locked length {expected_bytes}"
         )));
     }
     Ok(())
+}
+
+fn copy_failure_to_acquisition_error(source: &SourceRecord, error: CopyFailure) -> SourceError {
+    match error {
+        CopyFailure::Io(error) => acquisition_error(source, "local source stream", 1, error),
+        CopyFailure::Invalid(detail) => acquisition_error(source, "local source length", 1, detail),
+    }
+}
+
+fn acquisition_error(
+    source: &SourceRecord,
+    stage: &'static str,
+    attempts: u8,
+    detail: impl Display,
+) -> SourceError {
+    SourceError::Acquisition {
+        source_id: source.id.clone(),
+        stage,
+        attempts,
+        detail: detail.to_string(),
+    }
+}
+
+fn retryable_http_error(error: &ureq::Error) -> bool {
+    match error {
+        ureq::Error::StatusCode(code) => {
+            matches!(*code, 408 | 425 | 429 | 500 | 502 | 503 | 504)
+        }
+        ureq::Error::Io(error) => retryable_io_error(error),
+        ureq::Error::Timeout(_)
+        | ureq::Error::HostNotFound
+        | ureq::Error::ConnectionFailed
+        | ureq::Error::BodyStalled => true,
+        _ => false,
+    }
+}
+
+fn http_error_detail(error: &ureq::Error) -> String {
+    match error {
+        ureq::Error::StatusCode(code) => format!("HTTP status {code}"),
+        ureq::Error::Timeout(timeout) => format!("timeout: {timeout}"),
+        ureq::Error::HostNotFound => "host not found".into(),
+        ureq::Error::ConnectionFailed => "connection failed".into(),
+        ureq::Error::BodyStalled => "response body stalled".into(),
+        ureq::Error::Io(error) => io_error_detail(error),
+        _ => "HTTP request rejected".into(),
+    }
+}
+
+fn io_error_detail(error: &io::Error) -> String {
+    if let Some(inner) = error
+        .get_ref()
+        .and_then(|inner| inner.downcast_ref::<ureq::Error>())
+    {
+        return http_error_detail(inner);
+    }
+    format!("I/O failure ({:?})", error.kind())
+}
+
+fn retryable_io_error(error: &io::Error) -> bool {
+    if let Some(inner) = error
+        .get_ref()
+        .and_then(|inner| inner.downcast_ref::<ureq::Error>())
+    {
+        return retryable_http_error(inner);
+    }
+    matches!(
+        error.kind(),
+        io::ErrorKind::TimedOut
+            | io::ErrorKind::Interrupted
+            | io::ErrorKind::WouldBlock
+            | io::ErrorKind::ConnectionReset
+            | io::ErrorKind::ConnectionAborted
+            | io::ErrorKind::BrokenPipe
+            | io::ErrorKind::UnexpectedEof
+    )
 }
 
 fn verify_file(path: &Path, source: &SourceRecord) -> Result<(), SourceError> {
@@ -469,9 +687,138 @@ fn is_sha256(value: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{Acquisition, SourceLock, SourceRecord, read_lock, sync, sync_selected};
+    use super::{
+        Acquisition, RetryPolicy, SourceLock, SourceRecord, read_lock, sync, sync_one,
+        sync_selected,
+    };
     use sha2::{Digest, Sha256};
-    use std::fs;
+    use std::{
+        fs,
+        io::{Read as _, Write as _},
+        net::TcpListener,
+        path::Path,
+        thread,
+        time::Duration,
+    };
+
+    struct ResponseSpec {
+        status: u16,
+        advertised_bytes: usize,
+        body: Vec<u8>,
+        body_delay: Duration,
+    }
+
+    impl ResponseSpec {
+        fn status(status: u16) -> Self {
+            Self {
+                status,
+                advertised_bytes: 0,
+                body: Vec::new(),
+                body_delay: Duration::ZERO,
+            }
+        }
+
+        fn body(body: &[u8]) -> Self {
+            Self {
+                status: 200,
+                advertised_bytes: body.len(),
+                body: body.to_vec(),
+                body_delay: Duration::ZERO,
+            }
+        }
+
+        fn stalled_body(advertised_bytes: usize) -> Self {
+            Self {
+                status: 200,
+                advertised_bytes,
+                body: Vec::new(),
+                body_delay: Duration::from_millis(75),
+            }
+        }
+    }
+
+    fn serve(responses: Vec<ResponseSpec>) -> (String, thread::JoinHandle<usize>) {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind fixture server");
+        let address = listener.local_addr().expect("fixture server address");
+        let handle = thread::spawn(move || {
+            let mut served = 0;
+            for response in responses {
+                let (mut stream, _) = listener.accept().expect("accept fixture request");
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(1)))
+                    .expect("set fixture read timeout");
+                let mut request = [0_u8; 1024];
+                let _ = stream.read(&mut request).expect("read fixture request");
+                let reason = match response.status {
+                    200 => "OK",
+                    404 => "Not Found",
+                    503 => "Service Unavailable",
+                    _ => "Fixture",
+                };
+                write!(
+                    stream,
+                    "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    response.status, reason, response.advertised_bytes
+                )
+                .expect("write fixture headers");
+                thread::sleep(response.body_delay);
+                stream
+                    .write_all(&response.body)
+                    .expect("write fixture body");
+                served += 1;
+            }
+            served
+        });
+        (format!("http://{address}/source.bin"), handle)
+    }
+
+    fn test_retry_policy() -> RetryPolicy {
+        RetryPolicy {
+            max_attempts: 3,
+            backoff: Duration::ZERO,
+            connect_timeout: Duration::from_secs(1),
+            response_timeout: Duration::from_secs(1),
+            body_timeout: Duration::from_millis(20),
+        }
+    }
+
+    fn remote_record(id: &str, url: String, expected: &[u8]) -> SourceRecord {
+        SourceRecord {
+            id: id.into(),
+            kind: "test".into(),
+            role: "test".into(),
+            release: "fixture-v1".into(),
+            source_date: "2026-08-17".into(),
+            acquired_at: "2026-08-17".into(),
+            acquisition: Acquisition::Https {
+                url,
+                filename: "source.bin".into(),
+            },
+            size_bytes: u64::try_from(expected.len()).expect("fixture length fits u64"),
+            sha256: hash(&Sha256::digest(expected)),
+            license: "CC0-1.0".into(),
+            attribution: "fixture".into(),
+            metadata_url: "https://example.invalid/fixture".into(),
+            approved: true,
+            raw_content_in_final_output: false,
+        }
+    }
+
+    fn partial_files(root: &Path) -> Vec<String> {
+        let mut partials = Vec::new();
+        if !root.exists() {
+            return partials;
+        }
+        for entry in fs::read_dir(root).expect("read fixture cache") {
+            let entry = entry.expect("fixture cache entry");
+            if entry.path().is_dir() {
+                partials.extend(partial_files(&entry.path()));
+            } else if entry.file_name().to_string_lossy().contains(".partial-") {
+                partials.push(entry.path().display().to_string());
+            }
+        }
+        partials
+    }
 
     fn hash(bytes: &[u8]) -> String {
         bytes.iter().fold(String::new(), |mut output, byte| {
@@ -539,9 +886,155 @@ mod tests {
         let second =
             sync(&root.join("source.lock.json"), &root.join("cache")).expect("second sync");
         assert!(!first[0].reused);
+        assert_eq!(first[0].attempts, 1);
         assert!(second[0].reused);
+        assert_eq!(second[0].attempts, 0);
         assert_eq!(fs::read(&second[0].path).expect("cached bytes"), bytes);
         fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn retries_transient_status_and_records_attempts() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-source-retry-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let bytes = b"licensed remote fixture";
+        let (url, server) = serve(vec![ResponseSpec::status(503), ResponseSpec::body(bytes)]);
+        let source = remote_record("remote-retry", url, bytes);
+
+        let artifact = sync_one(&source, Path::new("."), &root, test_retry_policy())
+            .expect("transient status must recover");
+
+        assert_eq!(artifact.attempts, 2);
+        assert_eq!(
+            fs::read(&artifact.path).expect("read acquired fixture"),
+            bytes
+        );
+        assert_eq!(server.join().expect("join fixture server"), 2);
+        assert!(partial_files(&root).is_empty());
+        fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn retries_stalled_body_from_a_fresh_partial_file() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-source-body-retry-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let bytes = b"licensed remote fixture";
+        let (url, server) = serve(vec![
+            ResponseSpec::stalled_body(bytes.len()),
+            ResponseSpec::body(bytes),
+        ]);
+        let source = remote_record("remote-body-retry", url, bytes);
+
+        let artifact = sync_one(&source, Path::new("."), &root, test_retry_policy())
+            .expect("stalled body must recover");
+
+        assert_eq!(artifact.attempts, 2);
+        assert_eq!(
+            fs::read(&artifact.path).expect("read acquired fixture"),
+            bytes
+        );
+        assert_eq!(server.join().expect("join fixture server"), 2);
+        assert!(partial_files(&root).is_empty());
+        fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn exhausts_only_the_bounded_transient_attempts() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-source-exhaustion-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let bytes = b"licensed remote fixture";
+        let (url, server) = serve(vec![
+            ResponseSpec::status(503),
+            ResponseSpec::status(503),
+            ResponseSpec::status(503),
+        ]);
+        let source = remote_record("remote-exhausted", url.clone(), bytes);
+
+        let error = sync_one(&source, Path::new("."), &root, test_retry_policy())
+            .expect_err("bounded transient attempts must fail closed");
+        let message = error.to_string();
+
+        assert!(message.contains("source remote-exhausted"));
+        assert!(message.contains("response headers"));
+        assert!(message.contains("after 3 attempt(s)"));
+        assert!(!message.contains(&url));
+        assert_eq!(server.join().expect("join fixture server"), 3);
+        assert!(partial_files(&root).is_empty());
+        fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn permanent_status_and_corrupt_bytes_are_not_retried() {
+        let status_root = std::env::temp_dir().join(format!(
+            "isometric-source-permanent-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&status_root);
+        let expected = b"licensed remote fixture";
+        let (status_url, status_server) = serve(vec![ResponseSpec::status(404)]);
+        let status_source = remote_record("remote-permanent", status_url, expected);
+        let status_error = sync_one(
+            &status_source,
+            Path::new("."),
+            &status_root,
+            test_retry_policy(),
+        )
+        .expect_err("permanent status must fail closed");
+        assert!(status_error.to_string().contains("after 1 attempt(s)"));
+        assert_eq!(status_server.join().expect("join fixture server"), 1);
+        assert!(partial_files(&status_root).is_empty());
+        fs::remove_dir_all(status_root).expect("remove status test directory");
+
+        let corrupt_root = std::env::temp_dir().join(format!(
+            "isometric-source-corrupt-http-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&corrupt_root);
+        let corrupt = b"corruptd remote fixture";
+        assert_eq!(corrupt.len(), expected.len());
+        let (corrupt_url, corrupt_server) = serve(vec![ResponseSpec::body(corrupt)]);
+        let corrupt_source = remote_record("remote-corrupt", corrupt_url, expected);
+        let corrupt_error = sync_one(
+            &corrupt_source,
+            Path::new("."),
+            &corrupt_root,
+            test_retry_policy(),
+        )
+        .expect_err("corrupt bytes must fail closed");
+        assert!(corrupt_error.to_string().contains("SHA-256"));
+        assert_eq!(corrupt_server.join().expect("join fixture server"), 1);
+        assert!(partial_files(&corrupt_root).is_empty());
+        fs::remove_dir_all(corrupt_root).expect("remove corrupt test directory");
+
+        let length_root = std::env::temp_dir().join(format!(
+            "isometric-source-short-http-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&length_root);
+        let (length_url, length_server) = serve(vec![ResponseSpec::body(b"short")]);
+        let length_source = remote_record("remote-short", length_url, expected);
+        let length_error = sync_one(
+            &length_source,
+            Path::new("."),
+            &length_root,
+            test_retry_policy(),
+        )
+        .expect_err("wrong response length must fail without retry");
+        let length_message = length_error.to_string();
+        assert!(length_message.contains("response body length"));
+        assert!(length_message.contains("after 1 attempt(s)"));
+        assert_eq!(length_server.join().expect("join fixture server"), 1);
+        assert!(partial_files(&length_root).is_empty());
+        fs::remove_dir_all(length_root).expect("remove length test directory");
     }
 
     #[test]

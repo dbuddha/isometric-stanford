@@ -22,9 +22,10 @@ an async runtime or a geospatial parser to the renderer.
 response body. Its Rustls feature supplies TLS without a platform OpenSSL
 dependency. Downloads use a 64 KiB heap buffer, enforce the locked length while
 streaming, verify SHA-256 before rename, and never allocate in proportion to
-artifact size. Connection and response-header waits are bounded. Response-body
-time is not globally capped because the locked LiDAR objects are each larger
-than 100 MB and valid transfer time varies with upstream throughput.
+artifact size. Connection, response-header, and response-body waits are bounded
+at 30, 60, and 300 seconds. The synchronizer makes at most three
+attempts for classified transient conditions. Permanent status responses,
+length mismatches, and digest mismatches fail without retry.
 
 The TLS root dataset uses the permissive CDLA 2.0. Its license text ships in
 the dependency source and permits unrestricted computational results. The
@@ -33,5 +34,9 @@ trust anchors for HTTPS validation and does not redistribute a modified root
 dataset independently.
 
 The cache is content-addressed by SHA-256. Partial files are process-scoped and
-removed on errors. Existing entries are rehashed before reuse. Source retrieval
-is not linked into the renderer, and render commands do not access the network.
+removed before retries and on every error. Each attempt starts from byte zero;
+range resume remains excluded until an immutable upstream range contract is
+implemented. Existing entries are rehashed before reuse. Scheduled assurance
+uses the official pinned `actions/cache` action with the entire source-lock
+digest in its key and no prefix fallback. Source retrieval is not linked into
+the renderer, and render commands do not access the network.
