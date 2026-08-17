@@ -1,18 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type OpenSeadragon from "openseadragon";
 
+import { loadReleaseMetadata, type ReleaseMetadata } from "./release-metadata";
 import { viewerPolicy } from "./viewer-policy";
 
 const RELEASE_DZI = import.meta.env.VITE_DZI_URL as string | undefined;
+const RELEASE_MANIFEST = import.meta.env.VITE_RELEASE_URL as string | undefined;
 
 export function App() {
   const host = useRef<HTMLDivElement>(null);
   const viewer = useRef<OpenSeadragon.Viewer | null>(null);
-  const [status, setStatus] = useState(RELEASE_DZI ? "Loading artwork" : "Qualification in progress");
+  const [status, setStatus] = useState(
+    RELEASE_DZI
+      ? RELEASE_MANIFEST
+        ? "Loading artwork"
+        : "Artwork evidence configuration missing."
+      : "Qualification in progress",
+  );
   const [canRetry, setCanRetry] = useState(false);
+  const [release, setRelease] = useState<ReleaseMetadata | null>(null);
 
   useEffect(() => {
     if (!host.current || !RELEASE_DZI) {
+      return;
+    }
+    if (!RELEASE_MANIFEST) {
       return;
     }
 
@@ -36,11 +48,13 @@ export function App() {
       contextCanvas = null;
     };
 
-    void import("openseadragon")
-      .then(({ default: createViewer }) => {
+    const metadata = loadReleaseMetadata(RELEASE_MANIFEST);
+    void Promise.all([import("openseadragon"), metadata])
+      .then(([{ default: createViewer }, loadedRelease]) => {
         if (disposed || !host.current) {
           return;
         }
+        setRelease(loadedRelease);
         const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
         const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
         const policy = viewerPolicy(window.innerWidth, memory, coarsePointer);
@@ -102,7 +116,7 @@ export function App() {
       })
       .catch(() => {
         setCanRetry(true);
-        setStatus("Artwork viewer failed to start. Retry available.");
+        setStatus("Artwork or evidence failed to load. Retry available.");
       });
 
     return () => {
@@ -143,6 +157,24 @@ export function App() {
         </p>
       </header>
 
+      <aside
+        className={`preview-notice${release ? "" : " preview-notice--pending"}`}
+        role={release ? "note" : undefined}
+        aria-hidden={release ? undefined : true}
+        data-testid="release-evidence"
+        data-style-id={release?.styleId}
+        data-style-sha256={release?.styleSha256}
+        data-world-sha256={release?.worldSha256}
+        data-tile-set-sha256={release?.tileSetSha256}
+      >
+        <strong>Unqualified engineering preview</strong>
+        <span>
+          {release
+            ? `Candidate C has not received final visual or landmark approval. ${release.width.toLocaleString()} x ${release.height.toLocaleString()} pixels, ${release.tileCount} deterministic tiles.`
+            : "Release evidence is being verified before the artwork is displayed."}
+        </span>
+      </aside>
+
       <section
         className="viewer-frame"
         aria-label="Isometric Stanford map"
@@ -182,7 +214,7 @@ export function App() {
       </section>
 
       <footer>
-        <p>Original procedural artwork. No captured people or vehicles.</p>
+        <p>Original deterministic procedural artwork. No captured people or vehicles.</p>
         <a href="https://github.com/dbuddha/isometric-stanford">Source and evidence</a>
       </footer>
     </main>

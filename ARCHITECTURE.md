@@ -149,8 +149,14 @@ touch navigation enabled, retries failed tiles twice, exposes recoverable
 descriptor and tile failures, and redraws after a context restoration event.
 Ordinary CI exercises a routed lossless DZI fixture on desktop and mobile;
 scheduled assurance repeats the same checks against the complete generated
-Candidate C hero pyramid. A locally generated candidate has been exercised in the viewer,
-but no DZI release is committed or published.
+Candidate C hero pyramid. The release dry run builds the viewer separately from
+the art and then passes both through `scripts/assemble_preview.py`. The
+assembler verifies the current world hash, release state, exact style, DZI
+descriptor, every WebP hash and byte count, and the absence of pre-staged art
+before it atomically creates an explicitly unqualified preview. This prevents
+an ignored stale `web/public/art` directory from being mistaken for current
+evidence. A locally generated candidate has been exercised in the assembled
+viewer, but no DZI release is committed or published.
 
 ## Binding invariants
 

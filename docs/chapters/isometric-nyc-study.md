@@ -20,6 +20,17 @@ The source study found this pipeline:
 7. The final site flattened the result into a static DZI/WebP pyramid viewed in
    OpenSeadragon. It did not ship a live Three.js world.
 
+The source was re-audited at commit
+`008446357ec67512c4329d25edefb6c508c7b24d`. Its React viewer uses
+OpenSeadragon, 512 pixel WebP tiles, disabled smoothing, a navigator, and a
+custom tile-source level translation for its exporter layout. A Cloudflare
+Worker fronts object storage with CORS and long-lived immutable cache headers.
+The Stanford prototype uses a standard DZI descriptor, the same static-tile
+interaction boundary, explicit decoded-cache budgets, and recoverable tile and
+context failures. With only 157 current tiles, same-origin static hosting is
+adequate. A content-versioned object-storage prefix becomes necessary before
+campus-scale releases can safely use immutable caching.
+
 The main lesson is that style did not live in a conventional image-processing
 filter. It lived in reference images, prompts, accepted image pairs, fine-tuned
 weights, generation order, and manual correction. OpenCV-style preprocessing
@@ -33,6 +44,14 @@ final pixels. Style is made explicit as original code, palette, geometry,
 patterns, landmark grammar, and accepted Stanford goldens. This raises initial
 engineering and asset-authoring cost but makes updates, seams, provenance, and
 repeated rendering testable.
+
+The engineering result is currently stronger than the visual result. Candidate
+C produces a coherent campus-scale isometric scene, but its ordinary buildings
+remain flatter and less individually articulated than Isometric NYC, and the
+three hero landmarks have not received visual approval. The source repository
+does not contain a procedural renderer that Stanford can reuse to close this
+gap. Its relevant precedent is the delivery architecture and review workflow,
+not a deterministic art converter.
 
 Do not copy Isometric NYC imagery or assume its assets are licensed for reuse.
 The project records observable characteristics and independently creates its

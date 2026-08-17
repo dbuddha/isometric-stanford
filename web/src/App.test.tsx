@@ -8,6 +8,7 @@ describe("App", () => {
     render(<App />);
     expect(screen.getByRole("status")).toHaveTextContent("Qualification in progress");
     expect(screen.getByText(/map is being built from the world up/i)).toBeVisible();
+    expect(screen.getByTestId("release-evidence")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("exposes accessible map controls", () => {

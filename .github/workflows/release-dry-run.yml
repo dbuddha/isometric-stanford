@@ -39,12 +39,6 @@ jobs:
       - run: cargo run --quiet --release --locked -- world compile artifacts/world
       - run: cargo run --quiet --release --locked -- publish dzi artifacts/dzi/hero candidate-c
       - run: cargo run --quiet --release --locked -- validate release artifacts/dzi/hero
-      - name: Stage public viewer imagery
-        run: |
-          mkdir -p web/public/art
-          cp artifacts/dzi/hero/hero.dzi web/public/art/
-          cp artifacts/dzi/hero/release.json web/public/art/
-          cp -R artifacts/dzi/hero/hero_files web/public/art/
       - run: mdbook build
       - run: npm ci
         working-directory: web
@@ -52,6 +46,13 @@ jobs:
         working-directory: web
         env:
           VITE_DZI_URL: /isometric-stanford/art/hero.dzi
+          VITE_RELEASE_URL: /isometric-stanford/art/release.json
+      - name: Assemble verified unqualified preview
+        run: |
+          python3 scripts/assemble_preview.py \
+            --viewer-dist web/dist \
+            --dzi-artifact artifacts/dzi/hero \
+            --output artifacts/release-dry-run/viewer
       - name: Assemble dry-run bundle
         run: |
           mkdir -p artifacts/release-dry-run
@@ -61,7 +62,6 @@ jobs:
           cp style.lock.json artifacts/release-dry-run/project-style-status.json
           cp styles/stanford_v1/candidate_c.toml artifacts/release-dry-run/candidate-style.toml
           cp -R book artifacts/release-dry-run/documentation
-          cp -R web/dist artifacts/release-dry-run/viewer
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-dry-run

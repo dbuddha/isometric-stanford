@@ -9,6 +9,26 @@ const DZI = `<?xml version="1.0" encoding="UTF-8"?>
 const WEBP = Buffer.from("UklGRhwAAABXRUJQVlA4TBAAAAAvAAAAAM1VICICDa9DuyMB", "base64");
 const FIXTURE_DZI = "**/fixture/hero.dzi";
 const FIXTURE_TILE = "**/fixture/hero_files/0/0_0.webp";
+const FIXTURE_RELEASE = "**/fixture/release.json";
+const RELEASE = JSON.stringify({
+  schema: "isometric-release/v1",
+  status: "artifact-candidate",
+  qualified: false,
+  style_id: "stanford_v1.candidate_c.1",
+  style_sha256: "b".repeat(64),
+  world_sha256: "a".repeat(64),
+  dzi: {
+    descriptor: "hero.dzi",
+    width: 1,
+    height: 1,
+    tile_size: 512,
+    overlap: 0,
+    format: "webp",
+    tile_count: 1,
+    encoded_bytes: WEBP.byteLength,
+    tile_set_sha256: "c".repeat(64),
+  },
+});
 
 async function installFixture(page: Page) {
   if (process.env.E2E_DZI_URL) {
@@ -20,6 +40,9 @@ async function installFixture(page: Page) {
   await page.route(FIXTURE_TILE, (route) =>
     route.fulfill({ status: 200, contentType: "image/webp", body: WEBP }),
   );
+  await page.route(FIXTURE_RELEASE, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: RELEASE }),
+  );
 }
 
 test.beforeEach(async ({ page }) => installFixture(page));
@@ -28,12 +51,29 @@ test("released viewer is accessible and paints artwork", async ({ page }, testIn
   await page.goto("./");
   await expect(page.getByRole("heading", { name: "Isometric Stanford" })).toBeVisible();
   await expect(page.getByRole("status")).toContainText("Artwork ready");
+  await expect(page.getByRole("note")).toContainText("Unqualified engineering preview");
+  await expect(page.getByRole("note")).toContainText("not received final visual");
   await expect(page.getByRole("button", { name: "Zoom in" })).toBeVisible();
-  await expect(page.getByText("No captured people or vehicles.")).toBeVisible();
+  await expect(page.getByText(/No captured people or vehicles/)).toBeVisible();
   const canvas = page.locator(".viewer canvas");
   await expect(canvas).toBeVisible();
   expect((await canvas.screenshot()).byteLength).toBeGreaterThan(100);
   await page.screenshot({ path: testInfo.outputPath("viewer.png"), fullPage: true });
+});
+
+test("release evidence does not shift the viewer when metadata arrives", async ({ page }) => {
+  test.skip(Boolean(process.env.E2E_RELEASE_URL), "fixture controls metadata timing");
+  await page.unroute(FIXTURE_RELEASE);
+  await page.route(FIXTURE_RELEASE, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await route.fulfill({ status: 200, contentType: "application/json", body: RELEASE });
+  });
+  await page.goto("./");
+  const frame = page.locator(".viewer-frame");
+  const before = await frame.boundingBox();
+  await expect(page.getByRole("note")).toContainText("Unqualified engineering preview");
+  const after = await frame.boundingBox();
+  expect(Math.abs((after?.y ?? 0) - (before?.y ?? 0))).toBeLessThan(1);
 });
 
 test("failed tile retries are visible and recoverable", async ({ page }) => {
@@ -78,9 +118,31 @@ test("descriptor failure can be retried without reloading the page", async ({ pa
   await expect(page.getByRole("status")).toContainText("Artwork ready");
 });
 
+test("release evidence failure is visible and recovers after reload", async ({ page }) => {
+  const releasePattern = process.env.E2E_RELEASE_URL ? "**/art/release.json" : FIXTURE_RELEASE;
+  await page.unroute(releasePattern);
+  let failing = true;
+  await page.route(releasePattern, (route) =>
+    failing
+      ? route.fulfill({ status: 503, body: "temporary failure" })
+      : process.env.E2E_RELEASE_URL
+        ? route.continue()
+        : route.fulfill({ status: 200, contentType: "application/json", body: RELEASE }),
+  );
+  await page.goto("./");
+  await expect(page.getByRole("status")).toContainText("Artwork or evidence failed");
+  failing = false;
+  await page.getByRole("button", { name: "Retry artwork" }).click();
+  await expect(page.getByRole("status")).toContainText("Artwork ready");
+  await expect(page.getByRole("note")).toContainText("Unqualified engineering preview");
+});
+
 test("display context interruption redraws after restoration", async ({ page }) => {
   await page.goto("./");
   await expect(page.getByRole("status")).toContainText("Artwork ready");
+  const releaseEvidence = page.getByTestId("release-evidence");
+  await expect(releaseEvidence).toHaveAttribute("data-style-id", "stanford_v1.candidate_c.1");
+  expect(await releaseEvidence.getAttribute("data-world-sha256")).toMatch(/^[0-9a-f]{64}$/);
   const canvas = page.locator(".viewer canvas");
   await canvas.evaluate((element) =>
     element.dispatchEvent(new Event("contextlost", { cancelable: true })),

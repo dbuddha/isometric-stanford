@@ -44,6 +44,17 @@ probe records frame cadence, longest frame gap, JavaScript heap, requests,
 bytes, and cache policy as regression evidence. It is deliberately not treated
 as fixed-device FPS qualification.
 
+The assembled local preview was also inspected in Chromium through desktop and
+390 by 844 mobile viewports. Desktop first contentful paint and largest
+contentful paint were 264 milliseconds with 9.5 MiB of used JavaScript heap.
+The mobile run reported 152 and 168 milliseconds respectively with 11.1 MiB of
+used heap. These localhost measurements demonstrate responsive integration,
+not field performance. The initial audit found a 0.13 mobile cumulative layout
+shift because release evidence was inserted asynchronously. The viewer now
+reserves that row before metadata arrives, and browser regression coverage
+protects the behavior. The repeated mobile run reported 0.00 cumulative layout
+shift.
+
 The mobile page bounds the viewer to 62 dVH with a 26 to 34 rem range and does
 not stretch grid rows into unused space. This keeps the wide artwork prominent
 on portrait screens while preserving touch-sized controls and a complete
@@ -55,4 +66,8 @@ Ordinary pull requests run the recovery suite against an in-process one-pixel
 lossless WebP DZI. Scheduled assurance generates the complete Candidate C hero DZI
 and runs the same desktop and Pixel 7 browser suite against real tiles. The
 release dry run assembles an inspectable static viewer bundle without deploying
-it. Public Pages publication remains an owner decision after style approval.
+it. `scripts/assemble_preview.py` refuses a qualified claim, stale world hash,
+corrupt tile, incomplete pyramid, or viewer build containing pre-staged art.
+It writes an independent `preview.json` that states
+`unqualified-engineering-preview` and `published_release: false`. Public Pages
+publication remains an owner decision after style approval.
