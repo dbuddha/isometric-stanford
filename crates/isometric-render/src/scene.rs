@@ -963,14 +963,11 @@ fn append_hip_roof(
     view: Viewport,
     ordinal: &mut u32,
 ) -> Result<bool, RenderError> {
-    if polygon.rings().len() != 1 || !ring_is_convex(polygon.rings()[0].points()) {
+    if polygon.rings().len() != 1 || !hip_roof_ring_supported(polygon.rings()[0].points()) {
         return Ok(false);
     }
     let ring = polygon.rings()[0].points();
     let vertices = &ring[..ring.len() - 1];
-    if vertices.len() > MAX_HIP_ROOF_PLANES {
-        return Ok(false);
-    }
     let count = i64::try_from(vertices.len()).map_err(|_| RenderError::ArithmeticOverflow)?;
     let center = WorldPoint::new(
         vertices
@@ -1015,6 +1012,10 @@ fn append_hip_roof(
         );
     }
     Ok(true)
+}
+
+fn hip_roof_ring_supported(points: &[WorldPoint]) -> bool {
+    points.len().saturating_sub(1) <= MAX_HIP_ROOF_PLANES && ring_is_convex(points)
 }
 
 fn ring_is_convex(points: &[WorldPoint]) -> bool {
@@ -1703,6 +1704,36 @@ mod tests {
                 .iter()
                 .all(|color| first.pixels().contains(color))
         );
+    }
+
+    #[test]
+    fn ordinary_detail_geometry_is_bounded_and_classified() {
+        let square = [
+            WorldPoint::new(0, 0, 0),
+            WorldPoint::new(10, 0, 0),
+            WorldPoint::new(10, 10, 0),
+            WorldPoint::new(0, 10, 0),
+            WorldPoint::new(0, 0, 0),
+        ];
+        let concave = [
+            WorldPoint::new(0, 0, 0),
+            WorldPoint::new(10, 0, 0),
+            WorldPoint::new(5, 5, 0),
+            WorldPoint::new(10, 10, 0),
+            WorldPoint::new(0, 10, 0),
+            WorldPoint::new(0, 0, 0),
+        ];
+        assert!(hip_roof_ring_supported(&square));
+        assert!(!hip_roof_ring_supported(&concave));
+        assert!(!hip_roof_ring_supported(&vec![
+            WorldPoint::new(0, 0, 0);
+            MAX_HIP_ROOF_PLANES + 2
+        ]));
+        assert_eq!(
+            point_between(square[0], square[2], 1, 2).expect("midpoint"),
+            WorldPoint::new(5, 5, 0)
+        );
+        assert_eq!(MAX_FACADE_QUADS_PER_OBJECT, 512);
     }
 
     #[test]
