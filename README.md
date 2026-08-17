@@ -95,10 +95,11 @@ cargo run --release --locked -- render region artifacts/render/hero.ppm
 ```
 
 The current 1,950 by 873 preview contains real campus footprints, paths,
-roads, empty parking, ground surfaces, flat roofs, and directional facades. It
-is deterministic and recognizably Stanford, but it is not style candidate A:
-vegetation crowns, roof grammar, shadows, outlines, patterns, and landmark
-detail remain unfinished.
+roads, empty parking, ground surfaces, flat roofs, directional facades,
+faceted tree groves, hard shadows, crisp outlines, and world-anchored material
+patterns. It is deterministic and recognizably Stanford, but it is not style
+candidate A. Detailed roof grammar and landmark-specific forms remain
+unfinished.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the

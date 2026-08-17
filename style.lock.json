@@ -1,9 +1,9 @@
 {
   "schema": "isometric-style-lock/v1",
   "status": "candidate-not-approved",
-  "style_id": "stanford_v1.bootstrap.1",
+  "style_id": "stanford_v1.ordinary.1",
   "style_path": "styles/stanford_v1/style.toml",
-  "style_sha256": "47f6835c54998b854007bce9d5ea018745005f87321e307031e554e9b263bf5c",
+  "style_sha256": "765c4d22190ca98e822bce33aa1a6bc65a9861acf428568e078535564fa64fc3",
   "approved_by": null,
   "approved_issue": null
 }
