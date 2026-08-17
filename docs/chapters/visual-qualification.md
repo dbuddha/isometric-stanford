@@ -19,13 +19,21 @@ Candidate A is the first implementation of this contract. CI regenerates its
 four scenes, contact sheet, landmark masks, metrics, and deviations from locked
 inputs and uploads them as review evidence. Its engineering evidence is
 implemented, while style and landmark approval remain explicitly pending. The
-current project recommendation is to reject A as the final style and proceed to
-the bounded Candidate B iteration.
+project rejected A as the final style and proceeded to the bounded Candidate B
+iteration.
 
 Candidate B improves fixed-scene edge density by 15 to 50 percent, expands the
 declared palette from 16 to 27 colors, and remains byte-deterministic under
 clean reruns. The review pack completed under 87 MB peak RSS in the local
 probe. These metrics establish a real improvement but do not establish final
-artistic acceptance. The current recommendation is to preserve B as evidence
-and use the final bounded Candidate C iteration for the remaining density and
+artistic acceptance. The project preserved B as rejected final-style evidence
+and used the bounded Candidate C iteration for the remaining density and
 architectural-expression gap.
+
+Candidate C raises edge-transition density to 103,595 ppm for Hoover Tower,
+99,199 ppm for the Church and Main Quad, 91,102 ppm for roads and parking, and
+113,994 ppm for canopy and ordinary buildings. Its 33-color pack, exact rerun,
+unchanged earlier candidates, and bounded resource result satisfy the
+engineering side of the third-iteration contract. These measurements do not
+approve the art. The next action is the required human approve, relax, pivot,
+or stop decision, not a fourth silent procedural iteration.

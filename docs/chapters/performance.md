@@ -50,3 +50,10 @@ still completed in 1.14 seconds with 86,917,120 bytes maximum RSS on the local
 development probe. Candidate B guarded tiles reconstruct the monolithic scene
 exactly. Review assembly holds one approximately 25 MB indexed hero master;
 canonical render workers remain bounded to one guarded tile.
+
+Candidate C adds only deterministic palette treatment and bounded facade
+primitives. A complete four-scene review pack completed in 1.35 seconds with
+88,539,136 bytes maximum RSS on the local development probe. Two clean packs
+were byte-identical, and guarded Candidate C tiles reconstruct the monolithic
+scene exactly. This remains development evidence rather than fixed-device
+release qualification.

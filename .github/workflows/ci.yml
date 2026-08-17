@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 permissions:
@@ -56,12 +57,15 @@ jobs:
       - run: cargo run --quiet --release --locked -- render region artifacts/render/hero.ppm
       - run: cargo run --quiet --release --locked -- style candidate-a artifacts/style/candidate-a
       - run: cargo run --quiet --release --locked -- style candidate-b artifacts/style/candidate-b
+      - run: cargo run --quiet --release --locked -- style candidate-c artifacts/style/candidate-c
       - name: Verify frozen style-candidate hashes
         run: |
           test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-a/metrics.json)" = 215b8da3d2197672
           test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-b/metrics.json)" = 1613892db6f12493
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-c/metrics.json)" = fa044db833563e4b
           test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 3c6f880e282778588bace57e48a3a91cbc7ad154569d8ec2933e87808bb58970
           test "$(sha256sum artifacts/style/candidate-b/contact-sheet.webp | cut -d' ' -f1)" = 1fb51fa2ed7af9d99da386d75e195414b4e748337c8b411ddaa40fa2cfac8dc6
+          test "$(sha256sum artifacts/style/candidate-c/contact-sheet.webp | cut -d' ' -f1)" = 61bd04b672f0df5fe4a3eda7e85c6edebd71fb9aa7c1c7e2da16e95695227a62
       - name: Verify canonical hero preview hash
         run: test "$(sha256sum artifacts/render/hero.ppm | cut -d' ' -f1)" = "$(jq -r '.outputs[0].sha256' render.manifest.json)"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -72,6 +76,7 @@ jobs:
             artifacts/render/hero.ppm
             artifacts/style/candidate-a
             artifacts/style/candidate-b
+            artifacts/style/candidate-c
             artifacts/world/world.manifest.json
           if-no-files-found: error
 

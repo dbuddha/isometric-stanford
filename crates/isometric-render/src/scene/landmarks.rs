@@ -116,7 +116,7 @@ pub(super) fn append_main_quad_arcades(
                 push_triangle(
                     output,
                     [vertices[0], vertices[1], vertices[2]],
-                    style.ordinary.outline,
+                    landmark_opening_color(style, style.ordinary.outline),
                     object.id(),
                     PASS_DETAIL,
                     ordinal,
@@ -124,7 +124,7 @@ pub(super) fn append_main_quad_arcades(
                 push_triangle(
                     output,
                     [vertices[0], vertices[2], vertices[3]],
-                    style.ordinary.outline,
+                    landmark_opening_color(style, style.ordinary.outline),
                     object.id(),
                     PASS_DETAIL,
                     ordinal,
@@ -132,7 +132,7 @@ pub(super) fn append_main_quad_arcades(
                 push_triangle(
                     output,
                     [vertices[3], vertices[2], vertices[4]],
-                    style.ordinary.outline,
+                    landmark_opening_color(style, style.ordinary.outline),
                     object.id(),
                     PASS_DETAIL,
                     ordinal,
@@ -346,7 +346,7 @@ fn append_hoover_windows(
                 1_500,
                 level,
                 level + 2_200,
-                style.ordinary.shadow,
+                landmark_opening_color(style, style.ordinary.shadow),
                 object_id,
                 style,
                 view,
@@ -384,7 +384,7 @@ fn append_window_belt(
             panel_width_mm,
             bottom_mm,
             top_mm,
-            style.ordinary.shadow,
+            landmark_opening_color(style, style.ordinary.shadow),
             object_id,
             style,
             view,
@@ -502,7 +502,7 @@ fn append_church_openings(
             2_400,
             5_000,
             wall_height - 2_500,
-            style.ordinary.outline,
+            landmark_opening_color(style, style.ordinary.outline),
             object_id,
             style,
             view,
@@ -516,7 +516,7 @@ fn append_church_openings(
             2_400,
             5_000,
             wall_height - 2_500,
-            style.ordinary.outline,
+            landmark_opening_color(style, style.ordinary.outline),
             object_id,
             style,
             view,
@@ -531,7 +531,11 @@ fn append_church_openings(
         6_000,
         1_000,
         10_000,
-        style.ordinary.outline,
+        if style.ordinary.candidate_c_details() {
+            style.ordinary.door
+        } else {
+            style.ordinary.outline
+        },
         object_id,
         style,
         view,
@@ -566,7 +570,7 @@ fn append_rose_window(
     push_triangle(
         output,
         [projected[0], projected[1], projected[2]],
-        style.ordinary.outline,
+        landmark_opening_color(style, style.ordinary.outline),
         object_id,
         PASS_DETAIL,
         ordinal,
@@ -574,12 +578,20 @@ fn append_rose_window(
     push_triangle(
         output,
         [projected[0], projected[2], projected[3]],
-        style.ordinary.outline,
+        landmark_opening_color(style, style.ordinary.outline),
         object_id,
         PASS_DETAIL,
         ordinal,
     );
     Ok(())
+}
+
+fn landmark_opening_color(style: &StylePack, fallback: u8) -> u8 {
+    if style.ordinary.candidate_c_details() {
+        style.ordinary.windows[0]
+    } else {
+        fallback
+    }
 }
 
 #[allow(clippy::too_many_arguments)]

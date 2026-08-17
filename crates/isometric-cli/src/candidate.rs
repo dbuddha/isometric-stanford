@@ -33,6 +33,12 @@ const CANDIDATE_B: CandidateSpec = CandidateSpec {
     deviations: "# Candidate B known deviations\n\n- The world remains vector-only with 387,096 ppm unknown coverage; NAIP and LiDAR evidence are not compiled.\n- Convex ordinary buildings receive procedural hip roofs; complex and courtyard footprints retain flat roofs.\n- Facade openings use stable grammar rather than surveyed architectural detail.\n- Vegetation remains bounded by mapped vector polygons and lacks LiDAR-refined species or individual canopy evidence.\n- Parking markings are world-anchored visual grammar, not surveyed stall geometry.\n- No reference screenshots, generated final pixels, or manually painted saved tiles are included.\n- Candidate B requires review before it can become the approved style.\n",
 };
 
+const CANDIDATE_C: CandidateSpec = CandidateSpec {
+    id: "stanford_v1.candidate_c",
+    label: "Candidate C",
+    deviations: "# Candidate C known deviations\n\n- The world remains vector-only with 387,096 ppm unknown coverage; NAIP and LiDAR evidence are not compiled.\n- Complex roofs receive world-anchored tile treatment but remain planar rather than surveyed roof-part geometry.\n- Facade composition varies from stable object identity and is not a survey of individual openings.\n- Road, path, and parking treatments are semantic material grammar rather than surveyed lane or stall markings.\n- Vegetation remains bounded by mapped vector polygons and lacks LiDAR-refined species or individual canopy evidence.\n- No reference screenshots, generated final pixels, or manually painted saved tiles are included.\n- Candidate C is the final bounded procedural iteration and requires an explicit approve, relax, pivot, or stop decision.\n",
+};
+
 struct Scene {
     id: &'static str,
     title: &'static str,
@@ -81,6 +87,24 @@ pub(super) fn write_candidate_b(
         style_sha256,
         output,
         CANDIDATE_B,
+    )
+}
+
+/// Writes the final bounded Candidate C review pack.
+pub(super) fn write_candidate_c(
+    world: &World,
+    style: &StylePack,
+    world_sha256: &str,
+    style_sha256: &str,
+    output: &Path,
+) -> Result<String, String> {
+    write_candidate(
+        world,
+        style,
+        world_sha256,
+        style_sha256,
+        output,
+        CANDIDATE_C,
     )
 }
 
