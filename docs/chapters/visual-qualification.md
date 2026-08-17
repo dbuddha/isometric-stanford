@@ -21,3 +21,11 @@ inputs and uploads them as review evidence. Its engineering evidence is
 implemented, while style and landmark approval remain explicitly pending. The
 current project recommendation is to reject A as the final style and proceed to
 the bounded Candidate B iteration.
+
+Candidate B improves fixed-scene edge density by 15 to 50 percent, expands the
+declared palette from 16 to 27 colors, and remains byte-deterministic under
+clean reruns. The review pack completed under 87 MB peak RSS in the local
+probe. These metrics establish a real improvement but do not establish final
+artistic acceptance. The current recommendation is to preserve B as evidence
+and use the final bounded Candidate C iteration for the remaining density and
+architectural-expression gap.

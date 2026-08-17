@@ -18,12 +18,24 @@ pub struct Rgb8 {
 pub struct OrdinaryGrammar {
     /// Terrain fill and sparse alternate index.
     pub terrain: [u8; 2],
-    /// Light and dark canopy indexes.
-    pub canopy: [u8; 2],
+    /// Four deterministic canopy face indexes.
+    pub canopy: [u8; 4],
     /// Light and dark athletic-surface indexes.
     pub athletic: [u8; 2],
     /// Roof, light wall, and dark wall indexes.
     pub building: [u8; 3],
+    /// Two alternating detailed roof-plane indexes.
+    pub roof_faces: [u8; 2],
+    /// Light and dark facade-window indexes.
+    pub windows: [u8; 2],
+    /// Facade-door palette index.
+    pub door: u8,
+    /// Road palette index.
+    pub road: u8,
+    /// Path palette index.
+    pub path: u8,
+    /// Parking fill and world-anchored marking indexes.
+    pub parking: [u8; 2],
     /// Hard cast-shadow palette index.
     pub shadow: u8,
     /// One-logical-pixel outline palette index.
@@ -42,6 +54,22 @@ pub struct OrdinaryGrammar {
     pub terrain_dither_period: u8,
     /// Athletic-surface dither period in projected logical pixels.
     pub athletic_dither_period: u8,
+    /// Parking marking period in projected logical pixels.
+    pub parking_line_period: u8,
+    /// Enables ordinary facade openings.
+    pub facade_details: bool,
+    /// Enables convex multi-plane roofs.
+    pub roof_details: bool,
+    /// Horizontal world-space spacing between facade bays.
+    pub facade_bay_spacing_mm: i64,
+    /// Vertical world-space spacing between facade floors.
+    pub facade_floor_spacing_mm: i64,
+    /// Window width and height in world millimeters.
+    pub window_mm: [i64; 2],
+    /// Door width and height in world millimeters.
+    pub door_mm: [i64; 2],
+    /// Maximum ordinary roof rise in world millimeters.
+    pub roof_rise_mm: i64,
 }
 
 /// Original parameterized grammar for the three prototype landmarks.
@@ -111,9 +139,15 @@ impl StylePack {
             ],
             ordinary: OrdinaryGrammar {
                 terrain: [1, 0],
-                canopy: [2, 3],
+                canopy: [2, 3, 2, 3],
                 athletic: [12, 13],
                 building: [5, 7, 6],
+                roof_faces: [5, 5],
+                windows: [11, 11],
+                door: 11,
+                road: 9,
+                path: 8,
+                parking: [9, 9],
                 shadow: 10,
                 outline: 11,
                 shadow_x_mm: 12_000,
@@ -123,6 +157,14 @@ impl StylePack {
                 tree_height_mm: 12_000,
                 terrain_dither_period: 16,
                 athletic_dither_period: 8,
+                parking_line_period: 24,
+                facade_details: false,
+                roof_details: false,
+                facade_bay_spacing_mm: 6_000,
+                facade_floor_spacing_mm: 4_000,
+                window_mm: [2_200, 1_800],
+                door_mm: [2_600, 3_200],
+                roof_rise_mm: 5_000,
             },
             landmarks: LandmarkGrammar {
                 campus_u: [970, -242],
@@ -134,6 +176,41 @@ impl StylePack {
                 arcade_mm: [6_000, 2_800, 4_500, 6_500],
             },
         }
+    }
+
+    /// Returns the independently authored Candidate B style iteration.
+    #[must_use]
+    pub fn stanford_v1_candidate_b() -> Self {
+        let mut style = Self::stanford_v1();
+        style.id = "stanford_v1.candidate_b.1";
+        style.palette.extend([
+            rgb(200, 112, 79),
+            rgb(143, 67, 52),
+            rgb(190, 151, 108),
+            rgb(55, 73, 78),
+            rgb(112, 135, 137),
+            rgb(101, 66, 55),
+            rgb(151, 148, 133),
+            rgb(221, 211, 181),
+            rgb(143, 162, 105),
+            rgb(86, 116, 71),
+            rgb(218, 202, 169),
+        ]);
+        style.ordinary.terrain = [1, 0];
+        style.ordinary.canopy = [24, 2, 25, 3];
+        style.ordinary.building = [16, 7, 18];
+        style.ordinary.roof_faces = [16, 17];
+        style.ordinary.windows = [19, 20];
+        style.ordinary.door = 21;
+        style.ordinary.parking = [22, 23];
+        style.ordinary.terrain_dither_period = 8;
+        style.ordinary.parking_line_period = 24;
+        style.ordinary.tree_spacing_mm = 13_000;
+        style.ordinary.tree_radius_mm = 5_800;
+        style.ordinary.tree_height_mm = 13_000;
+        style.ordinary.facade_details = true;
+        style.ordinary.roof_details = true;
+        style
     }
 
     /// Validates hard style invariants.
@@ -162,6 +239,15 @@ impl StylePack {
             self.ordinary.building[0],
             self.ordinary.building[1],
             self.ordinary.building[2],
+            self.ordinary.roof_faces[0],
+            self.ordinary.roof_faces[1],
+            self.ordinary.windows[0],
+            self.ordinary.windows[1],
+            self.ordinary.door,
+            self.ordinary.road,
+            self.ordinary.path,
+            self.ordinary.parking[0],
+            self.ordinary.parking[1],
             self.ordinary.shadow,
             self.ordinary.outline,
         ];
@@ -176,6 +262,12 @@ impl StylePack {
             || self.ordinary.tree_height_mm <= 0
             || self.ordinary.terrain_dither_period == 0
             || self.ordinary.athletic_dither_period == 0
+            || self.ordinary.parking_line_period == 0
+            || self.ordinary.facade_bay_spacing_mm <= 0
+            || self.ordinary.facade_floor_spacing_mm <= 0
+            || self.ordinary.window_mm.into_iter().any(|value| value <= 0)
+            || self.ordinary.door_mm.into_iter().any(|value| value <= 0)
+            || self.ordinary.roof_rise_mm <= 0
         {
             return Err(StyleError::InvalidGrammar);
         }
@@ -246,6 +338,16 @@ mod tests {
         StylePack::stanford_v1()
             .validate()
             .expect("style must validate");
+    }
+
+    #[test]
+    fn candidate_b_is_valid_and_enables_bounded_details() {
+        let style = StylePack::stanford_v1_candidate_b();
+        style.validate().expect("Candidate B must validate");
+        assert_eq!(style.palette.len(), 27);
+        assert!(style.ordinary.facade_details);
+        assert!(style.ordinary.roof_details);
+        assert_ne!(style.ordinary.parking[0], style.ordinary.road);
     }
 
     #[test]

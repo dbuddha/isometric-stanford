@@ -35,6 +35,13 @@ jobs:
           cargo run --quiet --release --locked -- validate release artifacts/dzi/first
           cargo run --quiet --release --locked -- validate release artifacts/dzi/second
           diff -qr artifacts/dzi/first artifacts/dzi/second
+      - name: Verify Candidate B repeatability without Candidate A drift
+        run: |
+          cargo run --quiet --release --locked -- style candidate-a artifacts/style/candidate-a
+          cargo run --quiet --release --locked -- style candidate-b artifacts/style/candidate-b-first
+          cargo run --quiet --release --locked -- style candidate-b artifacts/style/candidate-b-second
+          diff -qr artifacts/style/candidate-b-first artifacts/style/candidate-b-second
+          test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 3c6f880e282778588bace57e48a3a91cbc7ad154569d8ec2933e87808bb58970
 
   browser:
     name: Real DZI desktop and mobile browser recovery

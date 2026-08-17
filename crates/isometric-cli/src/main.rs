@@ -26,6 +26,7 @@ const USAGE: &str = "Usage:
   isometric-stanford validate release [artifact-directory]
   isometric-stanford publish dzi [output-directory]
   isometric-stanford style candidate-a [output-directory]
+  isometric-stanford style candidate-b [output-directory]
 
 Implemented commands:
   render region writes the compiled deterministic hero-world PPM.
@@ -36,6 +37,7 @@ Implemented commands:
   and writes a canonical world plus manifest. world inspect validates an artifact.
   publish dzi writes a staged, lossless WebP DZI and indexed canonical pyramid.
   style candidate-a writes four native review scenes, masks, metrics, and a contact sheet.
+  style candidate-b writes the bounded second procedural style iteration.
   Other commands fail closed until their tracked task is implemented.";
 
 fn main() -> ExitCode {
@@ -117,6 +119,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, output] if group == "style" && command == "candidate-a" => {
             write_style_candidate(Path::new(output))
+        }
+        [group, command] if group == "style" && command == "candidate-b" => {
+            write_style_candidate_b(Path::new("artifacts/style/candidate-b"))
+        }
+        [group, command, output] if group == "style" && command == "candidate-b" => {
+            write_style_candidate_b(Path::new(output))
         }
         [] => Ok(USAGE.into()),
         [single] if single == "--help" || single == "-h" => Ok(USAGE.into()),
@@ -269,6 +277,22 @@ fn write_style_candidate(output: &Path) -> Result<String, String> {
     candidate::write_candidate_a(
         &world,
         &StylePack::stanford_v1(),
+        &sha256_hex(&world_bytes),
+        &sha256_hex(&style_bytes),
+        output,
+    )
+}
+
+fn write_style_candidate_b(output: &Path) -> Result<String, String> {
+    let world_bytes = fs::read("artifacts/world/hero.json")
+        .map_err(|error| format!("read artifacts/world/hero.json after world compile: {error}"))?;
+    let world_json = std::str::from_utf8(&world_bytes).map_err(|error| error.to_string())?;
+    let world = World::from_artifact_json(world_json).map_err(|error| error.to_string())?;
+    let style_bytes =
+        fs::read("styles/stanford_v1/candidate_b.toml").map_err(|error| error.to_string())?;
+    candidate::write_candidate_b(
+        &world,
+        &StylePack::stanford_v1_candidate_b(),
         &sha256_hex(&world_bytes),
         &sha256_hex(&style_bytes),
         output,
