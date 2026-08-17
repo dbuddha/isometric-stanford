@@ -85,6 +85,12 @@ evidence = ["cargo test -p isometric-render all_three_landmark_grammars_emit_dis
 status = "implemented-not-approved"
 
 [[claim]]
+id = "PROTO-STYLE-A-001"
+statement = "Candidate A deterministically produces four native scenes, three isolated landmark masks, a contact sheet, indexed metrics, and explicit deviations without copied reference imagery, generated final pixels, or manual tile painting."
+evidence = ["cargo run --release --locked -- style candidate-a artifacts/style/candidate-a", "research/2026-08-17-style-candidate-a.md", "CI artifact deterministic-render-evidence"]
+status = "implemented-not-approved"
+
+[[claim]]
 id = "PROTO-WEB-POLICY-001"
 statement = "The OpenSeadragon viewer derives bounded decoded-tile cache counts from explicit mobile and desktop byte budgets and gives phone-width screens a legible initial view without changing Home behavior."
 evidence = ["npm --prefix web test -- --run", "web/src/viewer-policy.test.ts", "docs/chapters/web-delivery.md"]

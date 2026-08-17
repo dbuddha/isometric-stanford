@@ -12,6 +12,8 @@ use isometric_style::StylePack;
 use isometric_validate::{validate_style, validate_world};
 use isometric_world::World;
 
+mod candidate;
+
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
   isometric-stanford perceive run
@@ -23,6 +25,7 @@ const USAGE: &str = "Usage:
   isometric-stanford validate semantic|render
   isometric-stanford validate release [artifact-directory]
   isometric-stanford publish dzi [output-directory]
+  isometric-stanford style candidate-a [output-directory]
 
 Implemented commands:
   render region writes the compiled deterministic hero-world PPM.
@@ -32,6 +35,7 @@ Implemented commands:
   world compile verifies the complete source lock, compiles the locked vectors,
   and writes a canonical world plus manifest. world inspect validates an artifact.
   publish dzi writes a staged, lossless WebP DZI and indexed canonical pyramid.
+  style candidate-a writes four native review scenes, masks, metrics, and a contact sheet.
   Other commands fail closed until their tracked task is implemented.";
 
 fn main() -> ExitCode {
@@ -107,6 +111,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, output] if group == "publish" && command == "dzi" => {
             publish_dzi_artifact(Path::new(output))
+        }
+        [group, command] if group == "style" && command == "candidate-a" => {
+            write_style_candidate(Path::new("artifacts/style/candidate-a"))
+        }
+        [group, command, output] if group == "style" && command == "candidate-a" => {
+            write_style_candidate(Path::new(output))
         }
         [] => Ok(USAGE.into()),
         [single] if single == "--help" || single == "-h" => Ok(USAGE.into()),
@@ -247,6 +257,22 @@ fn validate_release(input: &Path) -> Result<String, String> {
         input.display(),
         report.tile_set_sha256
     ))
+}
+
+fn write_style_candidate(output: &Path) -> Result<String, String> {
+    let world_bytes = fs::read("artifacts/world/hero.json")
+        .map_err(|error| format!("read artifacts/world/hero.json after world compile: {error}"))?;
+    let world_json = std::str::from_utf8(&world_bytes).map_err(|error| error.to_string())?;
+    let world = World::from_artifact_json(world_json).map_err(|error| error.to_string())?;
+    let style_bytes =
+        fs::read("styles/stanford_v1/style.toml").map_err(|error| error.to_string())?;
+    candidate::write_candidate_a(
+        &world,
+        &StylePack::stanford_v1(),
+        &sha256_hex(&world_bytes),
+        &sha256_hex(&style_bytes),
+        output,
+    )
 }
 
 fn write_ppm(

@@ -54,6 +54,7 @@ jobs:
       - run: cargo run --quiet --locked -- render fixture artifacts/reference.ppm
       - run: cargo run --quiet --release --locked -- world compile artifacts/world
       - run: cargo run --quiet --release --locked -- render region artifacts/render/hero.ppm
+      - run: cargo run --quiet --release --locked -- style candidate-a artifacts/style/candidate-a
       - name: Verify canonical hero preview hash
         run: test "$(sha256sum artifacts/render/hero.ppm | cut -d' ' -f1)" = "$(jq -r '.outputs[0].sha256' render.manifest.json)"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -62,6 +63,7 @@ jobs:
           path: |
             artifacts/reference.ppm
             artifacts/render/hero.ppm
+            artifacts/style/candidate-a
             artifacts/world/world.manifest.json
           if-no-files-found: error
 

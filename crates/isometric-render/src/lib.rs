@@ -14,8 +14,8 @@ mod scene;
 
 pub use raster::{RasterSurface, RasterVertex, Triangle};
 pub use scene::{
-    RenderLayout, TileRender, TileRenderStats, TileRequest, render_layout, render_tile,
-    render_world, required_tile_guard,
+    MAIN_QUAD_OBJECT_ID, RenderLayout, TileRender, TileRenderStats, TileRequest, render_layout,
+    render_selected_region, render_tile, render_world, required_tile_guard,
 };
 
 /// Indexed-palette image with one byte per pixel.
@@ -46,6 +46,82 @@ impl IndexedImage {
             width,
             height,
             pixels: vec![background; length],
+        })
+    }
+
+    /// Creates an indexed image from exact row-major pixels.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for invalid dimensions, length, or palette indexes.
+    pub fn from_pixels(
+        width: u32,
+        height: u32,
+        pixels: Vec<u8>,
+        palette_len: usize,
+    ) -> Result<Self, RenderError> {
+        let expected = usize::try_from(width)
+            .ok()
+            .and_then(|value| value.checked_mul(usize::try_from(height).ok()?))
+            .ok_or(RenderError::CapacityOverflow)?;
+        if width == 0
+            || height == 0
+            || width > 16_384
+            || height > 16_384
+            || pixels.len() != expected
+        {
+            return Err(RenderError::InvalidDimensions);
+        }
+        if palette_len == 0
+            || palette_len > 128
+            || pixels
+                .iter()
+                .any(|index| usize::from(*index) >= palette_len)
+        {
+            return Err(RenderError::PaletteIndex);
+        }
+        Ok(Self {
+            width,
+            height,
+            pixels,
+        })
+    }
+
+    /// Crops a bounded rectangular scene without resampling.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the rectangle is empty or outside the image.
+    pub fn crop(&self, x: u32, y: u32, width: u32, height: u32) -> Result<Self, RenderError> {
+        if width == 0
+            || height == 0
+            || x.checked_add(width).is_none_or(|right| right > self.width)
+            || y.checked_add(height)
+                .is_none_or(|bottom| bottom > self.height)
+        {
+            return Err(RenderError::InvalidDimensions);
+        }
+        let mut pixels = Vec::with_capacity(
+            usize::try_from(width)
+                .ok()
+                .and_then(|value| value.checked_mul(usize::try_from(height).ok()?))
+                .ok_or(RenderError::CapacityOverflow)?,
+        );
+        let source_width =
+            usize::try_from(self.width).map_err(|_| RenderError::CapacityOverflow)?;
+        let crop_width = usize::try_from(width).map_err(|_| RenderError::CapacityOverflow)?;
+        for row in y..y + height {
+            let start = usize::try_from(row)
+                .ok()
+                .and_then(|value| value.checked_mul(source_width))
+                .and_then(|value| value.checked_add(usize::try_from(x).ok()?))
+                .ok_or(RenderError::CapacityOverflow)?;
+            pixels.extend_from_slice(&self.pixels[start..start + crop_width]);
+        }
+        Ok(Self {
+            width,
+            height,
+            pixels,
         })
     }
 
@@ -253,6 +329,8 @@ pub enum RenderError {
     Triangulation,
     /// Tile coordinates, size, or guard do not satisfy the bounded render contract.
     InvalidTileRequest,
+    /// A selected-object render is empty, duplicated, or references an unknown ID.
+    InvalidObjectSelection,
 }
 
 impl fmt::Display for RenderError {
@@ -270,6 +348,7 @@ impl fmt::Display for RenderError {
             Self::EmptyWorld => "world contains no renderable geometry",
             Self::Triangulation => "polygon could not be decomposed deterministically",
             Self::InvalidTileRequest => "tile request is outside the bounded render contract",
+            Self::InvalidObjectSelection => "object selection is empty or noncanonical",
         })
     }
 }
@@ -278,7 +357,7 @@ impl std::error::Error for RenderError {}
 
 #[cfg(test)]
 mod tests {
-    use super::{project, render_reference, stable_hash};
+    use super::{IndexedImage, RenderError, project, render_reference, stable_hash};
     use isometric_core::WorldPoint;
     use isometric_style::StylePack;
     use isometric_world::World;
@@ -315,5 +394,24 @@ mod tests {
                 .iter()
                 .all(|index| usize::from(*index) < style.palette.len())
         );
+    }
+
+    #[test]
+    fn indexed_pixels_and_crops_fail_closed() {
+        let image = IndexedImage::from_pixels(3, 2, vec![0, 1, 2, 3, 4, 5], 6)
+            .expect("canonical indexed image");
+        assert_eq!(
+            image.crop(1, 0, 2, 2).expect("bounded crop").pixels(),
+            &[1, 2, 4, 5]
+        );
+        assert_eq!(
+            IndexedImage::from_pixels(3, 2, vec![0; 5], 6),
+            Err(RenderError::InvalidDimensions)
+        );
+        assert_eq!(
+            IndexedImage::from_pixels(1, 1, vec![6], 6),
+            Err(RenderError::PaletteIndex)
+        );
+        assert_eq!(image.crop(2, 1, 2, 1), Err(RenderError::InvalidDimensions));
     }
 }

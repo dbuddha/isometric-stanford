@@ -17,6 +17,9 @@ const PASS_ROOF: u8 = 3;
 const PASS_CROWN: u8 = 4;
 const PASS_SHADOW: u8 = 5;
 
+/// Stable content ID of the canonical Main Quad courtyard object.
+pub const MAIN_QUAD_OBJECT_ID: u64 = 7_375_667_649_447_908_307;
+
 /// Stable full-scene coordinate system used by independently rendered tiles.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct RenderLayout {
@@ -37,6 +40,31 @@ impl RenderLayout {
     #[must_use]
     pub const fn height(self) -> u32 {
         self.height
+    }
+
+    /// Projects a world point into this layout's logical pixel coordinates.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when projection or offset arithmetic overflows.
+    pub fn image_coordinates(
+        self,
+        point: WorldPoint,
+        style: &StylePack,
+    ) -> Result<(i64, i64), RenderError> {
+        let projected = project(point, style)?;
+        let x = projected
+            .x_subpx
+            .checked_add(self.offset_x_subpx)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        let y = projected
+            .y_subpx
+            .checked_add(self.offset_y_subpx)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        Ok((
+            x.div_euclid(style.subpixels_per_pixel),
+            y.div_euclid(style.subpixels_per_pixel),
+        ))
     }
 }
 
@@ -93,6 +121,65 @@ pub fn render_world(world: &World, style: &StylePack) -> Result<IndexedImage, Re
     let view = Viewport::from_layout(layout);
     let (image, _) = render_objects(world.objects().iter(), style, view)?;
     Ok(image)
+}
+
+/// Renders selected canonical objects in one guarded region of the stable layout.
+///
+/// # Errors
+///
+/// Returns an error when the selection or region is invalid or rendering fails.
+#[allow(clippy::too_many_arguments)]
+pub fn render_selected_region(
+    world: &World,
+    style: &StylePack,
+    layout: RenderLayout,
+    object_ids: &[ObjectId],
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+) -> Result<IndexedImage, RenderError> {
+    if object_ids.is_empty()
+        || width == 0
+        || height == 0
+        || width > 2_048
+        || height > 2_048
+        || x.checked_add(width)
+            .is_none_or(|right| right > layout.width)
+        || y.checked_add(height)
+            .is_none_or(|bottom| bottom > layout.height)
+    {
+        return Err(RenderError::InvalidObjectSelection);
+    }
+    let selected = object_ids.iter().copied().collect::<BTreeSet<_>>();
+    if selected.len() != object_ids.len()
+        || !selected
+            .iter()
+            .all(|id| world.objects().iter().any(|object| object.id() == *id))
+    {
+        return Err(RenderError::InvalidObjectSelection);
+    }
+    let guard = required_tile_guard(style)?;
+    let surface_width = width
+        .checked_add(guard * 2)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let surface_height = height
+        .checked_add(guard * 2)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let view = Viewport::for_region(
+        layout,
+        i64::from(x) - i64::from(guard),
+        i64::from(y) - i64::from(guard),
+        surface_width,
+        surface_height,
+        style,
+    )?;
+    let objects = world
+        .objects()
+        .iter()
+        .filter(|object| selected.contains(&object.id()));
+    let (guarded, _) = render_objects(objects, style, view)?;
+    crop_image(&guarded, guard, guard, width, height)
 }
 
 /// Derives the stable full-scene layout without allocating a framebuffer.
@@ -1314,6 +1401,63 @@ mod tests {
         assert_eq!(
             render_tile(&compiled.world, &style, layout, outside),
             Err(RenderError::InvalidTileRequest)
+        );
+    }
+
+    #[test]
+    fn selected_region_is_deterministic_and_rejects_invalid_ids() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let style = StylePack::stanford_v1();
+        let layout = render_layout(&compiled.world, &style).expect("layout");
+        let object = &compiled.world.objects()[0];
+        let (center_x, center_y) = layout
+            .image_coordinates(object.anchor(), &style)
+            .expect("image coordinates");
+        let x = u32::try_from((center_x - 64).clamp(0, i64::from(layout.width() - 128)))
+            .expect("bounded x");
+        let y = u32::try_from((center_y - 64).clamp(0, i64::from(layout.height() - 128)))
+            .expect("bounded y");
+        let first = render_selected_region(
+            &compiled.world,
+            &style,
+            layout,
+            &[object.id()],
+            x,
+            y,
+            128,
+            128,
+        )
+        .expect("selected region");
+        let second = render_selected_region(
+            &compiled.world,
+            &style,
+            layout,
+            &[object.id()],
+            x,
+            y,
+            128,
+            128,
+        )
+        .expect("selected region repeat");
+        assert_eq!(first, second);
+
+        let unknown = ObjectId::new(u64::MAX).expect("nonzero id");
+        assert_eq!(
+            render_selected_region(&compiled.world, &style, layout, &[unknown], x, y, 128, 128,),
+            Err(RenderError::InvalidObjectSelection)
+        );
+        assert_eq!(
+            render_selected_region(
+                &compiled.world,
+                &style,
+                layout,
+                &[object.id(), object.id()],
+                x,
+                y,
+                128,
+                128,
+            ),
+            Err(RenderError::InvalidObjectSelection)
         );
     }
 

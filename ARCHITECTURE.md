@@ -82,7 +82,7 @@ art style remain unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, `validate release`, `render region`,
-and `publish dzi`. Source
+`publish dzi`, and `style candidate-a`. Source
 synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
 records before use. Hero compilation projects WGS84 vector geometry into
 EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
@@ -90,7 +90,12 @@ derives stable content IDs, normalizes buildings and buffered road segments,
 and records uncovered 20 meter cells as explicit unknowns. DZI publication
 requires the compiled world, writes only to a new output path, and validates
 every descriptor, canonical tile, WebP tile, palette color, and manifest hash.
-All other documented command names fail with an explicit not-implemented
+The style command reconstructs the 7,623 by 3,325 indexed master from bounded
+guarded tiles, crops four stable review scenes, renders isolated landmark masks,
+and writes lossless WebP, HTML, metrics, and known deviations through an atomic
+staging directory. The review assembly holds one 25 MB indexed master for
+contact-sheet work; canonical tile workers remain bounded independently of map
+area. All other documented command names fail with an explicit not-implemented
 error.
 
 The vector world currently contains 2,820 objects in 72 partitions. Its
