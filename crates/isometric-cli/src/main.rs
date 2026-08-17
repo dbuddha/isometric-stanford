@@ -6,7 +6,7 @@ use std::{
     process::ExitCode,
 };
 
-use isometric_render::{render_reference, stable_hash};
+use isometric_render::{render_reference, render_world, stable_hash};
 use isometric_style::StylePack;
 use isometric_validate::{validate_style, validate_world};
 use isometric_world::World;
@@ -17,12 +17,14 @@ const USAGE: &str = "Usage:
   isometric-stanford world compile [output-directory]
   isometric-stanford world inspect [world.json]
   isometric-stanford render region [output.ppm]
+  isometric-stanford render fixture [output.ppm]
   isometric-stanford render slice
   isometric-stanford validate semantic|render|release
   isometric-stanford publish dzi
 
-Bootstrap implementation:
-  render region writes an original deterministic reference PPM.
+Implemented commands:
+  render region writes the compiled deterministic hero-world PPM.
+  render fixture writes the original synthetic regression PPM.
   validate semantic and validate render are executable.
   source sync verifies approved artifacts in a content-addressed cache.
   world compile verifies the complete source lock, compiles the locked vectors,
@@ -80,10 +82,16 @@ fn run(arguments: &[String]) -> Result<String, String> {
             ))
         }
         [group, command] if group == "render" && command == "region" => {
-            render_region("artifacts/reference.ppm")
+            render_region("artifacts/render/hero.ppm")
         }
         [group, command, output] if group == "render" && command == "region" => {
             render_region(output)
+        }
+        [group, command] if group == "render" && command == "fixture" => {
+            render_fixture("artifacts/reference.ppm")
+        }
+        [group, command, output] if group == "render" && command == "fixture" => {
+            render_fixture(output)
         }
         [] => Ok(USAGE.into()),
         [single] if single == "--help" || single == "-h" => Ok(USAGE.into()),
@@ -106,9 +114,10 @@ fn sync_sources(cache: &Path) -> Result<String, String> {
 }
 
 fn compile_world(output: &Path) -> Result<String, String> {
-    let artifacts = isometric_source::sync(
+    let artifacts = isometric_source::sync_selected(
         Path::new("source.lock.json"),
         Path::new("artifacts/source-cache"),
+        &["osm-2026-07-15-hero", "overture-2026-06-17-buildings"],
     )
     .map_err(|error| error.to_string())?;
     let path_for = |id: &str| {
@@ -167,9 +176,27 @@ fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
 }
 
 fn render_region(output: &str) -> Result<String, String> {
+    let json = fs::read_to_string("artifacts/world/hero.json").map_err(|error| {
+        format!("read artifacts/world/hero.json after `world compile`: {error}")
+    })?;
+    let world = World::from_artifact_json(&json).map_err(|error| error.to_string())?;
+    let style = StylePack::stanford_v1();
+    let image = render_world(&world, &style).map_err(|error| error.to_string())?;
+    write_ppm(output, &image, &style)
+}
+
+fn render_fixture(output: &str) -> Result<String, String> {
     let world = World::reference_fixture();
     let style = StylePack::stanford_v1();
     let image = render_reference(&world, &style, 256, 256).map_err(|error| error.to_string())?;
+    write_ppm(output, &image, &style)
+}
+
+fn write_ppm(
+    output: &str,
+    image: &isometric_render::IndexedImage,
+    style: &StylePack,
+) -> Result<String, String> {
     let bytes = image
         .to_ppm(&style.palette)
         .map_err(|error| error.to_string())?;
@@ -178,7 +205,9 @@ fn render_region(output: &str) -> Result<String, String> {
     }
     fs::write(output, bytes).map_err(|error| error.to_string())?;
     Ok(format!(
-        "wrote {output}: {:016x}",
+        "wrote {output} ({} x {}): {:016x}",
+        image.width(),
+        image.height(),
         stable_hash(image.pixels())
     ))
 }

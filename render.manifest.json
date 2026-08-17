@@ -1,9 +1,21 @@
 {
   "schema": "isometric-render-manifest/v1",
-  "status": "raster-core-only",
+  "status": "hero-vector-preview",
   "renderer": "isometric-render 0.1.0",
   "canonical_platform": "x86_64-unknown-linux-gnu",
-  "outputs": [],
+  "outputs": [
+    {
+      "id": "hero-vector-preview",
+      "format": "ppm-p6",
+      "width": 1950,
+      "height": 873,
+      "sha256": "7af31aecd72149fe3cc3618c8bbf310c358b126f37176c5727645742e4363e59",
+      "palette_only": true,
+      "contains_source_pixels": false,
+      "contains_transients": false,
+      "qualified": false
+    }
+  ],
   "runtime_seconds": null,
   "peak_memory_bytes": null
 }

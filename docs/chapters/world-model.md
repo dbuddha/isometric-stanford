@@ -39,8 +39,8 @@ negative fixtures prove that undeclared provenance fails closed.
 
 ## Hero vector compilation
 
-`isometric-stanford world compile` verifies the complete locked source bundle,
-then compiles the OSM and Overture vector artifacts. It uses Overture as the
+`isometric-stanford world compile` validates the complete lock, verifies the
+consumed OSM and Overture artifacts, and compiles those vectors. It uses Overture as the
 primary building-footprint and height source, enriches matching features with
 OSM names, floors, and roof tags, and uses nonduplicated OSM buildings as a
 fallback. OSM ways become deterministic roads, paths, parking, water, athletic

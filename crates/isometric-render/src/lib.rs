@@ -10,8 +10,10 @@ use isometric_style::{Rgb8, StylePack};
 use isometric_world::{SemanticClass, World};
 
 mod raster;
+mod scene;
 
 pub use raster::{RasterSurface, RasterVertex, Triangle};
+pub use scene::render_world;
 
 /// Indexed-palette image with one byte per pixel.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -238,6 +240,10 @@ pub enum RenderError {
     InvalidVertex,
     /// A surface was submitted more than once.
     SurfaceAlreadyRasterized,
+    /// No renderable geometry was available for viewport construction.
+    EmptyWorld,
+    /// Polygon decomposition could not produce valid triangles.
+    Triangulation,
 }
 
 impl fmt::Display for RenderError {
@@ -252,6 +258,8 @@ impl fmt::Display for RenderError {
             Self::InvalidPrimitiveKey => "primitive keys must be nonzero and unique",
             Self::InvalidVertex => "raster vertex exceeds the accepted coordinate range",
             Self::SurfaceAlreadyRasterized => "raster surface accepts one canonical batch",
+            Self::EmptyWorld => "world contains no renderable geometry",
+            Self::Triangulation => "polygon could not be decomposed deterministically",
         })
     }
 }

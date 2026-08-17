@@ -50,9 +50,16 @@ sorts it by stable primitive key, clips work to the bounded viewport, applies a
 half-open shared-edge rule at fixed pixel centers, interpolates integer depth,
 and writes palette indices only when depth is closer. Equal-depth fragments
 retain the lower stable key without an owner buffer. A tile owns exactly one
-palette byte and one 32-bit depth value per pixel. World-to-triangle scene
-construction, guarded supertiles, landmarks, and the qualified art style remain
-separate unfinished layers.
+palette byte and one 32-bit depth value per pixel.
+
+The first scene compiler now converts every canonical polygon and hole into
+deterministic horizontal trapezoids, then triangles. It renders ground,
+hardscape, roads, paths, empty parking, athletic surfaces, water, mapped
+vegetation footprints, and ordinary building extrusions. Flat roof faces and
+two directional facade ramps produce the first 1,950 by 873 Stanford-shaped
+preview. Guarded supertiles, procedural vegetation, detailed roofs, shadows,
+outlines, landmarks, and the qualified art style remain separate unfinished
+layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, and `render region`. Source
@@ -123,8 +130,8 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- World-to-triangle pass composition, occlusion policy, shadows, outlines,
-  dithering, guarded supertiles, and seam oracle
+- Procedural vegetation, detailed roof grammar, shadows, outlines, dithering,
+  guarded supertiles, and seam oracle
 - Landmark and vegetation grammar
 - DZI/WebP publication
 - Review dashboard, full visual metrics, and fixed-device qualification

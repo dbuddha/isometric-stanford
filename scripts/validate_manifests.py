@@ -168,6 +168,26 @@ def validate() -> None:
     if style_lock.get("style_sha256") != style_hash:
         raise ValueError("style lock hash does not match the style pack")
 
+    render = manifests["render.manifest.json"]
+    outputs = render.get("outputs")
+    if render.get("status") != "hero-vector-preview" or not isinstance(outputs, list) or len(outputs) != 1:
+        raise ValueError("render manifest must describe exactly one hero vector preview")
+    output = outputs[0]
+    if (
+        output.get("id") != "hero-vector-preview"
+        or output.get("format") != "ppm-p6"
+        or output.get("width") != 1950
+        or output.get("height") != 873
+        or output.get("palette_only") is not True
+        or output.get("contains_source_pixels") is not False
+        or output.get("contains_transients") is not False
+        or output.get("qualified") is not False
+    ):
+        raise ValueError("hero vector preview metadata violates the render contract")
+    render_hash = output.get("sha256")
+    if not isinstance(render_hash, str) or re.fullmatch(r"[0-9a-f]{64}", render_hash) is None:
+        raise ValueError("hero vector preview SHA-256 is invalid")
+
     release = manifests["release.json"]
     if (
         release.get("qualified") is not False

@@ -150,11 +150,49 @@ pub fn read_lock(path: &Path) -> Result<SourceLock, SourceError> {
 /// Returns an error when a record is invalid, acquisition fails, the byte
 /// length differs, or the SHA-256 does not match.
 pub fn sync(lock_path: &Path, cache_root: &Path) -> Result<Vec<SyncedArtifact>, SourceError> {
+    sync_selected(lock_path, cache_root, &[])
+}
+
+/// Synchronize selected approved artifacts, or every artifact when `ids` is empty.
+///
+/// The complete lock is validated before selection, so a malformed or
+/// prohibited unselected record still fails closed.
+///
+/// # Errors
+///
+/// Returns an error for an invalid lock, an unknown requested ID, acquisition
+/// failure, wrong byte length, or SHA-256 mismatch.
+pub fn sync_selected(
+    lock_path: &Path,
+    cache_root: &Path,
+    ids: &[&str],
+) -> Result<Vec<SyncedArtifact>, SourceError> {
     let lock = read_lock(lock_path)?;
     let lock_root = lock_path.parent().unwrap_or_else(|| Path::new("."));
-    let mut outputs = Vec::with_capacity(lock.sources.len());
+    let selected = if ids.is_empty() {
+        lock.sources.iter().collect::<Vec<_>>()
+    } else {
+        let requested = ids
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeSet<_>>();
+        if requested.len() != ids.len()
+            || requested
+                .iter()
+                .any(|id| !lock.sources.iter().any(|source| source.id == *id))
+        {
+            return Err(SourceError::Invalid(
+                "selected source IDs must be unique and present in the lock".into(),
+            ));
+        }
+        lock.sources
+            .iter()
+            .filter(|source| requested.contains(source.id.as_str()))
+            .collect()
+    };
+    let mut outputs = Vec::with_capacity(selected.len());
 
-    for source in &lock.sources {
+    for source in selected {
         outputs.push(sync_one(source, lock_root, cache_root)?);
     }
 
@@ -431,7 +469,7 @@ fn is_sha256(value: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{Acquisition, SourceLock, SourceRecord, read_lock, sync};
+    use super::{Acquisition, SourceLock, SourceRecord, read_lock, sync, sync_selected};
     use sha2::{Digest, Sha256};
     use std::fs;
 
@@ -487,6 +525,16 @@ mod tests {
 
         let parsed = read_lock(&root.join("source.lock.json")).expect("valid lock");
         assert_eq!(parsed.sources.len(), 1);
+        assert!(
+            sync_selected(
+                &root.join("source.lock.json"),
+                &root.join("cache"),
+                &["missing"]
+            )
+            .expect_err("unknown selection must fail")
+            .to_string()
+            .contains("selected source IDs")
+        );
         let first = sync(&root.join("source.lock.json"), &root.join("cache")).expect("first sync");
         let second =
             sync(&root.join("source.lock.json"), &root.join("cache")).expect("second sync");
