@@ -26,10 +26,15 @@ same rule applies to the clipped 78 KB Overture extract because the official
 2026-06-17.0 catalog lookup was unavailable during acquisition. Both files are
 small, reviewable source inputs and retain their upstream attribution.
 
-NAIP and LiDAR remain outside Git because their combined size is approximately
-448 MB. NAIP is locked to the exact export request and image dimensions. Each
-LiDAR record is an exact USGS staged object with a ScienceBase metadata item.
-The source synchronizer fails if an upstream object changes length or content.
+The four LiDAR objects remain outside Git because they total approximately 440
+MB. The exact 7.2 MB NAIP crop is committed under `fixtures/sources/` after a
+cold GitHub-hosted run proved the USDA FPAC export endpoint unreachable across
+three bounded connection attempts. The fixture preserves the previously locked
+bytes, dimensions, SHA-256, public-data terms, and FPAC attribution, so this
+reliability change does not alter semantic or rendered output. Each LiDAR
+record is an exact USGS staged object with a ScienceBase metadata item. The
+source lock also pins each LiDAR object's strong entity tag. The synchronizer
+fails if any artifact changes entity tag, response range, length, or content.
 
 No Google content was accessed or retained. Raw source bytes are prohibited
 from final render output. Only validated semantic geometry and evidence may

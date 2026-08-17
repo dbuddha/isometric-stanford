@@ -37,6 +37,12 @@ evidence = ["cargo test -p isometric-source", "cargo run --locked -- source sync
 status = "implemented"
 
 [[claim]]
+id = "PROTO-SOURCE-RELIABILITY-001"
+statement = "Locked HTTPS sources use bounded transient-only retries, entity-tag and range-guarded partial continuation, source-specific sanitized diagnostics, and exact-lock CI caching while permanent and integrity failures fail without retry."
+evidence = ["cargo test -p isometric-source", "cargo test -p isometric-cli", ".github/workflows/scheduled-assurance.yml", "CI artifact perception-recompile-evidence"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-FIXTURE-001"
 statement = "Licensed portable fixtures cover polygon holes, building parts, roads, canopy, confidence, explicit unknowns, and fail-closed provenance."
 evidence = ["fixtures/world/representative.json", "fixtures/world/invalid/missing-source-rights.json", "fixtures/world/invalid/unknown-source.json", "python scripts/validate_world_fixtures.py"]

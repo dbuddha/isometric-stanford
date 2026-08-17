@@ -7,7 +7,15 @@ GitHub issues and mdBook design chapters until code makes it current.
 
 The Rust workspace contains nine safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
-content-addressed artifacts through a bounded-memory cache.
+content-addressed artifacts through a bounded-memory cache. HTTPS acquisition
+uses three bounded attempts for classified transient failures. It continues
+partial bytes only when the lock pins an entity tag and the server returns the
+exact `206` range, then verifies the complete length and digest before an atomic
+promotion. Scheduled assurance restores only a cache whose key includes the
+complete `source.lock.json` digest. The exact 7.2 MB public-domain NAIP hero
+crop is a committed source fixture because its federal export service rejects
+GitHub-hosted runner connections; the approximately 440 MB LiDAR bundle remains
+external and content-addressed.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or

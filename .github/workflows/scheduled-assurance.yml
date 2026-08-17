@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17 10 * * 1"
   workflow_dispatch:
+    inputs:
+      cache_namespace:
+        description: Distinguishes deliberate cold and warm source-cache assurance runs
+        required: true
+        default: scheduled
+        type: string
 
 permissions:
   contents: read
@@ -18,8 +24,17 @@ jobs:
         with:
           toolchain: 1.94.0
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Restore exact locked source cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: artifacts/source-cache
+          key: source-v1-${{ runner.os }}-${{ hashFiles('source.lock.json') }}-${{ github.event.inputs.cache_namespace || 'scheduled' }}
       - name: Synchronize exact approved source bytes
-        run: cargo run --quiet --release --locked -- source sync artifacts/source-cache
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          cargo run --quiet --release --locked -- source sync artifacts/source-cache \
+            2>&1 | tee artifacts/source-sync.log
       - name: Recompile evidence twice with bounded-memory timing
         run: |
           /usr/bin/time -v cargo run --quiet --release --locked -- perceive run artifacts/perception-first 2>artifacts/perception-first.time
@@ -27,9 +42,11 @@ jobs:
           diff -q artifacts/perception-first/hero-evidence.json artifacts/perception-second/hero-evidence.json
           test "$(sha256sum artifacts/perception-first/hero-evidence.json | cut -d' ' -f1)" = "$(jq -r '.artifacts[0].sha256' perception.lock.json)"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
         with:
           name: perception-recompile-evidence
           path: |
+            artifacts/source-sync.log
             artifacts/perception-first/hero-evidence.json
             artifacts/perception-first.time
             artifacts/perception-second.time

@@ -160,12 +160,30 @@ fn run(arguments: &[String]) -> Result<String, String> {
 fn sync_sources(cache: &Path) -> Result<String, String> {
     let artifacts = isometric_source::sync(Path::new("source.lock.json"), cache)
         .map_err(|error| error.to_string())?;
+    Ok(sync_report(cache, &artifacts))
+}
+
+fn sync_report(cache: &Path, artifacts: &[isometric_source::SyncedArtifact]) -> String {
     let downloaded = artifacts.iter().filter(|artifact| !artifact.reused).count();
-    Ok(format!(
-        "verified {} sources in {} ({downloaded} downloaded)",
+    let details = artifacts
+        .iter()
+        .map(|artifact| {
+            if artifact.reused {
+                format!("source {}: verified cache hit", artifact.id)
+            } else {
+                format!(
+                    "source {}: downloaded in {} attempt(s)",
+                    artifact.id, artifact.attempts
+                )
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!(
+        "verified {} sources in {} ({downloaded} downloaded)\n{details}",
         artifacts.len(),
         cache.display()
-    ))
+    )
 }
 
 fn compile_perception(output: &Path) -> Result<String, String> {
@@ -523,7 +541,9 @@ fn write_ppm(
 
 #[cfg(test)]
 mod tests {
-    use super::{publication_style, run, style_by_id};
+    use super::{publication_style, run, style_by_id, sync_report};
+    use isometric_source::SyncedArtifact;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn semantic_validation_command_runs() {
@@ -560,5 +580,30 @@ mod tests {
             "stanford_v1.candidate_c.1"
         );
         assert!(style_by_id("stanford_v1.unknown").is_err());
+    }
+
+    #[test]
+    fn source_report_names_attempts_without_urls() {
+        let report = sync_report(
+            Path::new("artifacts/source-cache"),
+            &[
+                SyncedArtifact {
+                    id: "naip".into(),
+                    path: PathBuf::from("cache/naip"),
+                    reused: false,
+                    attempts: 2,
+                },
+                SyncedArtifact {
+                    id: "lidar".into(),
+                    path: PathBuf::from("cache/lidar"),
+                    reused: true,
+                    attempts: 0,
+                },
+            ],
+        );
+
+        assert!(report.contains("source naip: downloaded in 2 attempt(s)"));
+        assert!(report.contains("source lidar: verified cache hit"));
+        assert!(!report.contains("https://"));
     }
 }

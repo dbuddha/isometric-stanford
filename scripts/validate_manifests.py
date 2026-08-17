@@ -109,6 +109,15 @@ def validate() -> None:
                 raise ValueError(
                     f"source {source['id']} attempts prohibited Google retrieval"
                 )
+            etag = acquisition.get("etag")
+            if etag is not None and (
+                not isinstance(etag, str)
+                or len(etag) < 3
+                or not etag.startswith('"')
+                or not etag.endswith('"')
+                or any(ord(character) < 0x21 or ord(character) > 0x7E for character in etag)
+            ):
+                raise ValueError(f"source {source['id']} has an invalid HTTPS entity tag")
         else:
             local_path = acquisition.get("path")
             if (

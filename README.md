@@ -90,12 +90,20 @@ Generate the original synthetic regression preview:
 cargo run --locked -- render fixture artifacts/reference.ppm
 ```
 
-Synchronize the pinned prototype source bundle, an approximately 450 MB
-transfer, into the ignored content-addressed cache:
+Synchronize the pinned prototype source bundle, an approximately 440 MB network
+transfer plus one committed 7.2 MB licensed NAIP fixture, into the ignored
+content-addressed cache:
 
 ```sh
 cargo run --locked -- source sync
 ```
+
+Source synchronization retries only bounded transient network failures. It
+uses fixed connection and receive deadlines, continues a partial range only
+against a locked entity tag and exact response bounds, verifies the locked
+length and SHA-256, and reports stable source IDs plus attempt counts without
+exposing acquisition URLs. Permanent HTTP responses and integrity failures fail
+immediately.
 
 Recompile the frozen semantic evidence from the exact approximately 450 MB
 source cache when source or compiler verification is required:

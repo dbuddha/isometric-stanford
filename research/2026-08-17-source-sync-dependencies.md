@@ -22,9 +22,12 @@ an async runtime or a geospatial parser to the renderer.
 response body. Its Rustls feature supplies TLS without a platform OpenSSL
 dependency. Downloads use a 64 KiB heap buffer, enforce the locked length while
 streaming, verify SHA-256 before rename, and never allocate in proportion to
-artifact size. Connection and response-header waits are bounded. Response-body
-time is not globally capped because the locked LiDAR objects are each larger
-than 100 MB and valid transfer time varies with upstream throughput.
+artifact size. Connection establishment is bounded at 30 seconds and response
+receipt, including headers and body, has one 300 second window. This matches
+`ureq` timing semantics, which keep the receive-response timer active while the
+body is read. The synchronizer makes at most three attempts for classified
+transient conditions. Permanent status responses, length mismatches, and digest
+mismatches fail without retry.
 
 The TLS root dataset uses the permissive CDLA 2.0. Its license text ships in
 the dependency source and permits unrestricted computational results. The
@@ -32,6 +35,34 @@ license is added to the repository allowlist because the application uses the
 trust anchors for HTTPS validation and does not redistribute a modified root
 dataset independently.
 
-The cache is content-addressed by SHA-256. Partial files are process-scoped and
-removed on errors. Existing entries are rehashed before reuse. Source retrieval
-is not linked into the renderer, and render commands do not access the network.
+The cache is content-addressed by SHA-256. Partial files are process-scoped. An
+ordinary transient retry starts from byte zero. A record with a locked strong
+entity tag may continue from its exact partial length only when the upstream
+returns the same tag, status `206`, and the exact remaining `Content-Range`.
+Any mismatch or final failure removes the partial, and the completed bytes must
+still pass full length and digest verification. Existing entries are rehashed
+before reuse. Scheduled assurance uses the official pinned `actions/cache`
+action with the entire source-lock digest in its key and no prefix fallback.
+Source retrieval is not linked into the renderer, and render commands do not
+access the network.
+
+The first namespaced cold assurance run on 2026-08-17 exhausted three 30 second
+connections to `naip-2024-hero` before any response headers arrived. The stable
+source ID and stage were preserved without exposing the export URL. Because the
+exact crop is 7.2 MB and redistributable public federal imagery, it is now a
+committed licensed fixture. This keeps the retry policy honest and avoids
+turning a permanently blocked runner-to-host route into a longer retry loop.
+
+The next cold run exposed an independent timeout configuration error while
+streaming `usgs-lidar-07509800`. `ureq` applies the receive-response deadline as
+a predecessor while reading the body, so a nominal 300 second body deadline
+was still capped at 60 seconds. The implementation now gives headers and body
+one explicit 300 second receive window, retains the separate 30 second connect
+deadline, and tests those production values directly.
+
+That run also showed the first 103 MB USGS object could not complete within one
+clean receive window from a hosted runner. The USGS endpoint advertises byte
+ranges and stable strong entity tags. Those tags are now part of the source
+lock, and deterministic HTTP fixtures prove both successful continuation and
+rejection of a mismatched range. This bounds wasted transfer without weakening
+the final content hash boundary.
