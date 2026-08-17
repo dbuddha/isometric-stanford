@@ -1,0 +1,14 @@
+[book]
+title = "Isometric Stanford Engineering Guide"
+authors = ["Deepak Buddha"]
+language = "en"
+src = "docs"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/dbuddha/isometric-stanford"
+edit-url-template = "https://github.com/dbuddha/isometric-stanford/edit/main/docs/{path}"
+no-section-label = false

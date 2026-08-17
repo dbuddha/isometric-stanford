@@ -1,0 +1,26 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/isometric-cli",
+    "crates/isometric-core",
+    "crates/isometric-render",
+    "crates/isometric-style",
+    "crates/isometric-validate",
+    "crates/isometric-world",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94"
+authors = ["Deepak Buddha"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dbuddha/isometric-stanford"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "warn"

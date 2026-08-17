@@ -1,0 +1,68 @@
+name: Capability
+description: Owner-approved outcome containing one or more Requirements
+title: "[Capability] "
+labels: ["kind:capability"]
+body:
+  - type: markdown
+    attributes:
+      value: Capabilities state observable program outcomes. They are not implementation tasks and receive no estimate.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and affected users
+      description: State the observable pain, risk, or opportunity.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Qualified outcome
+      description: State what evidence proves this Capability complete.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Boundaries and human-owned decisions
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirement sub-issues
+      description: Add native sub-issues after creation. Do not estimate this parent.
+*** Add File: /Users/deepak/dev/personal/isometric-stanford/.github/ISSUE_TEMPLATE/requirement.yml
+name: Requirement
+description: Approved behavior or quality contract under one Capability
+title: "[Requirement] "
+labels: ["kind:requirement"]
+body:
+  - type: input
+    id: capability
+    attributes:
+      label: Parent Capability
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Observable contract
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: Include exact metrics, tests, artifacts, and reviewers.
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Explicit exclusions and risks
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Add Tasks, Research, Decisions, or Defects as native sub-issues. Do not estimate this parent.

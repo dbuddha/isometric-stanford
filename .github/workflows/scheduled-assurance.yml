@@ -1,0 +1,45 @@
+name: Scheduled assurance
+
+on:
+  schedule:
+    - cron: "17 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repeatability:
+    name: Three-run repeatability and release dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.94.0
+      - run: cargo test --workspace --locked
+      - run: |
+          first=$(cargo run --quiet --locked -- validate render)
+          second=$(cargo run --quiet --locked -- validate render)
+          third=$(cargo run --quiet --locked -- validate render)
+          test "$first" = "$second"
+          test "$second" = "$third"
+      - run: python3 scripts/validate_manifests.py
+
+  browser:
+    name: Desktop and mobile browser smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e

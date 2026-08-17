@@ -37,8 +37,36 @@ qualification.
 
 ## Status
 
-Repository bootstrap is in progress. The vertical slice is not yet qualified
+Repository foundation is established. Vertical-slice implementation is in progress, and the slice is not yet qualified
 and no map release has been published.
+
+## Development
+
+Prerequisites are Rust 1.94.0, Python 3.12, Node.js 24, mdBook 0.5.4, and
+`cargo-deny`. Install Python and web development dependencies once:
+
+```sh
+python3.12 -m venv perception/.venv
+perception/.venv/bin/python -m pip install -r perception/requirements-dev.lock pip-audit==2.10.1
+npm --prefix web install
+```
+
+Run the complete local acceptance gate:
+
+```sh
+scripts/check.sh
+```
+
+Generate the original deterministic bootstrap preview:
+
+```sh
+cargo run --locked -- render region artifacts/reference.ppm
+```
+
+The other CLI command names are reserved and fail closed until their tracked
+implementation tasks merge. See the
+[engineering guide](https://dbuddha.github.io/isometric-stanford/) and
+[ARCHITECTURE.md](ARCHITECTURE.md) for the implemented boundary.
 
 ## Licensing
 

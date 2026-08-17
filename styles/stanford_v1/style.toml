@@ -1,0 +1,78 @@
+schema = "isometric-style/v1"
+id = "stanford_v1.bootstrap.1"
+status = "candidate"
+license = "CC-BY-4.0"
+author = "Deepak Buddha"
+logical_pixel_scale = 1
+projection = "orthographic-2-to-1"
+subpixels_per_pixel = 256
+world_mm_per_half_step = 1000
+elevation_mm_per_pixel = 1000
+anti_aliasing = false
+max_palette_colors = 128
+shadow_direction = "south-east"
+world_anchored_patterns = true
+
+[[palette]]
+name = "sand-light"
+rgb = "#efe1be"
+
+[[palette]]
+name = "ground-neutral"
+rgb = "#b9b88b"
+
+[[palette]]
+name = "canopy-light"
+rgb = "#6f8458"
+
+[[palette]]
+name = "canopy-dark"
+rgb = "#466042"
+
+[[palette]]
+name = "water"
+rgb = "#518597"
+
+[[palette]]
+name = "tile-red"
+rgb = "#ab5c45"
+
+[[palette]]
+name = "tile-shadow"
+rgb = "#793c31"
+
+[[palette]]
+name = "stucco-light"
+rgb = "#e7ca9d"
+
+[[palette]]
+name = "path"
+rgb = "#cab896"
+
+[[palette]]
+name = "asphalt"
+rgb = "#807e73"
+
+[[palette]]
+name = "asphalt-shadow"
+rgb = "#54534e"
+
+[[palette]]
+name = "outline"
+rgb = "#363230"
+
+[[palette]]
+name = "field-light"
+rgb = "#d3b762"
+
+[[palette]]
+name = "field-dark"
+rgb = "#9d935b"
+
+[[palette]]
+name = "highlight"
+rgb = "#f5eed3"
+
+[[palette]]
+name = "unknown"
+rgb = "#232525"

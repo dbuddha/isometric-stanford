@@ -1,0 +1,8 @@
+{
+  "schema": "isometric-world-manifest/v1",
+  "status": "bootstrap-fixture-only",
+  "semantic_version": "0.1.0",
+  "partitions": [],
+  "unknown_fraction": null,
+  "dirty_bounds": []
+}

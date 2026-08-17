@@ -1,0 +1,9 @@
+{
+  "schema": "isometric-render-manifest/v1",
+  "status": "bootstrap-fixture-only",
+  "renderer": "isometric-render 0.1.0",
+  "canonical_platform": "x86_64-unknown-linux-gnu",
+  "outputs": [],
+  "runtime_seconds": null,
+  "peak_memory_bytes": null
+}

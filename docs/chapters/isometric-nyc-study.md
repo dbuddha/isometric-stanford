@@ -1,0 +1,34 @@
+# Isometric NYC source study
+
+[Isometric NYC](https://cannoneyed.com/projects/isometric-nyc) establishes a
+useful precedent but uses a different production method. Its public source
+repository is available at
+[cannoneyed/isometric-nyc](https://github.com/cannoneyed/isometric-nyc).
+
+The source study found this pipeline:
+
+1. Google Photorealistic 3D Tiles were rendered through a fixed orthographic
+   Three.js camera into white-box source views.
+2. A generative image model established target examples.
+3. Qwen Image-Edit was fine-tuned on roughly forty paired examples.
+4. Production generation used contextual 1024 by 1024 infill templates built
+   from neighboring 512 by 512 quadrants.
+5. SQLite tracked generation and manual tools corrected seams, color drift,
+   water, vegetation, and terrain failures.
+6. The final site flattened the result into a static DZI/WebP pyramid viewed in
+   OpenSeadragon. It did not ship a live Three.js world.
+
+The main lesson is that style did not live in a conventional image-processing
+filter. It lived in reference images, prompts, accepted image pairs, fine-tuned
+weights, generation order, and manual correction. OpenCV-style preprocessing
+helped condition inputs but did not create the art direction.
+
+Isometric Stanford adopts the static delivery lesson and rejects generated
+final pixels. Style is made explicit as original code, palette, geometry,
+patterns, landmark grammar, and accepted Stanford goldens. This raises initial
+engineering and asset-authoring cost but makes updates, seams, provenance, and
+repeated rendering testable.
+
+Do not copy Isometric NYC imagery or assume its assets are licensed for reuse.
+The project records observable characteristics and independently creates its
+own output.
