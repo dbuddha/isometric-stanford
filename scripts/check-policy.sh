@@ -25,4 +25,9 @@ if grep -R -n --exclude='check-policy.sh' --exclude-dir=node_modules --exclude-d
     exit 1
 fi
 
+if grep -R -n -E 'uses:[[:space:]]+[^[:space:]#]+@(v[0-9]+|stable|main|master)([[:space:]#]|$)' .github/workflows; then
+    echo 'GitHub Actions must use an immutable reviewed commit reference' >&2
+    exit 1
+fi
+
 echo 'repository policy passed'

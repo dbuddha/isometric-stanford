@@ -11,21 +11,21 @@ jobs:
     name: Validate and assemble unpublished artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c
         with:
           toolchain: 1.94.0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - uses: peaceiris/actions-mdbook@v2
+      - uses: taiki-e/install-action@288e746965032cfcc232e09af2daf5f23c14d780 # v2.86.1
         with:
-          mdbook-version: "0.5.4"
+          tool: mdbook@0.5.4
       - run: scripts/check-policy.sh
       - run: python scripts/validate_manifests.py
       - run: cargo test --workspace --locked
@@ -49,7 +49,7 @@ jobs:
           cp release.json render.manifest.json style.lock.json artifacts/release-dry-run/
           cp -R book artifacts/release-dry-run/documentation
           cp -R web/dist artifacts/release-dry-run/viewer
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-dry-run
           path: artifacts/release-dry-run
