@@ -26,3 +26,10 @@ source SHA-256 values. On the measured development machine, a release build
 compiled 2,820 objects using approximately 16 MB maximum resident memory after
 the one-time Rust build. Source verification is streamed separately with a 64
 KiB copy buffer.
+
+The renderer's ordinary test gate reassembles the hero from independently
+guarded tiles and compares every palette index with the monolithic oracle. The
+scheduled release-only probe renders the complete 250 millimeter tile set,
+checks its aggregate `bf0604f68bc38d2c` hash, and enforces the per-tile pixel
+memory ceiling. WebP determinism remains outside this evidence until the
+encoder decision is accepted and implemented.

@@ -62,8 +62,14 @@ status = "implemented"
 
 [[claim]]
 id = "PROTO-SCENE-001"
-statement = "The canonical hero world renders as a deterministic 1,950 by 873 Stanford-shaped indexed preview with polygon holes, ground and hardscape classes, empty parking, flat roofs, and directional facades."
+statement = "The canonical hero world renders as a deterministic 1,954 by 880 Stanford-shaped indexed preview with polygon holes, ground and hardscape classes, empty parking, flat roofs, and directional facades."
 evidence = ["cargo test -p isometric-render hero_world_produces_deterministic_non_abstract_art", "cargo run --release --locked -- render region artifacts/render/hero.ppm", "render.manifest.json", "CI artifact deterministic-render-evidence"]
+status = "implemented"
+
+[[claim]]
+id = "PROTO-TILE-001"
+statement = "World-aligned guarded tiles reconstruct the monolithic hero byte for byte, reject unsafe requests, and render the approximately 8K probe with bounded per-tile pixel memory."
+evidence = ["cargo test -p isometric-render guarded_tiles_reassemble_to_the_exact_full_scene", "cargo test -p isometric-render guarded_tile_is_deterministic_and_rejects_unsafe_requests", "cargo test --release -p isometric-render eight_k_tile_set_is_deterministic_and_bounded -- --ignored --nocapture", "docs/chapters/performance.md"]
 status = "implemented"
 
 [[claim]]
