@@ -16,6 +16,12 @@ Ordinary pull requests target a fifteen-minute completion budget. Coverage,
 mutation, Kani, fuzzing, full-slice rendering, model benchmarks, and browser
 traces run when selected by risk or schedule.
 
+For pull request events, the policy job also validates the review contract from
+the immutable event payload. Titles must follow the repository Conventional
+Commit form, bodies must retain all four evidence sections and link a GitHub
+issue, and exactly one `release:*` label must be present. The aggregate gate
+cannot pass when review metadata is incomplete.
+
 CI must not rerun a failed job until the cause is understood, weaken a threshold
 to obtain green status, or treat hosted timing as fixed-device qualification.
 

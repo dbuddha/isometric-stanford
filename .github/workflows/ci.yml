@@ -23,6 +23,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: scripts/check-policy.sh
+      - run: python scripts/test_validate_pr.py
+      - if: github.event_name == 'pull_request'
+        run: python scripts/validate_pr.py "$GITHUB_EVENT_PATH"
       - run: python scripts/validate_manifests.py
       - run: python scripts/validate_world_fixtures.py
 
