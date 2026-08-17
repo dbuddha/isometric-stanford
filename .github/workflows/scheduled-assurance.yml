@@ -18,6 +18,8 @@ jobs:
         with:
           toolchain: 1.94.0
       - run: cargo test --workspace --locked
+      - name: Verify bounded 8K-scale tile set
+        run: cargo test --release --locked -p isometric-render eight_k_tile_set_is_deterministic_and_bounded -- --ignored --nocapture
       - run: |
           first=$(cargo run --quiet --locked -- validate render)
           second=$(cargo run --quiet --locked -- validate render)
