@@ -151,9 +151,8 @@ fn append_hoover(
     ordinal: &mut u32,
 ) -> Result<(), RenderError> {
     let center = polygon_center(polygon);
-    let [base_top, shaft_top, crown_top, lantern_top, total_top] =
-        style.landmarks.hoover_heights_mm;
-    let [shaft_width, crown_width, lantern_width] = style.landmarks.hoover_widths_mm;
+    let [base_top, shaft_top, ..] = style.landmarks.hoover_heights_mm;
+    let [shaft_width, ..] = style.landmarks.hoover_widths_mm;
 
     append_polygon_shell(
         output, polygon, 0, base_top, object_id, style, view, ordinal,
@@ -166,6 +165,18 @@ fn append_hoover(
         base_top,
         shaft_top,
         style.ordinary.building,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )?;
+
+    append_hoover_windows(
+        output,
+        center,
+        shaft_width,
+        base_top,
+        shaft_top,
         object_id,
         style,
         view,
@@ -188,6 +199,19 @@ fn append_hoover(
         )?;
     }
 
+    append_hoover_crown(output, center, object_id, style, view, ordinal)
+}
+
+fn append_hoover_crown(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let [_, shaft_top, crown_top, ..] = style.landmarks.hoover_heights_mm;
+    let [_, crown_width, _] = style.landmarks.hoover_widths_mm;
     append_prism(
         output,
         center,
@@ -201,6 +225,33 @@ fn append_hoover(
         view,
         ordinal,
     )?;
+    append_window_belt(
+        output,
+        center,
+        crown_width / 2,
+        crown_width / 2,
+        shaft_top + 2_000,
+        crown_top - 1_500,
+        4_200,
+        1_400,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )?;
+    append_hoover_cap(output, center, object_id, style, view, ordinal)
+}
+
+fn append_hoover_cap(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let [_, _, crown_top, lantern_top, total_top] = style.landmarks.hoover_heights_mm;
+    let [_, _, lantern_width] = style.landmarks.hoover_widths_mm;
     append_prism(
         output,
         center,
@@ -209,6 +260,20 @@ fn append_hoover(
         crown_top,
         lantern_top,
         style.ordinary.building,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )?;
+    append_window_belt(
+        output,
+        center,
+        lantern_width / 2,
+        lantern_width / 2,
+        crown_top + 1_500,
+        lantern_top - 1_500,
+        3_600,
+        1_200,
         object_id,
         style,
         view,
@@ -251,6 +316,81 @@ fn append_hoover(
         view,
         ordinal,
     )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_hoover_windows(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    shaft_width: i64,
+    bottom_mm: i64,
+    top_mm: i64,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let half = shaft_width / 2;
+    for level in [16_000, 24_000, 33_000, 41_000, 50_000, 57_000] {
+        if level + 2_200 >= top_mm || level < bottom_mm {
+            continue;
+        }
+        for along in [-3_000, 3_000] {
+            append_face_panels(
+                output,
+                center,
+                half,
+                half,
+                along,
+                1_500,
+                level,
+                level + 2_200,
+                style.ordinary.shadow,
+                object_id,
+                style,
+                view,
+                ordinal,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_window_belt(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    half_width: i64,
+    half_length: i64,
+    bottom_mm: i64,
+    top_mm: i64,
+    spacing_mm: i64,
+    panel_width_mm: i64,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let count = ((half_width * 2 - spacing_mm) / spacing_mm).max(1);
+    for index in 0..count {
+        let along = -((count - 1) * spacing_mm) / 2 + index * spacing_mm;
+        append_face_panels(
+            output,
+            center,
+            half_width,
+            half_length,
+            along,
+            panel_width_mm,
+            bottom_mm,
+            top_mm,
+            style.ordinary.shadow,
+            object_id,
+            style,
+            view,
+            ordinal,
+        )?;
+    }
+    Ok(())
 }
 
 fn append_church(
@@ -316,12 +456,81 @@ fn append_church(
     ] {
         push_triangle(output, vertices, color, object_id, PASS_LANDMARK, ordinal);
     }
+    append_church_openings(
+        output,
+        center,
+        half_width,
+        half_length,
+        wall_height,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )?;
     append_rose_window(
         output,
         center,
         wall_height,
         roof_rise,
         half_length,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_church_openings(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    half_width: i64,
+    half_length: i64,
+    wall_height: i64,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    for along in [-18_000, -9_000, 0, 9_000, 18_000] {
+        append_u_face_panel(
+            output,
+            center,
+            half_width + 300,
+            along,
+            2_400,
+            5_000,
+            wall_height - 2_500,
+            style.ordinary.outline,
+            object_id,
+            style,
+            view,
+            ordinal,
+        )?;
+        append_u_face_panel(
+            output,
+            center,
+            -half_width - 300,
+            along,
+            2_400,
+            5_000,
+            wall_height - 2_500,
+            style.ordinary.outline,
+            object_id,
+            style,
+            view,
+            ordinal,
+        )?;
+    }
+    append_v_face_panel(
+        output,
+        center,
+        0,
+        -half_length - 300,
+        6_000,
+        1_000,
+        10_000,
+        style.ordinary.outline,
         object_id,
         style,
         view,
@@ -365,6 +574,176 @@ fn append_rose_window(
         output,
         [projected[0], projected[2], projected[3]],
         style.ordinary.outline,
+        object_id,
+        PASS_DETAIL,
+        ordinal,
+    );
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_face_panels(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    half_width: i64,
+    half_length: i64,
+    along_mm: i64,
+    panel_width_mm: i64,
+    bottom_mm: i64,
+    top_mm: i64,
+    color: u8,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    for face_u in [half_width + 300, -half_width - 300] {
+        append_u_face_panel(
+            output,
+            center,
+            face_u,
+            along_mm,
+            panel_width_mm,
+            bottom_mm,
+            top_mm,
+            color,
+            object_id,
+            style,
+            view,
+            ordinal,
+        )?;
+    }
+    for face_v in [half_length + 300, -half_length - 300] {
+        append_v_face_panel(
+            output,
+            center,
+            along_mm,
+            face_v,
+            panel_width_mm,
+            bottom_mm,
+            top_mm,
+            color,
+            object_id,
+            style,
+            view,
+            ordinal,
+        )?;
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_u_face_panel(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    face_u_mm: i64,
+    center_v_mm: i64,
+    width_mm: i64,
+    bottom_mm: i64,
+    top_mm: i64,
+    color: u8,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    append_panel(
+        output,
+        [
+            oriented_point(
+                center,
+                face_u_mm,
+                center_v_mm - width_mm / 2,
+                bottom_mm,
+                style,
+            ),
+            oriented_point(
+                center,
+                face_u_mm,
+                center_v_mm + width_mm / 2,
+                bottom_mm,
+                style,
+            ),
+            oriented_point(center, face_u_mm, center_v_mm + width_mm / 2, top_mm, style),
+            oriented_point(center, face_u_mm, center_v_mm - width_mm / 2, top_mm, style),
+        ],
+        color,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_v_face_panel(
+    output: &mut Vec<Triangle>,
+    center: WorldPoint,
+    center_u_mm: i64,
+    face_v_mm: i64,
+    width_mm: i64,
+    bottom_mm: i64,
+    top_mm: i64,
+    color: u8,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    append_panel(
+        output,
+        [
+            oriented_point(
+                center,
+                center_u_mm - width_mm / 2,
+                face_v_mm,
+                bottom_mm,
+                style,
+            ),
+            oriented_point(
+                center,
+                center_u_mm + width_mm / 2,
+                face_v_mm,
+                bottom_mm,
+                style,
+            ),
+            oriented_point(center, center_u_mm + width_mm / 2, face_v_mm, top_mm, style),
+            oriented_point(center, center_u_mm - width_mm / 2, face_v_mm, top_mm, style),
+        ],
+        color,
+        object_id,
+        style,
+        view,
+        ordinal,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_panel(
+    output: &mut Vec<Triangle>,
+    points: [WorldPoint; 4],
+    color: u8,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let vertices = points
+        .into_iter()
+        .map(|point| landmark_vertex(point, 0, style, view))
+        .collect::<Result<Vec<_>, _>>()?;
+    push_triangle(
+        output,
+        [vertices[0], vertices[1], vertices[2]],
+        color,
+        object_id,
+        PASS_DETAIL,
+        ordinal,
+    );
+    push_triangle(
+        output,
+        [vertices[0], vertices[2], vertices[3]],
+        color,
         object_id,
         PASS_DETAIL,
         ordinal,
@@ -588,7 +967,7 @@ mod tests {
         let style = StylePack::stanford_v1();
         let view = Viewport::from_world(&compiled.world, &style).expect("viewport");
 
-        for (name, minimum_triangles) in [("Hoover Tower", 60), ("Memorial Church", 50)] {
+        for (name, minimum_triangles) in [("Hoover Tower", 180), ("Memorial Church", 70)] {
             let object = compiled
                 .world
                 .objects()
@@ -605,6 +984,18 @@ mod tests {
                     .expect("landmark renders")
             );
             assert!(output.len() >= minimum_triangles);
+            let detail_color = if name == "Hoover Tower" {
+                style.ordinary.shadow
+            } else {
+                style.ordinary.outline
+            };
+            assert!(
+                output
+                    .iter()
+                    .filter(|triangle| triangle.palette_index == detail_color)
+                    .count()
+                    >= 20
+            );
         }
 
         let quad = compiled

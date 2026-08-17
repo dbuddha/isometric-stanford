@@ -784,7 +784,7 @@ mod tests {
         assert!(first.width() > 1_000);
         assert!(first.height() > 500);
         assert_eq!((first.width(), first.height()), (1_950, 873));
-        assert_eq!(crate::stable_hash(first.pixels()), 0x72f5_85ae_65f0_6d01);
+        assert_eq!(crate::stable_hash(first.pixels()), 0x3d0e_4f54_9442_5a62);
         assert!(first.pixels().contains(&5));
         assert!(first.pixels().contains(&9));
         assert!(first.pixels().contains(&style.ordinary.shadow));
