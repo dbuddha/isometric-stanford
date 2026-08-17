@@ -18,8 +18,8 @@
       "source_date": "2024-05-20",
       "acquired_at": "2026-08-17",
       "acquisition": {
-        "method": "https",
-        "url": "https://apps.geo.fpac.usda.gov/geo-imagery/rest/services/naip/conus_naip/ImageServer/exportImage?bbox=-122.17277%2C37.42405%2C-122.16473%2C37.43035&bboxSR=4326&imageSR=4326&size=1326%2C1168&format=tiff&pixelType=U8&bandIds=0%2C1%2C2%2C3&mosaicRule=%7B%22mosaicMethod%22%3A%22esriMosaicNorthwest%22%2C%22where%22%3A%22year_ts+%3D+2024%22%7D&f=image",
+        "method": "local",
+        "path": "fixtures/sources/naip-2024-hero.tif",
         "filename": "naip-2024-hero.tif"
       },
       "size_bytes": 7211134,

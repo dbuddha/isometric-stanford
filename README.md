@@ -90,8 +90,9 @@ Generate the original synthetic regression preview:
 cargo run --locked -- render fixture artifacts/reference.ppm
 ```
 
-Synchronize the pinned prototype source bundle, an approximately 450 MB
-transfer, into the ignored content-addressed cache:
+Synchronize the pinned prototype source bundle, an approximately 440 MB network
+transfer plus one committed 7.2 MB licensed NAIP fixture, into the ignored
+content-addressed cache:
 
 ```sh
 cargo run --locked -- source sync

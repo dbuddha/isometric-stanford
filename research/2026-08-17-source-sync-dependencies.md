@@ -40,3 +40,10 @@ implemented. Existing entries are rehashed before reuse. Scheduled assurance
 uses the official pinned `actions/cache` action with the entire source-lock
 digest in its key and no prefix fallback. Source retrieval is not linked into
 the renderer, and render commands do not access the network.
+
+The first namespaced cold assurance run on 2026-08-17 exhausted three 30 second
+connections to `naip-2024-hero` before any response headers arrived. The stable
+source ID and stage were preserved without exposing the export URL. Because the
+exact crop is 7.2 MB and redistributable public federal imagery, it is now a
+committed licensed fixture. This keeps the retry policy honest and avoids
+turning a permanently blocked runner-to-host route into a longer retry loop.

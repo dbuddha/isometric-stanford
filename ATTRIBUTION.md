@@ -21,6 +21,12 @@ records retrieval and metadata URLs, dates, geographic bounds, licenses,
 required attribution, byte lengths, and SHA-256 hashes. Adding another source
 requires an explicit provenance review and lock update.
 
+The exact 2024 NAIP hero crop is redistributed as
+`fixtures/sources/naip-2024-hero.tif` under its recorded public-data terms so
+CI can reproduce semantic evidence without depending on an intermittently
+unreachable federal export endpoint. It is a compiler input only. No source
+pixel may enter final artwork.
+
 Google content is not an approved production source. It may enter the pipeline
 only after written permission expressly authorizes the intended retrieval,
 derivative production, storage, and public redistribution. A URL, API key, paid

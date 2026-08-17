@@ -24,6 +24,13 @@ both still rehash all restored artifacts before compilation. The uploaded
 `source-sync.log` records whether each source was downloaded, the attempt
 count, or a verified cache hit.
 
+The 7.2 MB NAIP hero crop is a committed licensed source fixture. A cold run
+imports and rehashes it locally because the USDA FPAC export endpoint rejects
+connections from GitHub-hosted runners. Its original item, date, dimensions,
+license, attribution, length, and digest remain locked. The approximately 440
+MB USGS LiDAR bundle remains remote and enters the Actions cache only after the
+same exact verification boundary.
+
 A changed hash invalidates perception artifacts, world partitions, shadow dependencies,
 guarded render tiles, DZI ancestors, and the release candidate through explicit
 dirty bounds.
