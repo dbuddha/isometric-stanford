@@ -48,13 +48,25 @@ pattern. Outlines operate only on building and canopy color families and remain
 one logical pixel wide. Neither operation introduces alpha blending,
 anti-aliasing, source pixels, or colors outside the style palette.
 
-The resulting vector-only hero preview is 1,950 by 873 pixels with indexed hash
-`3d0e4f5494425a62` and lossless PPM SHA-256
-`2c5a067c9b834586c6c5cce0a4e0d0a9f5051121e2cd4cf4c83b10cccd060dd4`.
+The renderer derives one immutable full-scene coordinate layout without
+allocating its framebuffer. A tile request renders only objects whose
+conservative projected bounds intersect its guard, applies all scene passes in
+that world-aligned guard, and crops the saved tile. The required guard is
+derived from the style's shadow, maximum tree crown, crown height, and outline
+extent rather than being a magic constant. Tests reconstruct the complete hero
+from independently rendered tiles and require byte equality with the monolithic
+oracle. Tile evidence records selected objects, submitted primitives, guarded
+dimensions, and a conservative six-byte-per-guarded-pixel peak for palette and
+depth buffers.
+
+The resulting vector-only hero preview is 1,954 by 880 pixels with indexed hash
+`a9ed798ef5488603` and lossless PPM SHA-256
+`a0ac742d6487cc9ddc9cb9e08930ad610d4bfd27be791cb0ad7f6a5f1056a08e`.
 On the measured development machine, release rendering completed in about 0.3
 seconds of renderer CPU time at roughly 25 MB peak RSS. This is engineering
-evidence, not artistic approval. Guarded supertiles, general detailed roof
-grammar, and the seam oracle remain tracked work.
+evidence, not artistic approval. The guarded indexed-tile seam oracle is
+implemented; WebP pyramid encoding and general detailed roof grammar remain
+tracked work.
 
 `wgpu` is not a style engine and is not a v1 dependency. It becomes a research
 candidate only after profiling shows the CPU renderer misses the accepted
