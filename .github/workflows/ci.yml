@@ -61,12 +61,12 @@ jobs:
       - run: cargo run --quiet --release --locked -- style candidate-c artifacts/style/candidate-c
       - name: Verify frozen style-candidate hashes
         run: |
-          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-a/metrics.json)" = 215b8da3d2197672
-          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-b/metrics.json)" = 1613892db6f12493
-          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-c/metrics.json)" = fa044db833563e4b
-          test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 3c6f880e282778588bace57e48a3a91cbc7ad154569d8ec2933e87808bb58970
-          test "$(sha256sum artifacts/style/candidate-b/contact-sheet.webp | cut -d' ' -f1)" = 1fb51fa2ed7af9d99da386d75e195414b4e748337c8b411ddaa40fa2cfac8dc6
-          test "$(sha256sum artifacts/style/candidate-c/contact-sheet.webp | cut -d' ' -f1)" = 61bd04b672f0df5fe4a3eda7e85c6edebd71fb9aa7c1c7e2da16e95695227a62
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-a/metrics.json)" = 95c914a4c30ee153
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-b/metrics.json)" = 5b7acd80d8119966
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-c/metrics.json)" = 579cc6d957cd42ff
+          test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 5eed427c157c06edb992a21af846fadb298b085a9f8201fb54f4a540a42a508b
+          test "$(sha256sum artifacts/style/candidate-b/contact-sheet.webp | cut -d' ' -f1)" = 01584614d321009dc2d824305ec361fab623668a1b08aa20679435eea7af8a38
+          test "$(sha256sum artifacts/style/candidate-c/contact-sheet.webp | cut -d' ' -f1)" = 0c7e06cf1a32b7f80d2602a6d5579b57a15baab21594ed03dbab52b3c7212064
       - name: Verify canonical hero preview hash
         run: test "$(sha256sum artifacts/render/hero.ppm | cut -d' ' -f1)" = "$(jq -r '.outputs[0].sha256' render.manifest.json)"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

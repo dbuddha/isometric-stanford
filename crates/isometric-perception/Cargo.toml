@@ -1,6 +1,6 @@
 [package]
-name = "isometric-world"
-description = "Versioned semantic world contracts for Isometric Stanford"
+name = "isometric-perception"
+description = "Bounded deterministic semantic-evidence compilation for Isometric Stanford"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,11 +8,12 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-isometric-core = { path = "../isometric-core", version = "0.1.0" }
-isometric-perception = { path = "../isometric-perception", version = "0.1.0" }
+las.workspace = true
+proj4rs.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
+tiff.workspace = true
 
 [lints]
 workspace = true

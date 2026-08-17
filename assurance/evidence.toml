@@ -50,8 +50,14 @@ status = "implemented"
 
 [[claim]]
 id = "PROTO-COMPILE-001"
-statement = "Locked OSM and Overture vectors compile deterministically into an inspectable 2,820-object hero world with stable IDs, integer coordinates, named landmark evidence, explicit unknown coverage, and a verified source-to-world hash chain."
+statement = "Locked OSM, Overture, NAIP, and LiDAR evidence compile deterministically into an inspectable 2,820-object hero world with stable IDs, integer coordinates, named landmark evidence, 5,202 ppm explicit unknown coverage, and a verified source-to-world hash chain."
 evidence = ["cargo test -p isometric-world hero_compile_is_deterministic_and_inspectable", "cargo run --release --locked -- world compile", "cargo run --locked -- world inspect", "world.manifest.json"]
+status = "implemented"
+
+[[claim]]
+id = "PROTO-PERCEPTION-001"
+statement = "The bounded safe-Rust perception compiler transforms exact locked NAIP and streamed LiDAR into a frozen model-free semantic artifact, masks vector-owned cells, excludes unclassified low elevated returns from persistent evidence, retains no source pixels or transient classes, and reduces hero unknown coverage below two percent."
+evidence = ["cargo test -p isometric-perception", "fixtures/perception/hero-evidence.json", "perception.lock.json", "python scripts/validate_manifests.py", "research/2026-08-17-prototype-perception-evidence.md", ".github/workflows/scheduled-assurance.yml"]
 status = "implemented"
 
 [[claim]]
@@ -62,7 +68,7 @@ status = "implemented"
 
 [[claim]]
 id = "PROTO-SCENE-001"
-statement = "The canonical hero world renders as a deterministic 1,954 by 880 Stanford-shaped indexed preview with polygon holes, ground and hardscape classes, empty parking, flat roofs, and directional facades."
+statement = "The canonical fused hero world renders as a deterministic 1,954 by 880 Stanford-shaped indexed preview with polygon holes, NAIP and LiDAR-backed terrain and canopy, hardscape classes, empty parking, flat roofs, and directional facades."
 evidence = ["cargo test -p isometric-render hero_world_produces_deterministic_non_abstract_art", "cargo run --release --locked -- render region artifacts/render/hero.ppm", "render.manifest.json", "CI artifact deterministic-render-evidence"]
 status = "implemented"
 

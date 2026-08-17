@@ -1696,10 +1696,16 @@ mod tests {
 
     const OSM: &[u8] = include_bytes!("../../../fixtures/sources/osm-2026-07-15-hero.json");
     const OVERTURE: &[u8] = include_bytes!("../../../fixtures/sources/overture-buildings.geojson");
+    const EVIDENCE: &[u8] = include_bytes!("../../../fixtures/perception/hero-evidence.json");
+
+    fn compiled_world() -> isometric_world::CompiledHero {
+        isometric_world::compile_hero_with_evidence(OSM, OVERTURE, EVIDENCE)
+            .expect("semantic world compiles")
+    }
 
     #[test]
     fn hero_world_produces_deterministic_non_abstract_art() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1();
         let first = render_world(&compiled.world, &style).expect("hero renders");
         let second = render_world(&compiled.world, &style).expect("hero rerenders");
@@ -1707,7 +1713,7 @@ mod tests {
         assert!(first.width() > 1_000);
         assert!(first.height() > 500);
         assert_eq!((first.width(), first.height()), (1_954, 880));
-        assert_eq!(crate::stable_hash(first.pixels()), 0xa9ed_798e_f548_8603);
+        assert_eq!(crate::stable_hash(first.pixels()), 0xde91_fe6a_35a4_d987);
         assert!(first.pixels().contains(&5));
         assert!(first.pixels().contains(&9));
         assert!(first.pixels().contains(&style.ordinary.shadow));
@@ -1717,7 +1723,7 @@ mod tests {
 
     #[test]
     fn guarded_tiles_reassemble_to_the_exact_full_scene() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         for style in [
             StylePack::stanford_v1(),
             StylePack::stanford_v1_candidate_b(),
@@ -1768,7 +1774,7 @@ mod tests {
 
     #[test]
     fn candidate_b_adds_deterministic_ordinary_detail() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1_candidate_b();
         let first = render_world(&compiled.world, &style).expect("Candidate B renders");
         let second = render_world(&compiled.world, &style).expect("Candidate B rerenders");
@@ -1800,7 +1806,7 @@ mod tests {
 
     #[test]
     fn candidate_c_adds_deterministic_bounded_style_treatment() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1_candidate_c();
         let first = render_world(&compiled.world, &style).expect("Candidate C renders");
         let second = render_world(&compiled.world, &style).expect("Candidate C rerenders");
@@ -1852,7 +1858,7 @@ mod tests {
 
     #[test]
     fn guarded_tile_is_deterministic_and_rejects_unsafe_requests() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1();
         let layout = render_layout(&compiled.world, &style).expect("layout");
         let guard = required_tile_guard(&style).expect("guard");
@@ -1886,7 +1892,7 @@ mod tests {
 
     #[test]
     fn selected_region_is_deterministic_and_rejects_invalid_ids() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1();
         let layout = render_layout(&compiled.world, &style).expect("layout");
         let object = &compiled.world.objects()[0];
@@ -1943,7 +1949,7 @@ mod tests {
 
     #[test]
     fn eight_k_scale_stays_bounded_to_one_guarded_tile() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let mut style = StylePack::stanford_v1();
         style.world_mm_per_half_step = 250;
         style.elevation_mm_per_pixel = 250;
@@ -1971,7 +1977,7 @@ mod tests {
     #[test]
     #[ignore = "release-only full prototype throughput evidence"]
     fn eight_k_tile_set_is_deterministic_and_bounded() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let mut style = StylePack::stanford_v1();
         style.world_mm_per_half_step = 250;
         style.elevation_mm_per_pixel = 250;
@@ -2018,7 +2024,7 @@ mod tests {
         );
         assert!(max_pixel_bytes < 4 * 1_024 * 1_024);
         assert!(max_candidates < compiled.world.objects().len());
-        assert_eq!(hash, 0xbf06_04f6_8bc3_8d2c);
+        assert_eq!(hash, 0x8a79_308a_6218_f976);
     }
 
     fn copy_tile(target: &mut IndexedImage, tile: &IndexedImage, x: u32, y: u32) {
@@ -2069,7 +2075,7 @@ mod tests {
 
     #[test]
     fn tree_placement_is_stable_and_inside_source_polygons() {
-        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let compiled = compiled_world();
         let style = StylePack::stanford_v1();
         let mut count = 0;
         for object in compiled

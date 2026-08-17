@@ -7,6 +7,7 @@ use std::{
 };
 
 use isometric_core::{ObjectId, WorldPoint};
+use isometric_perception::{CellIndex, EvidenceArtifact, EvidenceClass};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -20,9 +21,9 @@ const ARTIFACT_SCHEMA: &str = "isometric-world/v1";
 const MANIFEST_SCHEMA: &str = "isometric-world-manifest/v1";
 const OSM_SOURCE: &str = "osm-2026-07-15-hero";
 const OVERTURE_SOURCE: &str = "overture-2026-06-17-buildings";
-const ORIGIN_EASTING_MM: i64 = 573_200_000;
-const ORIGIN_NORTHING_MM: i64 = 4_142_200_000;
-const UNKNOWN_CELL_MM: i64 = 20_000;
+const ORIGIN_EASTING_MM: i64 = isometric_perception::ORIGIN_EASTING_MM;
+const ORIGIN_NORTHING_MM: i64 = isometric_perception::ORIGIN_NORTHING_MM;
+const UNKNOWN_CELL_MM: i64 = isometric_perception::CELL_SIZE_MM;
 const HERO_LANDMARKS: [&str; 3] = ["Hoover Tower", "Main Quad", "Memorial Church"];
 
 /// Summary suitable for CLI inspection and CI assertions.
@@ -77,6 +78,12 @@ impl From<serde_json::Error> for CompileError {
 
 impl From<WorldError> for CompileError {
     fn from(value: WorldError) -> Self {
+        Self(value.to_string())
+    }
+}
+
+impl From<isometric_perception::PerceptionError> for CompileError {
+    fn from(value: isometric_perception::PerceptionError) -> Self {
         Self(value.to_string())
     }
 }
@@ -198,7 +205,9 @@ struct Manifest<'a> {
     object_count: usize,
     partition_count: usize,
     unknown_fraction_ppm: u32,
-    source_sha256: BTreeMap<&'a str, String>,
+    source_sha256: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    perception_sha256: Option<String>,
     deferred_source_ids: &'a [String],
     landmarks: &'a [String],
     dirty_bounds: Vec<String>,
@@ -218,6 +227,35 @@ struct BuildState {
 /// Returns an error for malformed source data, missing landmark evidence, an
 /// unsupported geographic coordinate, or any canonical-world invariant.
 pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHero, CompileError> {
+    compile_hero_internal(osm_json, overture_json, None)
+}
+
+/// Compiles vectors and one frozen perception artifact into the semantic hero world.
+///
+/// # Errors
+///
+/// Returns an error for malformed, unprovenanced, transient-bearing, incomplete,
+/// or geographically incompatible evidence and for any vector or world failure.
+pub fn compile_hero_with_evidence(
+    osm_json: &[u8],
+    overture_json: &[u8],
+    evidence_json: &[u8],
+) -> Result<CompiledHero, CompileError> {
+    let evidence_text = std::str::from_utf8(evidence_json)
+        .map_err(|error| CompileError(format!("perception evidence is not UTF-8: {error}")))?;
+    let evidence = EvidenceArtifact::from_json(evidence_text)?;
+    compile_hero_internal(osm_json, overture_json, Some((&evidence, evidence_json)))
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "the source-fusion transaction is kept linear so manifest inputs and world inputs cannot diverge"
+)]
+fn compile_hero_internal(
+    osm_json: &[u8],
+    overture_json: &[u8],
+    evidence: Option<(&EvidenceArtifact, &[u8])>,
+) -> Result<CompiledHero, CompileError> {
     let osm: OsmDocument = serde_json::from_slice(osm_json)?;
     let overture: FeatureCollection = serde_json::from_slice(overture_json)?;
     let osm_way_tags = osm
@@ -251,9 +289,9 @@ pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHer
     };
     compile_overture_buildings(&overture, &osm_way_tags, &mut state)?;
     compile_osm(&osm, &mut state)?;
-    let unknown_cells = add_unknown_cells(&mut state)?;
+    let unknown_cells = add_unknown_cells(&mut state, evidence.map(|value| value.0))?;
 
-    let sources = vec![
+    let mut sources = vec![
         SourceProvenance {
             id: SourceId::new(OSM_SOURCE)?,
             license: "ODbL-1.0".into(),
@@ -265,6 +303,9 @@ pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHer
             attribution: "OpenStreetMap contributors and Overture Maps Foundation".into(),
         },
     ];
+    if evidence.is_some() {
+        sources.extend(perception_sources()?);
+    }
     let world = World::try_new(
         WorldOrigin::new(26_910, ORIGIN_EASTING_MM, ORIGIN_NORTHING_MM, 0)?,
         sources,
@@ -280,13 +321,17 @@ pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHer
             .entry(class_name(object.class()).to_owned())
             .or_insert(0) += 1;
     }
-    let deferred_source_ids = vec![
-        "naip-2024-hero".into(),
-        "usgs-lidar-07509800".into(),
-        "usgs-lidar-07509825".into(),
-        "usgs-lidar-07759800".into(),
-        "usgs-lidar-07759825".into(),
-    ];
+    let deferred_source_ids = if evidence.is_some() {
+        Vec::new()
+    } else {
+        vec![
+            "naip-2024-hero".into(),
+            "usgs-lidar-07509800".into(),
+            "usgs-lidar-07509825".into(),
+            "usgs-lidar-07759800".into(),
+            "usgs-lidar-07759825".into(),
+        ]
+    };
     let report = CompileReport {
         object_count: world.objects().len(),
         objects_by_class,
@@ -297,20 +342,29 @@ pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHer
         deferred_source_ids,
     };
     let world_json = canonical_json(&world)?;
-    let source_sha256 = BTreeMap::from([
-        (OSM_SOURCE, sha256(osm_json)),
-        (OVERTURE_SOURCE, sha256(overture_json)),
+    let mut source_sha256 = BTreeMap::from([
+        (OSM_SOURCE.to_owned(), sha256(osm_json)),
+        (OVERTURE_SOURCE.to_owned(), sha256(overture_json)),
     ]);
+    if let Some((artifact, _)) = evidence {
+        source_sha256.extend(artifact.source_sha256.clone());
+    }
+    let perception_sha256 = evidence.map(|(_, bytes)| sha256(bytes));
     let manifest = Manifest {
         schema: MANIFEST_SCHEMA,
-        status: "prototype-vector-world",
-        semantic_version: "0.2.0",
+        status: if evidence.is_some() {
+            "prototype-semantic-world"
+        } else {
+            "prototype-vector-world"
+        },
+        semantic_version: if evidence.is_some() { "0.3.0" } else { "0.2.0" },
         region_id: "stanford-hero-v1",
         world_sha256: sha256(world_json.as_bytes()),
         object_count: report.object_count,
         partition_count: world.partitions().len(),
         unknown_fraction_ppm,
         source_sha256,
+        perception_sha256,
         deferred_source_ids: &report.deferred_source_ids,
         landmarks: &report.landmarks,
         dirty_bounds: Vec::new(),
@@ -322,6 +376,45 @@ pub fn compile_hero(osm_json: &[u8], overture_json: &[u8]) -> Result<CompiledHer
         manifest_json,
         report,
     })
+}
+
+fn perception_sources() -> Result<Vec<SourceProvenance>, CompileError> {
+    [
+        (
+            "naip-2024-hero",
+            "USDA public data with FPAC-BC derived-product credit requested",
+            "Imagery: USDA FPAC-BC GEO, NAIP 2024",
+        ),
+        (
+            "usgs-lidar-07509800",
+            "USGS public domain without use restrictions",
+            "USGS 3D Elevation Program",
+        ),
+        (
+            "usgs-lidar-07509825",
+            "USGS public domain without use restrictions",
+            "USGS 3D Elevation Program",
+        ),
+        (
+            "usgs-lidar-07759800",
+            "USGS public domain without use restrictions",
+            "USGS 3D Elevation Program",
+        ),
+        (
+            "usgs-lidar-07759825",
+            "USGS public domain without use restrictions",
+            "USGS 3D Elevation Program",
+        ),
+    ]
+    .into_iter()
+    .map(|(id, license, attribution)| {
+        Ok(SourceProvenance {
+            id: SourceId::new(id)?,
+            license: license.into(),
+            attribution: attribution.into(),
+        })
+    })
+    .collect()
 }
 
 fn compile_overture_buildings(
@@ -520,7 +613,14 @@ fn compile_osm(document: &OsmDocument, state: &mut BuildState) -> Result<(), Com
     Ok(())
 }
 
-fn add_unknown_cells(state: &mut BuildState) -> Result<usize, CompileError> {
+#[allow(
+    clippy::too_many_lines,
+    reason = "cell fusion keeps classification, confidence, provenance, and review disposition in one fail-closed branch"
+)]
+fn add_unknown_cells(
+    state: &mut BuildState,
+    evidence: Option<&EvidenceArtifact>,
+) -> Result<usize, CompileError> {
     let (columns, rows) = hero_grid_dimensions();
     let known = state
         .objects
@@ -528,6 +628,8 @@ fn add_unknown_cells(state: &mut BuildState) -> Result<usize, CompileError> {
         .map(|object| object.geometry().clone())
         .collect::<Vec<_>>();
     let mut count = 0_usize;
+    let mut used_evidence_cells = 0_usize;
+    let mut uncovered_cells = 0_usize;
     for row in 0..rows {
         for column in 0..columns {
             let min_x =
@@ -541,29 +643,91 @@ fn add_unknown_cells(state: &mut BuildState) -> Result<usize, CompileError> {
             {
                 continue;
             }
-            count += 1;
+            uncovered_cells += 1;
             let geometry = rectangle_geometry(
                 min_x,
                 min_y,
                 min_x + UNKNOWN_CELL_MM,
                 min_y + UNKNOWN_CELL_MM,
             )?;
+            let index = CellIndex::new(
+                u16::try_from(column)
+                    .map_err(|_| CompileError("evidence column overflowed".into()))?,
+                u16::try_from(row).map_err(|_| CompileError("evidence row overflowed".into()))?,
+            )?;
+            let cell = evidence.and_then(|artifact| artifact.cell(index));
+            let (class, material, height_mm, confidence, source_ids, review, review_note) =
+                if let Some(cell) = cell {
+                    used_evidence_cells += 1;
+                    let class = match cell.class {
+                        EvidenceClass::Terrain => SemanticClass::Terrain,
+                        EvidenceClass::Water => SemanticClass::Water,
+                        EvidenceClass::Vegetation => SemanticClass::Vegetation,
+                        EvidenceClass::Unknown => SemanticClass::Unknown,
+                    };
+                    let is_unknown = class == SemanticClass::Unknown;
+                    if is_unknown {
+                        count += 1;
+                    }
+                    (
+                        class,
+                        cell.material
+                            .as_deref()
+                            .map(MaterialId::new)
+                            .transpose()?,
+                        cell.height_mm,
+                        Confidence::new(cell.confidence_bp)?,
+                        cell.source_ids
+                            .iter()
+                            .map(|id| SourceId::new(id.clone()))
+                            .collect::<Result<Vec<_>, _>>()?,
+                        if is_unknown {
+                            ReviewStatus::UnreviewedConflict
+                        } else {
+                            ReviewStatus::Accepted
+                        },
+                        is_unknown.then(|| {
+                            "Frozen NAIP and LiDAR evidence indicates an unmapped persistent structure; geometry remains unknown".into()
+                        }),
+                    )
+                } else {
+                    count += 1;
+                    (
+                        SemanticClass::Unknown,
+                        None,
+                        0,
+                        Confidence::new(0)?,
+                        vec![SourceId::new(OSM_SOURCE)?],
+                        ReviewStatus::UnreviewedConflict,
+                        Some(
+                            "No accepted vector land-cover evidence; deferred to locked NAIP and LiDAR compilation"
+                                .into(),
+                        ),
+                    )
+                };
             state.objects.push(WorldObject::try_new(WorldObjectInput {
                 id: stable_id(&format!("unknown:{column}:{row}"))?,
                 name: None,
-                class: SemanticClass::Unknown,
+                class,
                 geometry,
-                height_mm: 0,
+                height_mm,
                 floor_count: None,
                 roof: None,
-                material: None,
-                confidence: Confidence::new(0)?,
-                source_ids: vec![SourceId::new(OSM_SOURCE)?],
-                review: ReviewStatus::UnreviewedConflict,
-                review_note: Some("No accepted vector land-cover evidence; deferred to locked NAIP and LiDAR compilation".into()),
+                material,
+                confidence,
+                source_ids,
+                review,
+                review_note,
                 parent_id: None,
             })?);
         }
+    }
+    if evidence.is_some_and(|artifact| {
+        used_evidence_cells != artifact.cells.len() || uncovered_cells != artifact.cells.len()
+    }) {
+        return Err(CompileError(
+            "perception evidence does not exactly cover vector-unknown cells".into(),
+        ));
     }
     Ok(count)
 }
@@ -1012,6 +1176,7 @@ mod tests {
 
     const OSM: &[u8] = include_bytes!("../../../fixtures/sources/osm-2026-07-15-hero.json");
     const OVERTURE: &[u8] = include_bytes!("../../../fixtures/sources/overture-buildings.geojson");
+    const EVIDENCE: &[u8] = include_bytes!("../../../fixtures/perception/hero-evidence.json");
     const EXPECTED_MANIFEST: &str = include_str!("../../../world.manifest.json");
 
     #[test]
@@ -1023,8 +1188,10 @@ mod tests {
 
     #[test]
     fn hero_compile_is_deterministic_and_inspectable() {
-        let first = compile_hero(OSM, OVERTURE).expect("locked sources compile");
-        let second = compile_hero(OSM, OVERTURE).expect("locked sources recompile");
+        let first =
+            compile_hero_with_evidence(OSM, OVERTURE, EVIDENCE).expect("locked sources compile");
+        let second =
+            compile_hero_with_evidence(OSM, OVERTURE, EVIDENCE).expect("locked sources recompile");
         assert_eq!(first.world_json, second.world_json);
         assert_eq!(first.manifest_json, second.manifest_json);
         assert_eq!(first.manifest_json, EXPECTED_MANIFEST);
@@ -1035,12 +1202,16 @@ mod tests {
         assert_eq!(first.report.landmarks.len(), 3);
         assert!(first.report.object_count > 500);
         assert!(first.report.objects_by_class["building"] >= 80);
+        assert_eq!(first.report.objects_by_class["unknown"], 5);
+        assert!(first.report.unknown_fraction_ppm < 20_000);
+        assert!(first.report.deferred_source_ids.is_empty());
         assert!(!first.world.partitions().is_empty());
     }
 
     #[test]
     fn source_collection_order_does_not_change_world() {
-        let baseline = compile_hero(OSM, OVERTURE).expect("baseline compiles");
+        let baseline =
+            compile_hero_with_evidence(OSM, OVERTURE, EVIDENCE).expect("baseline compiles");
         let mut osm: Value = serde_json::from_slice(OSM).expect("OSM fixture parses");
         osm["elements"]
             .as_array_mut()
@@ -1052,9 +1223,10 @@ mod tests {
             .as_array_mut()
             .expect("Overture features are an array")
             .reverse();
-        let reordered = compile_hero(
+        let reordered = compile_hero_with_evidence(
             &serde_json::to_vec(&osm).expect("OSM reencodes"),
             &serde_json::to_vec(&overture).expect("Overture reencodes"),
+            EVIDENCE,
         )
         .expect("reordered inputs compile");
         assert_eq!(baseline.world_json, reordered.world_json);
@@ -1064,5 +1236,27 @@ mod tests {
     fn malformed_source_fails_closed() {
         let error = compile_hero(b"{}", OVERTURE).expect_err("missing elements must fail");
         assert!(error.to_string().contains("source JSON failed"));
+    }
+
+    #[test]
+    fn incomplete_perception_evidence_fails_closed() {
+        let mut evidence: Value = serde_json::from_slice(EVIDENCE).expect("evidence parses");
+        evidence["cells"]
+            .as_array_mut()
+            .expect("evidence cells are an array")
+            .pop();
+        evidence["evidence_cell_count"] = Value::from(371);
+        evidence["vector_masked_cell_count"] = Value::from(590);
+        let error = compile_hero_with_evidence(
+            OSM,
+            OVERTURE,
+            &serde_json::to_vec(&evidence).expect("evidence reencodes"),
+        )
+        .expect_err("missing eligible cell must fail");
+        assert!(
+            error
+                .to_string()
+                .contains("does not exactly cover vector-unknown cells")
+        );
     }
 }

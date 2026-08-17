@@ -1,7 +1,21 @@
 {
   "schema": "isometric-perception-lock/v1",
-  "status": "not-compiled",
-  "runtime": null,
+  "status": "compiled-prototype",
+  "runtime": {
+    "implementation": "isometric-perception 0.1.0",
+    "compiler": "rust-naip-lidar-consensus-v1",
+    "canonical_platform": "pinned Linux CPU",
+    "lidar_chunk_points": 250000
+  },
   "models": [],
-  "artifacts": []
+  "artifacts": [
+    {
+      "id": "stanford-hero-evidence-v1",
+      "path": "fixtures/perception/hero-evidence.json",
+      "sha256": "3b6d79edebd33829a9c82f0bfdf16675eb1d6c73677db0dd9b391443850f682d",
+      "contains_source_pixels": false,
+      "contains_transients": false,
+      "qualified": false
+    }
+  ]
 }

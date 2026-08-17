@@ -1,6 +1,7 @@
 //! User-facing orchestration commands.
 
 use std::{
+    collections::{BTreeMap, BTreeSet},
     env, fs,
     path::{Path, PathBuf},
     process::ExitCode,
@@ -10,13 +11,13 @@ use isometric_publish::{DziOptions, InputDigests, sha256_hex, validate_dzi};
 use isometric_render::{render_reference, render_world, stable_hash};
 use isometric_style::StylePack;
 use isometric_validate::{validate_style, validate_world};
-use isometric_world::World;
+use isometric_world::{SemanticClass, World};
 
 mod candidate;
 
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
-  isometric-stanford perceive run
+  isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
   isometric-stanford world inspect [world.json]
   isometric-stanford render region [output.ppm]
@@ -34,6 +35,8 @@ Implemented commands:
   render fixture writes the original synthetic regression PPM.
   validate semantic, validate render, and validate release are executable.
   source sync verifies approved artifacts in a content-addressed cache.
+  perceive run compiles locked NAIP and streamed LiDAR into a transient-safe
+  semantic evidence artifact; source pixels and point records are not retained.
   world compile verifies the complete source lock, compiles the locked vectors,
   and writes a canonical world plus manifest. world inspect validates an artifact.
   publish dzi writes a staged, lossless WebP DZI and indexed canonical pyramid.
@@ -65,6 +68,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, cache] if group == "source" && command == "sync" => {
             sync_sources(&PathBuf::from(cache))
+        }
+        [group, command] if group == "perceive" && command == "run" => {
+            compile_perception(Path::new("artifacts/perception"))
+        }
+        [group, command, output] if group == "perceive" && command == "run" => {
+            compile_perception(Path::new(output))
         }
         [group, command] if group == "world" && command == "compile" => {
             compile_world(Path::new("artifacts/world"))
@@ -159,6 +168,104 @@ fn sync_sources(cache: &Path) -> Result<String, String> {
     ))
 }
 
+fn compile_perception(output: &Path) -> Result<String, String> {
+    const PERCEPTION_SOURCES: [&str; 5] = [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825",
+    ];
+    const VECTOR_SOURCES: [&str; 2] = ["osm-2026-07-15-hero", "overture-2026-06-17-buildings"];
+    let selected = PERCEPTION_SOURCES
+        .iter()
+        .chain(VECTOR_SOURCES.iter())
+        .copied()
+        .collect::<Vec<_>>();
+    let artifacts = isometric_source::sync_selected(
+        Path::new("source.lock.json"),
+        Path::new("artifacts/source-cache"),
+        &selected,
+    )
+    .map_err(|error| error.to_string())?;
+    let path_for = |id: &str| {
+        artifacts
+            .iter()
+            .find(|artifact| artifact.id == id)
+            .map(|artifact| artifact.path.clone())
+            .ok_or_else(|| format!("verified source cache lacks {id}"))
+    };
+    let osm = fs::read(path_for(VECTOR_SOURCES[0])?).map_err(|error| error.to_string())?;
+    let overture = fs::read(path_for(VECTOR_SOURCES[1])?).map_err(|error| error.to_string())?;
+    let vector_world = isometric_world::compile_hero(&osm, &overture)
+        .map_err(|error| error.to_string())?
+        .world;
+    let eligible_cells = vector_world
+        .objects()
+        .iter()
+        .filter(|object| object.class() == SemanticClass::Unknown)
+        .map(|object| {
+            let anchor = object.anchor();
+            let column = (anchor.x_mm - isometric_perception::GRID_MIN_X_MM)
+                .div_euclid(isometric_perception::CELL_SIZE_MM);
+            let row = (anchor.y_mm - isometric_perception::GRID_MIN_Y_MM)
+                .div_euclid(isometric_perception::CELL_SIZE_MM);
+            isometric_perception::CellIndex::new(
+                u16::try_from(column).map_err(|_| "unknown cell column is negative")?,
+                u16::try_from(row).map_err(|_| "unknown cell row is negative")?,
+            )
+            .map_err(|error| error.to_string())
+        })
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    let source_lock: serde_json::Value =
+        serde_json::from_slice(&fs::read("source.lock.json").map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let source_hashes = source_lock
+        .get("sources")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| "source lock lacks sources".to_string())?
+        .iter()
+        .filter_map(|source| {
+            let id = source.get("id")?.as_str()?;
+            PERCEPTION_SOURCES.contains(&id).then(|| {
+                source
+                    .get("sha256")
+                    .and_then(serde_json::Value::as_str)
+                    .map(|digest| (id.to_owned(), digest.to_owned()))
+            })?
+        })
+        .collect::<BTreeMap<_, _>>();
+    let lidar = PERCEPTION_SOURCES[1..]
+        .iter()
+        .map(|id| {
+            Ok(isometric_perception::LidarInput {
+                source_id: (*id).to_owned(),
+                path: path_for(id)?,
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let compiled = isometric_perception::compile(&isometric_perception::CompileInput {
+        naip_path: path_for(PERCEPTION_SOURCES[0])?,
+        lidar,
+        source_sha256: source_hashes,
+        eligible_cells,
+    })
+    .map_err(|error| error.to_string())?;
+    fs::create_dir_all(output).map_err(|error| error.to_string())?;
+    atomic_write(
+        &output.join("hero-evidence.json"),
+        compiled.artifact_json.as_bytes(),
+    )?;
+    Ok(format!(
+        "compiled {} transient-safe evidence cells from {} NAIP samples and {} LiDAR points at {}: {}",
+        compiled.artifact.evidence_cell_count,
+        compiled.artifact.naip_sample_count,
+        compiled.artifact.lidar_sample_count,
+        output.display(),
+        compiled.artifact_sha256
+    ))
+}
+
 fn compile_world(output: &Path) -> Result<String, String> {
     let artifacts = isometric_source::sync_selected(
         Path::new("source.lock.json"),
@@ -176,8 +283,9 @@ fn compile_world(output: &Path) -> Result<String, String> {
     let osm = fs::read(path_for("osm-2026-07-15-hero")?).map_err(|error| error.to_string())?;
     let overture =
         fs::read(path_for("overture-2026-06-17-buildings")?).map_err(|error| error.to_string())?;
-    let compiled =
-        isometric_world::compile_hero(&osm, &overture).map_err(|error| error.to_string())?;
+    let evidence = load_locked_perception()?;
+    let compiled = isometric_world::compile_hero_with_evidence(&osm, &overture, &evidence)
+        .map_err(|error| error.to_string())?;
     fs::create_dir_all(output).map_err(|error| error.to_string())?;
     atomic_write(&output.join("hero.json"), compiled.world_json.as_bytes())?;
     atomic_write(
@@ -192,6 +300,34 @@ fn compile_world(output: &Path) -> Result<String, String> {
         compiled.report.unknown_fraction_ppm,
         compiled.report.rejected_geometry_count
     ))
+}
+
+fn load_locked_perception() -> Result<Vec<u8>, String> {
+    let lock: serde_json::Value = serde_json::from_slice(
+        &fs::read("perception.lock.json").map_err(|error| error.to_string())?,
+    )
+    .map_err(|error| error.to_string())?;
+    if lock.get("status").and_then(serde_json::Value::as_str) != Some("compiled-prototype") {
+        return Err("perception lock is not compiled for the prototype".into());
+    }
+    let artifact = lock
+        .get("artifacts")
+        .and_then(serde_json::Value::as_array)
+        .and_then(|artifacts| artifacts.first())
+        .ok_or_else(|| "perception lock lacks its frozen artifact".to_string())?;
+    let path = artifact
+        .get("path")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "perception artifact path is invalid".to_string())?;
+    let expected = artifact
+        .get("sha256")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "perception artifact hash is invalid".to_string())?;
+    let bytes = fs::read(path).map_err(|error| error.to_string())?;
+    if sha256_hex(&bytes) != expected {
+        return Err("perception artifact does not match its lock".into());
+    }
+    Ok(bytes)
 }
 
 fn inspect_world(input: &Path) -> Result<String, String> {
@@ -401,7 +537,7 @@ mod tests {
 
     #[test]
     fn unimplemented_contract_fails_closed() {
-        let arguments = vec!["perceive".into(), "run".into()];
+        let arguments = vec!["render".into(), "slice".into()];
         let result = run(&arguments);
         assert!(result.expect_err("must fail").contains("not implemented"));
     }

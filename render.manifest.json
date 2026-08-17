@@ -1,15 +1,15 @@
 {
   "schema": "isometric-render-manifest/v1",
-  "status": "hero-vector-preview",
+  "status": "hero-semantic-preview",
   "renderer": "isometric-render 0.1.0",
   "canonical_platform": "x86_64-unknown-linux-gnu",
   "outputs": [
     {
-      "id": "hero-vector-preview",
+      "id": "hero-semantic-preview",
       "format": "ppm-p6",
       "width": 1954,
       "height": 880,
-      "sha256": "a0ac742d6487cc9ddc9cb9e08930ad610d4bfd27be791cb0ad7f6a5f1056a08e",
+      "sha256": "aad8b6d3689ee339d7fdc5bb2be1c3d8d9bd789e63267c187a1a7b6e17c3e827",
       "palette_only": true,
       "contains_source_pixels": false,
       "contains_transients": false,

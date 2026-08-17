@@ -59,16 +59,18 @@ oracle. Tile evidence records selected objects, submitted primitives, guarded
 dimensions, and a conservative six-byte-per-guarded-pixel peak for palette and
 depth buffers.
 
-The resulting vector-only hero preview is 1,954 by 880 pixels with indexed hash
-`a9ed798ef5488603` and lossless PPM SHA-256
-`a0ac742d6487cc9ddc9cb9e08930ad610d4bfd27be791cb0ad7f6a5f1056a08e`.
-On the measured development machine, release rendering completed in about 0.3
-seconds of renderer CPU time at roughly 25 MB peak RSS. This is engineering
-evidence, not artistic approval. The guarded indexed-tile seam oracle and
-lossless WebP DZI publisher are implemented. Publication retains indexed
-canonical tiles, derives lower levels with top-left nearest-neighbor sampling,
-and validates decoded WebP colors against the palette before accepting an
-artifact. General detailed roof grammar remains tracked work.
+The fused semantic hero preview is 1,954 by 880 pixels with indexed hash
+`de91fe6a35a4d987` and lossless PPM SHA-256
+`aad8b6d3689ee339d7fdc5bb2be1c3d8d9bd789e63267c187a1a7b6e17c3e827`.
+The 8K-scale Candidate C pyramid is 7,623 by 3,325 pixels and retains the same
+bounded guarded-tile contract. On the measured development machine, publishing
+its 157 lossless WebP tiles completed in at most 1.06 seconds at 22,429,696
+bytes peak RSS. This is engineering evidence, not artistic approval. The
+guarded indexed-tile seam oracle and lossless WebP DZI publisher are
+implemented. Publication retains indexed canonical tiles, derives lower levels
+with top-left nearest-neighbor sampling, and validates decoded WebP colors
+against the palette before accepting an artifact. General detailed roof grammar
+remains tracked work.
 
 `wgpu` is not a style engine and is not a v1 dependency. It becomes a research
 candidate only after profiling shows the CPU renderer misses the accepted

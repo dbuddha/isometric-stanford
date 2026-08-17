@@ -82,3 +82,15 @@ candidate. Project policy now requires a human decision to approve this
 analogue, relax the target, authorize a new sprite-assisted or controlled asset
 architecture, or stop. A fourth unapproved procedural iteration would violate
 the accepted experiment boundary.
+
+## Semantic-world refresh
+
+Issue #99 later replaced vector-only unknown cells with frozen NAIP and LiDAR
+evidence without changing Candidate C's style pack. The original hashes above
+remain the historical style-decision evidence. On the fused world, Candidate C
+has indexed contact-sheet hash `579cc6d957cd42ff` and encoded contact-sheet
+SHA-256
+`0c7e06cf1a32b7f80d2602a6d5579b57a15baab21594ed03dbab52b3c7212064`.
+The refresh adds deterministic canopy and ground evidence, leaves five explicit
+unknown cells, and does not constitute a fourth style iteration or imply visual
+approval.

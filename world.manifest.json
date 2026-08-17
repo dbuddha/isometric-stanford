@@ -1,23 +1,23 @@
 {
   "schema": "isometric-world-manifest/v1",
-  "status": "prototype-vector-world",
-  "semantic_version": "0.2.0",
+  "status": "prototype-semantic-world",
+  "semantic_version": "0.3.0",
   "region_id": "stanford-hero-v1",
-  "world_sha256": "f3a6a16e1a32a5272dbc0fe7e03163c27762ca94769e7753229a1e124ec7d5a0",
+  "world_sha256": "0f20877ff045b4180612c2b4f656aefe72ebe92390e1252ac604d0eaa06ccbcd",
   "object_count": 2820,
   "partition_count": 72,
-  "unknown_fraction_ppm": 387096,
+  "unknown_fraction_ppm": 5202,
   "source_sha256": {
+    "naip-2024-hero": "2775b4aa72382e808cb8aa39b74ab840550e7c26351fdb9a91cf7d271c907863",
     "osm-2026-07-15-hero": "0ec274128b61387e5b28c8aac4e15bcf2a2199af71c04240fafbee1f2efc585f",
-    "overture-2026-06-17-buildings": "eeba6bbf6a6382db1339cdfaff44d362b43aa250c059bc7f43a0b369ce5cd5e9"
+    "overture-2026-06-17-buildings": "eeba6bbf6a6382db1339cdfaff44d362b43aa250c059bc7f43a0b369ce5cd5e9",
+    "usgs-lidar-07509800": "d13e4a01175c0f7f501ff9b3e899115930dbc66a48f5a7701f04901a6f86c416",
+    "usgs-lidar-07509825": "e19740f598fb3c9d7b796a8d9f596d47f529d02e5bfe9c7a5cbf3d4112936580",
+    "usgs-lidar-07759800": "09283bb7df0e4363fa34116a9b3c9e53b33dba91dde01fb28535508e7ad0957a",
+    "usgs-lidar-07759825": "1e4b92c088bd960eca050a62fad46f0013f70acd95fb761828ec09fc19ae12cd"
   },
-  "deferred_source_ids": [
-    "naip-2024-hero",
-    "usgs-lidar-07509800",
-    "usgs-lidar-07509825",
-    "usgs-lidar-07759800",
-    "usgs-lidar-07759825"
-  ],
+  "perception_sha256": "3b6d79edebd33829a9c82f0bfdf16675eb1d6c73677db0dd9b391443850f682d",
+  "deferred_source_ids": [],
   "landmarks": [
     "Hoover Tower",
     "Main Quad",

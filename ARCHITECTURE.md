@@ -5,9 +5,13 @@ GitHub issues and mdBook design chapters until code makes it current.
 
 ## Implemented bootstrap
 
-The Rust workspace contains eight safe-Rust crates with a one-way dependency
+The Rust workspace contains nine safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
-content-addressed artifacts through a bounded-memory cache. `isometric-core`
+content-addressed artifacts through a bounded-memory cache.
+`isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
+points through a bounded buffer, transforms audited source coordinates, masks
+vector-owned cells, and emits frozen semantic evidence with no source pixels or
+transient classes. `isometric-core`
 owns validated IDs, integer world coordinates, fixed
 screen coordinates, and palette indexes. `isometric-world` owns an immutable,
 spatially partitioned polygonal world with holes, building parts, heights,
@@ -21,8 +25,8 @@ grammar, and bounded fixed-point triangle and integer-depth raster core.
 tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
 `isometric-cli` exposes the complete planned command names, verifies and
-compiles the vector hero world, executes reference rendering and validation,
-and rejects unfinished commands.
+compiles the fused hero world, executes reference rendering and validation, and
+rejects unfinished commands.
 
 ```mermaid
 flowchart LR
@@ -35,9 +39,9 @@ flowchart LR
     publish["isometric-publish\nlossless WebP DZI"]
     web["OpenSeadragon viewer shell"]
 
-    source -. "future semantic extraction" .-> perception
+    source -->|"locked NAIP + LiDAR"| perception
     source -->|"locked OSM + Overture"| world
-    perception -. "future fusion" .-> world
+    perception -->|"frozen 20 m evidence"| world
     world --> render
     style --> render
     world --> validate
@@ -80,15 +84,18 @@ from canonical indexed parents, records a complete hash chain, and atomically
 promotes the staged pyramid. Survey-derived roof geometry and the qualified art
 style remain unfinished layers.
 
-The CLI currently implements `source sync`, `world compile`, `world inspect`,
-`validate semantic`, `validate render`, `validate release`, `render region`,
-`publish dzi`, `style candidate-a`, `style candidate-b`, and `style
-candidate-c`. Source
-synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
-records before use. Hero compilation projects WGS84 vector geometry into
+The CLI currently implements `source sync`, `perceive run`, `world compile`,
+`world inspect`, `validate semantic`, `validate render`, `validate release`,
+`render region`, `publish dzi`, `style candidate-a`, `style candidate-b`, and
+`style candidate-c`. Source synchronization rejects unapproved, mis-hashed,
+insecure, or Google-derived records before use. Perception decodes exact
+four-band NAIP,
+streams four serial LAZ sources in 250,000-point chunks, discards unclassified
+low elevated returns from persistent evidence, and freezes 372 eligible cells.
+Hero compilation projects WGS84 vector geometry into
 EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
 derives stable content IDs, normalizes buildings and buffered road segments,
-and records uncovered 20 meter cells as explicit unknowns. DZI publication
+and fuses the frozen evidence into uncovered 20 meter cells. DZI publication
 requires the compiled world, writes only to a new output path, and validates
 every descriptor, canonical tile, WebP tile, palette color, and manifest hash.
 The style command reconstructs the 7,623 by 3,325 indexed master from bounded
@@ -126,11 +133,12 @@ road and path accents use sparse world-anchored dash cadence. The monotonic
 detail-level enum prevents incompatible boolean combinations and keeps earlier
 candidate constructors byte-stable.
 
-The vector world currently contains 2,820 objects in 72 partitions. Its
-387,096 ppm unknown-cell result is expected because NAIP land cover and LiDAR
-terrain and canopy have not been compiled. The manifest names those five
-deferred inputs explicitly. OSM construction features are omitted, and neither
-the schema nor the compiler can emit people or vehicles.
+The fused world contains 2,820 objects in 72 partitions. Five dominant unmapped
+building-evidence cells remain explicit unknowns, giving 5,202 ppm unknown
+coverage. The manifest pins all seven source hashes and the perception artifact
+hash with no deferred prototype source. OSM construction features are omitted,
+unclassified low elevated LiDAR returns cannot become persistent classes, and
+neither the schema nor the compiler can emit people or vehicles.
 
 The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
@@ -178,19 +186,18 @@ flowchart LR
     rm --> rel["release.json"]
 ```
 
-The source and world manifests now form the first verified production segment
-of the artifact chain. The world manifest pins both vector source hashes and
-the canonical generated world hash. The manifest validator rejects malformed
-hashes, mismatched source inputs, unaccounted deferred inputs, wrong bounds,
-unknown schemas, and a release marked published before qualification.
+The source, perception, and world manifests now form a verified production
+segment of the artifact chain. The world manifest pins every source hash, the
+frozen perception hash, and the canonical generated world hash. The manifest
+validator rejects malformed hashes, mismatched source inputs, incomplete
+evidence coverage, wrong bounds, unknown schemas, transient-bearing artifacts,
+and a release marked published before qualification.
 
 ## Not implemented
 
 - Object storage and resumable remote acquisition
-- NAIP or LiDAR semantic ingestion
-- Perception model execution and correction workflow
-- Raster evidence fusion, dirty-region propagation, and qualification-level
-  unknown resolution
+- Learned-model benchmark and correction workflow
+- Dirty-region propagation and full-estate evidence partitioning
 - Detailed ridge, tile, and complex-footprint roof grammar
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render
