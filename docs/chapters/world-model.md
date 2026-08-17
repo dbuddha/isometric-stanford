@@ -18,3 +18,8 @@ and enforces accepted aggregate unknown budgets elsewhere.
 Dirty-region propagation begins at changed source hashes and expands through
 perception, fused geometry, shadows, guarded supertiles, and affected DZI
 ancestors. Total map size must not determine one worker's memory use.
+
+The portable contract fixture in `fixtures/world/representative.json` freezes
+the first polygon, hole, multipolygon, building-part, confidence, source, and
+unknown examples before the production reader is implemented. Its companion
+negative fixtures prove that undeclared provenance fails closed.

@@ -1,0 +1,120 @@
+{
+  "schema": "isometric-world-fixture/v1",
+  "license": "CC-BY-4.0",
+  "origin": "original synthetic fixture",
+  "contains_source_pixels": false,
+  "contains_transients": false,
+  "crs": "local integer millimeters derived from EPSG:26910",
+  "sources": [
+    {
+      "id": "osm-2026-07-15-hero",
+      "license": "ODbL-1.0",
+      "attribution": "OpenStreetMap contributors"
+    },
+    {
+      "id": "overture-2026-06-17-buildings",
+      "license": "ODbL-1.0",
+      "attribution": "OpenStreetMap contributors and Overture Maps Foundation"
+    },
+    {
+      "id": "usgs-lidar-07509800",
+      "license": "USGS public domain without use restrictions",
+      "attribution": "USGS 3D Elevation Program"
+    }
+  ],
+  "features": [
+    {
+      "id": 1001,
+      "class": "terrain",
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[0, 0, 0], [120000, 0, 0], [120000, 100000, 0], [0, 100000, 0], [0, 0, 0]],
+          [[40000, 30000, 0], [80000, 30000, 0], [80000, 70000, 0], [40000, 70000, 0], [40000, 30000, 0]]
+        ]
+      },
+      "material": "dry-grass",
+      "confidence_bp": 9700,
+      "source_ids": ["osm-2026-07-15-hero"],
+      "review": "accepted"
+    },
+    {
+      "id": 1002,
+      "class": "building",
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[45000, 35000, 0], [75000, 35000, 0], [75000, 65000, 0], [45000, 65000, 0], [45000, 35000, 0]]
+        ]
+      },
+      "height_mm": 18000,
+      "floor_count": 2,
+      "roof": {"kind": "hipped", "direction_millidegrees": 90000},
+      "material": "sandstone",
+      "confidence_bp": 9300,
+      "source_ids": ["overture-2026-06-17-buildings", "usgs-lidar-07509800"],
+      "review": "accepted"
+    },
+    {
+      "id": 1003,
+      "class": "building",
+      "parent_id": 1002,
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[55000, 45000, 18000], [65000, 45000, 18000], [65000, 55000, 18000], [55000, 55000, 18000], [55000, 45000, 18000]]
+        ]
+      },
+      "height_mm": 9000,
+      "floor_count": 1,
+      "roof": {"kind": "pyramidal", "direction_millidegrees": 0},
+      "material": "terracotta",
+      "confidence_bp": 8800,
+      "source_ids": ["overture-2026-06-17-buildings", "usgs-lidar-07509800"],
+      "review": "accepted-override"
+    },
+    {
+      "id": 1004,
+      "class": "road",
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[0, 8000, 0], [120000, 8000, 0], [120000, 18000, 0], [0, 18000, 0], [0, 8000, 0]]
+        ]
+      },
+      "material": "asphalt",
+      "confidence_bp": 9900,
+      "source_ids": ["osm-2026-07-15-hero"],
+      "review": "accepted"
+    },
+    {
+      "id": 1005,
+      "class": "vegetation",
+      "geometry": {
+        "type": "multipolygon",
+        "polygons": [
+          {"rings": [[[8000, 75000, 0], [26000, 75000, 0], [26000, 93000, 0], [8000, 93000, 0], [8000, 75000, 0]]]},
+          {"rings": [[[92000, 72000, 0], [112000, 72000, 0], [112000, 92000, 0], [92000, 92000, 0], [92000, 72000, 0]]]}
+        ]
+      },
+      "height_mm": 12500,
+      "material": "broadleaf-canopy",
+      "confidence_bp": 8600,
+      "source_ids": ["usgs-lidar-07509800"],
+      "review": "accepted"
+    },
+    {
+      "id": 1006,
+      "class": "unknown",
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[90000, 25000, 0], [110000, 25000, 0], [110000, 45000, 0], [90000, 45000, 0], [90000, 25000, 0]]
+        ]
+      },
+      "confidence_bp": 2200,
+      "source_ids": ["osm-2026-07-15-hero", "usgs-lidar-07509800"],
+      "review": "unreviewed-conflict"
+    }
+  ]
+}
