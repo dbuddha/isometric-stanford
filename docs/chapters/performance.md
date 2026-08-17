@@ -32,5 +32,14 @@ guard. A release run on the development machine rendered the complete indexed
 tile set in 0.73 seconds, selected at most 303 of 2,820 world objects per tile,
 and reported a 2,709,504-byte maximum guarded pixel-buffer budget. The wrapping
 process measured 32,636,928 bytes maximum RSS. Its aggregate indexed hash is
-`bf0604f68bc38d2c`. These numbers prove the bounded raster stage, not WebP
-encoding, source compilation, or fixed-device release performance.
+`bf0604f68bc38d2c`. These numbers prove the bounded raster stage, not source
+compilation or fixed-device release performance.
+
+The implemented publisher converts that layout into 157 WebP tiles across all
+DZI levels. A warm release run on the development machine completed the full
+publication in 1.07 seconds with 16,154,624 bytes maximum RSS. The served WebP
+set totals 1,759,172 bytes; retained canonical indexed tiles make the complete
+local artifact about 35 MiB. Two clean publications were byte-identical with
+tile-set SHA-256
+`cee6b78366a6b1fed5b49ee663f2e524a82c4a5209f9e67d3b5dd74ea142e9e6`.
+These are local regression measurements, not fixed-device qualification.

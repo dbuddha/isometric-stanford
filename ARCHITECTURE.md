@@ -5,7 +5,7 @@ GitHub issues and mdBook design chapters until code makes it current.
 
 ## Implemented bootstrap
 
-The Rust workspace contains seven safe-Rust crates with a one-way dependency
+The Rust workspace contains eight safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
 content-addressed artifacts through a bounded-memory cache. `isometric-core`
 owns validated IDs, integer world coordinates, fixed
@@ -17,6 +17,8 @@ has no transient people or vehicle variants. `isometric-style` owns the bounded
 indexed palette, projection scales, and versioned ordinary-scene grammar.
 `isometric-render` owns the deterministic CPU reference projection, procedural
 grammar, and bounded fixed-point triangle and integer-depth raster core.
+`isometric-publish` owns lossless WebP encoding, canonical indexed pyramid
+tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
 `isometric-cli` exposes the complete planned command names, verifies and
 compiles the vector hero world, executes reference rendering and validation,
@@ -30,7 +32,7 @@ flowchart LR
     style["isometric-style\noriginal procedural rules"]
     render["isometric-render\nfixed-point CPU"]
     validate["isometric-validate\nfail-closed gates"]
-    publish["DZI/WebP publisher\nnot implemented"]
+    publish["isometric-publish\nlossless WebP DZI"]
     web["OpenSeadragon viewer shell"]
 
     source -. "future semantic extraction" .-> perception
@@ -41,7 +43,7 @@ flowchart LR
     world --> validate
     style --> validate
     render -->|"guarded indexed tiles"| publish
-    publish -. "static release" .-> web
+    publish -->|"static candidate"| web
 ```
 
 The original reference grammar still renders world-anchored diamonds and
@@ -72,20 +74,24 @@ projected bounds, renders into a style-derived guard, applies every ordinary
 and landmark pass in world coordinates, then crops its saved pixels. The seam
 oracle reconstructs the full hero from independently rendered tiles and
 requires byte equality with the monolithic reference. The 250 millimeter scale
-probe renders the approximately 8K layout through the same bounded API. WebP
-encoding, general detailed roof grammar, and the qualified art style remain
-separate unfinished layers.
+probe renders the approximately 8K layout through the same bounded API. The
+publisher encodes each palette tile as lossless RGB WebP, derives lower levels
+from canonical indexed parents, records a complete hash chain, and atomically
+promotes the staged pyramid. General detailed roof grammar and the qualified
+art style remain unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
-`validate semantic`, `validate render`, and `render region`. Source
+`validate semantic`, `validate render`, `validate release`, `render region`,
+and `publish dzi`. Source
 synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
 records before use. Hero compilation projects WGS84 vector geometry into
 EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
 derives stable content IDs, normalizes buildings and buffered road segments,
-and records uncovered 20 meter cells as explicit unknowns. All other
-documented command names fail with an explicit not-implemented error. This
-prevents the working vector compiler from being mistaken for completed
-perception, rendering, or publication.
+and records uncovered 20 meter cells as explicit unknowns. DZI publication
+requires the compiled world, writes only to a new output path, and validates
+every descriptor, canonical tile, WebP tile, palette color, and manifest hash.
+All other documented command names fail with an explicit not-implemented
+error.
 
 The vector world currently contains 2,820 objects in 72 partitions. Its
 387,096 ppm unknown-cell result is expected because NAIP land cover and LiDAR
@@ -97,7 +103,8 @@ The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
 image smoothing disabled, bounds decoded-tile counts from an explicit memory
 policy, starts phone-width screens at a legible zoom, and reports missing
-release configuration. No DZI release is committed or published.
+release configuration. A locally generated candidate has been exercised in the
+viewer, but no DZI release is committed or published.
 
 ## Binding invariants
 
@@ -119,7 +126,7 @@ release configuration. No DZI release is committed or published.
    never silently vendored into Git.
 10. Canonical exact hashes are Linux CPU evidence. Cross-platform comparisons
    use semantic IDs and approved palette-index tolerances.
-11. Release publication is unavailable until source, perception, world, style,
+11. Release promotion is unavailable until source, perception, world, style,
     render, and release manifests form a complete verified chain.
 
 ## Durable artifact chain
@@ -146,8 +153,7 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- Detailed roof grammar and WebP pyramid encoding
-- DZI/WebP publication
+- Detailed roof grammar
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render
 

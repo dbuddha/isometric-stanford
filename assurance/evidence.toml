@@ -91,6 +91,12 @@ evidence = ["npm --prefix web test -- --run", "web/src/viewer-policy.test.ts", "
 status = "implemented"
 
 [[claim]]
+id = "PROTO-DZI-001"
+statement = "The canonical Rust publisher creates an atomic lossless WebP DZI from bounded guarded tiles, retains indexed canonical levels, and validates completeness, palette fidelity, and the full artifact hash chain."
+evidence = ["cargo test -p isometric-publish", "cargo run --release --locked -- publish dzi", "cargo run --release --locked -- validate release", ".github/workflows/scheduled-assurance.yml", "docs/chapters/performance.md"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-PR-GATE-001"
 statement = "Hosted ci-pass rejects pull requests without a conventional title, required evidence sections, a linked issue, and exactly one release-impact label."
 evidence = ["python scripts/test_validate_pr.py", "scripts/validate_pr.py", ".github/workflows/ci.yml"]

@@ -24,3 +24,12 @@ A custom Rust or WebAssembly viewer adds tile scheduling, gesture handling,
 accessibility, browser compatibility, decode behavior, and years of edge cases.
 It is not simpler unless profiling identifies an OpenSeadragon bottleneck that
 cannot be fixed or bounded. Version 1 therefore keeps OpenSeadragon.
+
+The real 7,623 by 3,325 candidate pyramid has been exercised locally through
+the production viewer. A 390 by 844 mobile viewport initially requested three
+WebP tiles and transferred about 107 KiB; a 1,280 by 720 desktop viewport
+requested eleven tiles and transferred about 293 KiB. Both remained visually
+continuous through zooming, and automated accessibility inspection reported no
+violations. These results prove DZI integration and leave ample room under the
+2.5 MiB initial imagery budget. Fixed iPhone 12-class and Pixel 7-class frame,
+memory, recovery, and network measurements remain qualification work.

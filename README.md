@@ -40,8 +40,10 @@ Repository foundation and the prototype-first delivery model are established.
 The Rust compiler now turns the locked OSM and Overture vectors into a
 deterministic, inspectable hero world. The current artifact contains 2,820
 objects across 72 spatial partitions, including measured Hoover Tower geometry
-and OSM geometry for Memorial Church. NAIP and LiDAR evidence, the remaining
-procedural art passes, and publication remain unfinished. The prototype is not
+and OSM geometry for Memorial Church. The deterministic renderer now publishes
+a complete 7,623 by 3,325 lossless WebP DZI candidate that has been exercised
+in the responsive viewer. NAIP and LiDAR evidence, style approval, fixed-device
+qualification, and release publication remain unfinished. The prototype is not
 qualified, and no map release has been published.
 
 ## Development
@@ -101,6 +103,17 @@ patterns. Parameterized procedural grammar now gives Hoover Tower a stepped
 crown, Memorial Church a gabled roof and facade, and the Main Quad low arcade
 walls with repeated openings. It is deterministic and recognizably Stanford,
 but it is not yet an approved style candidate.
+
+Publish and validate a local viewer pyramid after compiling the world:
+
+```sh
+cargo run --release --locked -- publish dzi artifacts/dzi/hero
+cargo run --release --locked -- validate release artifacts/dzi/hero
+```
+
+Publication is atomic and fails if the destination already exists. The
+candidate retains canonical indexed tiles for exact validation and serves only
+the lossless WebP pyramid to OpenSeadragon.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the

@@ -36,7 +36,9 @@ jobs:
           third=$(cargo run --quiet --locked -- validate render)
           test "$first" = "$second"
           test "$second" = "$third"
-      - run: cargo run --quiet --locked -- render region artifacts/reference.ppm
+      - run: cargo run --quiet --release --locked -- world compile artifacts/world
+      - run: cargo run --quiet --release --locked -- publish dzi artifacts/dzi/hero
+      - run: cargo run --quiet --release --locked -- validate release artifacts/dzi/hero
       - run: mdbook build
       - run: npm ci
         working-directory: web
@@ -45,7 +47,7 @@ jobs:
       - name: Assemble dry-run bundle
         run: |
           mkdir -p artifacts/release-dry-run
-          cp artifacts/reference.ppm artifacts/release-dry-run/
+          cp -R artifacts/dzi/hero artifacts/release-dry-run/
           cp release.json render.manifest.json style.lock.json artifacts/release-dry-run/
           cp -R book artifacts/release-dry-run/documentation
           cp -R web/dist artifacts/release-dry-run/viewer
