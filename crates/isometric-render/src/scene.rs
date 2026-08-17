@@ -17,6 +17,66 @@ const PASS_ROOF: u8 = 3;
 const PASS_CROWN: u8 = 4;
 const PASS_SHADOW: u8 = 5;
 
+/// Stable full-scene coordinate system used by independently rendered tiles.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct RenderLayout {
+    offset_x_subpx: i64,
+    offset_y_subpx: i64,
+    width: u32,
+    height: u32,
+}
+
+impl RenderLayout {
+    /// Returns the complete artwork width in logical pixels.
+    #[must_use]
+    pub const fn width(self) -> u32 {
+        self.width
+    }
+
+    /// Returns the complete artwork height in logical pixels.
+    #[must_use]
+    pub const fn height(self) -> u32 {
+        self.height
+    }
+}
+
+/// One canonical level-zero tile request.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TileRequest {
+    /// Zero-based tile column.
+    pub column: u32,
+    /// Zero-based tile row.
+    pub row: u32,
+    /// Saved tile edge length in logical pixels.
+    pub tile_size: u32,
+    /// Unsaved context rendered around every tile edge.
+    pub guard: u32,
+}
+
+/// Bounded-memory evidence emitted with one canonical tile.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TileRenderStats {
+    /// Objects conservatively selected for this guarded tile.
+    pub candidate_objects: usize,
+    /// Main and shadow primitives submitted to the rasterizer.
+    pub primitives: usize,
+    /// Guarded surface width.
+    pub surface_width: u32,
+    /// Guarded surface height.
+    pub surface_height: u32,
+    /// Conservative peak bytes owned by palette and depth pixel buffers.
+    pub peak_pixel_buffer_bytes: usize,
+}
+
+/// One saved canonical tile and its bounded-memory evidence.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TileRender {
+    /// Cropped palette-indexed tile with no guard pixels.
+    pub image: IndexedImage,
+    /// Render-time selection and allocation evidence.
+    pub stats: TileRenderStats,
+}
+
 /// Renders ordinary semantic geometry into a tightly bounded indexed image.
 ///
 /// This stage covers ordinary polygonal surfaces, faceted vegetation, hard
@@ -29,12 +89,151 @@ const PASS_SHADOW: u8 = 5;
 /// overflow, noncanonical polygons, or raster failures.
 pub fn render_world(world: &World, style: &StylePack) -> Result<IndexedImage, RenderError> {
     style.validate().map_err(|_| RenderError::InvalidStyle)?;
-    let view = Viewport::from_world(world, style)?;
+    let layout = render_layout(world, style)?;
+    let view = Viewport::from_layout(layout);
+    let (image, _) = render_objects(world.objects().iter(), style, view)?;
+    Ok(image)
+}
+
+/// Derives the stable full-scene layout without allocating a framebuffer.
+///
+/// # Errors
+///
+/// Returns an error for invalid style, empty geometry, or projection overflow.
+pub fn render_layout(world: &World, style: &StylePack) -> Result<RenderLayout, RenderError> {
+    style.validate().map_err(|_| RenderError::InvalidStyle)?;
+    Viewport::from_world(world, style).map(Viewport::into_layout)
+}
+
+/// Returns the minimum guard needed by the current shadow, crown, and outline grammar.
+///
+/// # Errors
+///
+/// Returns an error when style projection arithmetic overflows.
+pub fn required_tile_guard(style: &StylePack) -> Result<u32, RenderError> {
+    style.validate().map_err(|_| RenderError::InvalidStyle)?;
+    let radius = style.ordinary.tree_radius_mm + 1_000;
+    let height = style.ordinary.tree_height_mm;
+    let effects = [
+        WorldPoint::new(style.ordinary.shadow_x_mm, style.ordinary.shadow_y_mm, 0),
+        WorldPoint::new(radius, -radius, 0),
+        WorldPoint::new(-radius, radius, 0),
+        WorldPoint::new(radius, radius, height),
+        WorldPoint::new(-radius, -radius, height),
+    ];
+    let maximum = effects
+        .into_iter()
+        .map(|point| project(point, style))
+        .collect::<Result<Vec<_>, _>>()?
+        .into_iter()
+        .flat_map(|point| [point.x_subpx.unsigned_abs(), point.y_subpx.unsigned_abs()])
+        .max()
+        .ok_or(RenderError::InvalidStyle)?;
+    let scale =
+        u64::try_from(style.subpixels_per_pixel).map_err(|_| RenderError::ArithmeticOverflow)?;
+    u32::try_from(maximum.div_ceil(scale) + 2).map_err(|_| RenderError::InvalidDimensions)
+}
+
+/// Renders one guarded, cropped canonical tile without allocating the full scene.
+///
+/// # Errors
+///
+/// Returns an error for invalid tile coordinates or guard size, projection
+/// overflow, noncanonical geometry, or raster failure.
+pub fn render_tile(
+    world: &World,
+    style: &StylePack,
+    layout: RenderLayout,
+    request: TileRequest,
+) -> Result<TileRender, RenderError> {
+    style.validate().map_err(|_| RenderError::InvalidStyle)?;
+    let required_guard = required_tile_guard(style)?;
+    if request.tile_size == 0
+        || request.tile_size > 2_048
+        || request.guard < required_guard
+        || request.guard > 512
+    {
+        return Err(RenderError::InvalidTileRequest);
+    }
+    let saved_x = request
+        .column
+        .checked_mul(request.tile_size)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let saved_y = request
+        .row
+        .checked_mul(request.tile_size)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    if saved_x >= layout.width || saved_y >= layout.height {
+        return Err(RenderError::InvalidTileRequest);
+    }
+    let saved_width = request.tile_size.min(layout.width - saved_x);
+    let saved_height = request.tile_size.min(layout.height - saved_y);
+    let surface_width = saved_width
+        .checked_add(request.guard * 2)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let surface_height = saved_height
+        .checked_add(request.guard * 2)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let origin_x = i64::from(saved_x) - i64::from(request.guard);
+    let origin_y = i64::from(saved_y) - i64::from(request.guard);
+    let view = Viewport::for_region(
+        layout,
+        origin_x,
+        origin_y,
+        surface_width,
+        surface_height,
+        style,
+    )?;
+    let bounds = PixelBounds {
+        min_x: origin_x,
+        min_y: origin_y,
+        max_x: origin_x + i64::from(surface_width),
+        max_y: origin_y + i64::from(surface_height),
+    };
+    let mut candidates = Vec::new();
+    for object in world.objects() {
+        if object_intersects(object, style, layout, bounds)? {
+            candidates.push(object);
+        }
+    }
+    let candidate_objects = candidates.len();
+    let (guarded, primitives) = render_objects(candidates.into_iter(), style, view)?;
+    let image = crop_image(
+        &guarded,
+        request.guard,
+        request.guard,
+        saved_width,
+        saved_height,
+    )?;
+    let guarded_pixels = usize::try_from(surface_width)
+        .ok()
+        .and_then(|width| width.checked_mul(usize::try_from(surface_height).ok()?))
+        .ok_or(RenderError::CapacityOverflow)?;
+    Ok(TileRender {
+        image,
+        stats: TileRenderStats {
+            candidate_objects,
+            primitives,
+            surface_width,
+            surface_height,
+            peak_pixel_buffer_bytes: guarded_pixels
+                .checked_mul(6)
+                .ok_or(RenderError::CapacityOverflow)?,
+        },
+    })
+}
+
+fn render_objects<'a>(
+    objects: impl IntoIterator<Item = &'a WorldObject>,
+    style: &StylePack,
+    view: Viewport,
+) -> Result<(IndexedImage, usize), RenderError> {
     let mut triangles = Vec::new();
     let mut shadows = Vec::new();
-    for object in world.objects() {
+    for object in objects {
         append_object(&mut triangles, &mut shadows, object, style, view)?;
     }
+    let primitive_count = triangles.len() + shadows.len();
     let palette_len = u8::try_from(style.palette.len()).map_err(|_| RenderError::PaletteIndex)?;
     let mut surface = RasterSurface::new(view.width, view.height, 0, palette_len)?;
     surface.rasterize(&triangles)?;
@@ -42,9 +241,10 @@ pub fn render_world(world: &World, style: &StylePack) -> Result<IndexedImage, Re
     let mut shadow_surface = RasterSurface::new(view.width, view.height, 15, palette_len)?;
     shadow_surface.rasterize(&shadows)?;
     composite_shadows(&mut image, shadow_surface.image(), style);
+    drop(shadow_surface);
     apply_world_patterns(&mut image, view, style)?;
     apply_outlines(&mut image, style);
-    Ok(image)
+    Ok((image, primitive_count))
 }
 
 #[derive(Clone, Copy)]
@@ -62,25 +262,11 @@ impl Viewport {
         let mut max_x = i64::MIN;
         let mut max_y = i64::MIN;
         for object in world.objects() {
-            for point in geometry_points(object.geometry()) {
-                for z_offset in [0_i64, i64::from(object.height_mm())] {
-                    let projected = project(
-                        WorldPoint::new(
-                            point.x_mm,
-                            point.y_mm,
-                            point
-                                .z_mm
-                                .checked_add(z_offset)
-                                .ok_or(RenderError::ArithmeticOverflow)?,
-                        ),
-                        style,
-                    )?;
-                    min_x = min_x.min(projected.x_subpx);
-                    min_y = min_y.min(projected.y_subpx);
-                    max_x = max_x.max(projected.x_subpx);
-                    max_y = max_y.max(projected.y_subpx);
-                }
-            }
+            let bounds = object_render_bounds(object, style)?;
+            min_x = min_x.min(bounds.min_x);
+            min_y = min_y.min(bounds.min_y);
+            max_x = max_x.max(bounds.max_x);
+            max_y = max_y.max(bounds.max_y);
         }
         if min_x == i64::MAX {
             return Err(RenderError::EmptyWorld);
@@ -109,6 +295,278 @@ impl Viewport {
             height,
         })
     }
+
+    const fn from_layout(layout: RenderLayout) -> Self {
+        Self {
+            offset_x_subpx: layout.offset_x_subpx,
+            offset_y_subpx: layout.offset_y_subpx,
+            width: layout.width,
+            height: layout.height,
+        }
+    }
+
+    const fn into_layout(self) -> RenderLayout {
+        RenderLayout {
+            offset_x_subpx: self.offset_x_subpx,
+            offset_y_subpx: self.offset_y_subpx,
+            width: self.width,
+            height: self.height,
+        }
+    }
+
+    fn for_region(
+        layout: RenderLayout,
+        origin_x: i64,
+        origin_y: i64,
+        width: u32,
+        height: u32,
+        style: &StylePack,
+    ) -> Result<Self, RenderError> {
+        let scale = style.subpixels_per_pixel;
+        Ok(Self {
+            offset_x_subpx: layout
+                .offset_x_subpx
+                .checked_sub(
+                    origin_x
+                        .checked_mul(scale)
+                        .ok_or(RenderError::ArithmeticOverflow)?,
+                )
+                .ok_or(RenderError::ArithmeticOverflow)?,
+            offset_y_subpx: layout
+                .offset_y_subpx
+                .checked_sub(
+                    origin_y
+                        .checked_mul(scale)
+                        .ok_or(RenderError::ArithmeticOverflow)?,
+                )
+                .ok_or(RenderError::ArithmeticOverflow)?,
+            width,
+            height,
+        })
+    }
+}
+
+#[derive(Clone, Copy)]
+struct PixelBounds {
+    min_x: i64,
+    min_y: i64,
+    max_x: i64,
+    max_y: i64,
+}
+
+#[derive(Clone, Copy)]
+struct ProjectedBounds {
+    min_x: i64,
+    min_y: i64,
+    max_x: i64,
+    max_y: i64,
+}
+
+fn object_render_bounds(
+    object: &WorldObject,
+    style: &StylePack,
+) -> Result<ProjectedBounds, RenderError> {
+    let source = object.bounds();
+    let mut min_x = source.min_x_mm;
+    let mut min_y = source.min_y_mm;
+    let mut max_x = source.max_x_mm;
+    let mut max_y = source.max_y_mm;
+    let mut max_z = source.max_z_mm;
+
+    if object.class() == SemanticClass::Vegetation {
+        let radius = style.ordinary.tree_radius_mm + 1_000;
+        min_x = min_x
+            .checked_sub(radius)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        min_y = min_y
+            .checked_sub(radius)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        max_x = max_x
+            .checked_add(radius)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        max_y = max_y
+            .checked_add(radius)
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        max_z = max_z.max(
+            source
+                .min_z_mm
+                .checked_add(style.ordinary.tree_height_mm)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+    }
+
+    let landmark_extent = match object.name() {
+        Some("Hoover Tower" | "Memorial Church") => 40_000,
+        _ => 0,
+    };
+    if landmark_extent > 0 {
+        let anchor = object.anchor();
+        min_x = min_x.min(
+            anchor
+                .x_mm
+                .checked_sub(landmark_extent)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        min_y = min_y.min(
+            anchor
+                .y_mm
+                .checked_sub(landmark_extent)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        max_x = max_x.max(
+            anchor
+                .x_mm
+                .checked_add(landmark_extent)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        max_y = max_y.max(
+            anchor
+                .y_mm
+                .checked_add(landmark_extent)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        let landmark_height = if object.name() == Some("Hoover Tower") {
+            style.landmarks.hoover_heights_mm[4]
+        } else {
+            style.landmarks.church_mm[0] + style.landmarks.church_mm[1]
+        };
+        max_z = max_z.max(
+            source
+                .min_z_mm
+                .checked_add(landmark_height)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+    }
+
+    if matches!(
+        object.class(),
+        SemanticClass::Building | SemanticClass::Vegetation
+    ) {
+        min_x = min_x.min(
+            min_x
+                .checked_add(style.ordinary.shadow_x_mm)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        min_y = min_y.min(
+            min_y
+                .checked_add(style.ordinary.shadow_y_mm)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        max_x = max_x.max(
+            max_x
+                .checked_add(style.ordinary.shadow_x_mm)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+        max_y = max_y.max(
+            max_y
+                .checked_add(style.ordinary.shadow_y_mm)
+                .ok_or(RenderError::ArithmeticOverflow)?,
+        );
+    }
+
+    projected_box(min_x, min_y, source.min_z_mm, max_x, max_y, max_z, style)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn projected_box(
+    min_x: i64,
+    min_y: i64,
+    min_z: i64,
+    max_x: i64,
+    max_y: i64,
+    max_z: i64,
+    style: &StylePack,
+) -> Result<ProjectedBounds, RenderError> {
+    let mut bounds = ProjectedBounds {
+        min_x: i64::MAX,
+        min_y: i64::MAX,
+        max_x: i64::MIN,
+        max_y: i64::MIN,
+    };
+    for x in [min_x, max_x] {
+        for y in [min_y, max_y] {
+            for z in [min_z, max_z] {
+                let point = project(WorldPoint::new(x, y, z), style)?;
+                bounds.min_x = bounds.min_x.min(point.x_subpx);
+                bounds.min_y = bounds.min_y.min(point.y_subpx);
+                bounds.max_x = bounds.max_x.max(point.x_subpx);
+                bounds.max_y = bounds.max_y.max(point.y_subpx);
+            }
+        }
+    }
+    Ok(bounds)
+}
+
+fn object_intersects(
+    object: &WorldObject,
+    style: &StylePack,
+    layout: RenderLayout,
+    tile: PixelBounds,
+) -> Result<bool, RenderError> {
+    let object = object_render_bounds(object, style)?;
+    let scale = style.subpixels_per_pixel;
+    let tile_min_x = tile
+        .min_x
+        .checked_mul(scale)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let tile_min_y = tile
+        .min_y
+        .checked_mul(scale)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let tile_max_x = tile
+        .max_x
+        .checked_mul(scale)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let tile_max_y = tile
+        .max_y
+        .checked_mul(scale)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let min_x = object
+        .min_x
+        .checked_add(layout.offset_x_subpx)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let min_y = object
+        .min_y
+        .checked_add(layout.offset_y_subpx)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let max_x = object
+        .max_x
+        .checked_add(layout.offset_x_subpx)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    let max_y = object
+        .max_y
+        .checked_add(layout.offset_y_subpx)
+        .ok_or(RenderError::ArithmeticOverflow)?;
+    Ok(max_x >= tile_min_x && min_x <= tile_max_x && max_y >= tile_min_y && min_y <= tile_max_y)
+}
+
+fn crop_image(
+    source: &IndexedImage,
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+) -> Result<IndexedImage, RenderError> {
+    if x.checked_add(width)
+        .is_none_or(|right| right > source.width())
+        || y.checked_add(height)
+            .is_none_or(|bottom| bottom > source.height())
+    {
+        return Err(RenderError::InvalidTileRequest);
+    }
+    let mut output = IndexedImage::new(width, height, 0)?;
+    let source_width =
+        usize::try_from(source.width()).map_err(|_| RenderError::InvalidDimensions)?;
+    let output_width = usize::try_from(width).map_err(|_| RenderError::InvalidDimensions)?;
+    let x = usize::try_from(x).map_err(|_| RenderError::InvalidDimensions)?;
+    let y = usize::try_from(y).map_err(|_| RenderError::InvalidDimensions)?;
+    for row in 0..usize::try_from(height).map_err(|_| RenderError::InvalidDimensions)? {
+        let source_start = (y + row) * source_width + x;
+        let target_start = row * output_width;
+        output.pixels_mut()[target_start..target_start + output_width]
+            .copy_from_slice(&source.pixels()[source_start..source_start + output_width]);
+    }
+    Ok(output)
 }
 
 fn pixel_span(span_subpx: i64, subpixels_per_pixel: i64) -> Result<u32, RenderError> {
@@ -730,17 +1188,6 @@ const fn primitive_key(object_id: ObjectId, pass: u8, ordinal: u32) -> u64 {
     if value == 0 { 1 } else { value }
 }
 
-fn geometry_points(geometry: &Geometry) -> impl Iterator<Item = &WorldPoint> {
-    let polygons: &[Polygon] = match geometry {
-        Geometry::Polygon(polygon) => std::slice::from_ref(polygon),
-        Geometry::MultiPolygon(polygons) => polygons,
-    };
-    polygons
-        .iter()
-        .flat_map(Polygon::rings)
-        .flat_map(isometric_world::Ring::points)
-}
-
 fn ground_color(class: SemanticClass, style: &StylePack) -> u8 {
     match class {
         SemanticClass::Terrain => style.ordinary.terrain[0],
@@ -783,13 +1230,184 @@ mod tests {
         assert_eq!(first, second);
         assert!(first.width() > 1_000);
         assert!(first.height() > 500);
-        assert_eq!((first.width(), first.height()), (1_950, 873));
-        assert_eq!(crate::stable_hash(first.pixels()), 0x3d0e_4f54_9442_5a62);
+        assert_eq!((first.width(), first.height()), (1_954, 880));
+        assert_eq!(crate::stable_hash(first.pixels()), 0xa9ed_798e_f548_8603);
         assert!(first.pixels().contains(&5));
         assert!(first.pixels().contains(&9));
         assert!(first.pixels().contains(&style.ordinary.shadow));
         assert!(first.pixels().contains(&style.ordinary.outline));
         assert!(first.pixels().contains(&style.ordinary.canopy[1]));
+    }
+
+    #[test]
+    fn guarded_tiles_reassemble_to_the_exact_full_scene() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let style = StylePack::stanford_v1();
+        let layout = render_layout(&compiled.world, &style).expect("layout");
+        let full = render_world(&compiled.world, &style).expect("full render");
+        let guard = required_tile_guard(&style).expect("guard");
+        let tile_size = 512;
+        let columns = layout.width().div_ceil(tile_size);
+        let rows = layout.height().div_ceil(tile_size);
+        let mut assembled = IndexedImage::new(layout.width(), layout.height(), 0).expect("image");
+        let mut saw_spatial_filter = false;
+
+        for row in 0..rows {
+            for column in 0..columns {
+                let request = TileRequest {
+                    column,
+                    row,
+                    tile_size,
+                    guard,
+                };
+                let tile = render_tile(&compiled.world, &style, layout, request).expect("tile");
+                saw_spatial_filter |= tile.stats.candidate_objects < compiled.world.objects().len();
+                assert!(tile.stats.surface_width <= tile_size + guard * 2);
+                assert!(tile.stats.surface_height <= tile_size + guard * 2);
+                assert_eq!(
+                    tile.stats.peak_pixel_buffer_bytes,
+                    usize::try_from(tile.stats.surface_width).expect("width")
+                        * usize::try_from(tile.stats.surface_height).expect("height")
+                        * 6
+                );
+                copy_tile(
+                    &mut assembled,
+                    &tile.image,
+                    column * tile_size,
+                    row * tile_size,
+                );
+            }
+        }
+
+        assert!(saw_spatial_filter);
+        assert_eq!(assembled, full);
+    }
+
+    #[test]
+    fn guarded_tile_is_deterministic_and_rejects_unsafe_requests() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let style = StylePack::stanford_v1();
+        let layout = render_layout(&compiled.world, &style).expect("layout");
+        let guard = required_tile_guard(&style).expect("guard");
+        let request = TileRequest {
+            column: 1,
+            row: 0,
+            tile_size: 512,
+            guard,
+        };
+        let first = render_tile(&compiled.world, &style, layout, request).expect("first");
+        let second = render_tile(&compiled.world, &style, layout, request).expect("second");
+        assert_eq!(first, second);
+
+        let too_small = TileRequest {
+            guard: guard - 1,
+            ..request
+        };
+        assert_eq!(
+            render_tile(&compiled.world, &style, layout, too_small),
+            Err(RenderError::InvalidTileRequest)
+        );
+        let outside = TileRequest {
+            column: layout.width().div_ceil(512),
+            ..request
+        };
+        assert_eq!(
+            render_tile(&compiled.world, &style, layout, outside),
+            Err(RenderError::InvalidTileRequest)
+        );
+    }
+
+    #[test]
+    fn eight_k_scale_stays_bounded_to_one_guarded_tile() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let mut style = StylePack::stanford_v1();
+        style.world_mm_per_half_step = 250;
+        style.elevation_mm_per_pixel = 250;
+        let layout = render_layout(&compiled.world, &style).expect("layout");
+        assert!(layout.width() >= 7_500);
+        assert!(layout.height() >= 3_200);
+        let guard = required_tile_guard(&style).expect("guard");
+        let tile = render_tile(
+            &compiled.world,
+            &style,
+            layout,
+            TileRequest {
+                column: layout.width().div_ceil(512) / 2,
+                row: layout.height().div_ceil(512) / 2,
+                tile_size: 512,
+                guard,
+            },
+        )
+        .expect("high-resolution tile");
+        assert_eq!((tile.image.width(), tile.image.height()), (512, 512));
+        assert!(tile.stats.candidate_objects < compiled.world.objects().len());
+        assert!(tile.stats.peak_pixel_buffer_bytes < 4 * 1_024 * 1_024);
+    }
+
+    #[test]
+    #[ignore = "release-only full prototype throughput evidence"]
+    fn eight_k_tile_set_is_deterministic_and_bounded() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let mut style = StylePack::stanford_v1();
+        style.world_mm_per_half_step = 250;
+        style.elevation_mm_per_pixel = 250;
+        let layout = render_layout(&compiled.world, &style).expect("layout");
+        let guard = required_tile_guard(&style).expect("guard");
+        let columns = layout.width().div_ceil(512);
+        let rows = layout.height().div_ceil(512);
+        let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+        let mut max_pixel_bytes = 0;
+        let mut max_candidates = 0;
+        let mut primitives = 0_usize;
+        for row in 0..rows {
+            for column in 0..columns {
+                let tile = render_tile(
+                    &compiled.world,
+                    &style,
+                    layout,
+                    TileRequest {
+                        column,
+                        row,
+                        tile_size: 512,
+                        guard,
+                    },
+                )
+                .expect("tile");
+                for byte in tile.image.pixels() {
+                    hash ^= u64::from(*byte);
+                    hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+                }
+                max_pixel_bytes = max_pixel_bytes.max(tile.stats.peak_pixel_buffer_bytes);
+                max_candidates = max_candidates.max(tile.stats.candidate_objects);
+                primitives += tile.stats.primitives;
+            }
+        }
+        eprintln!(
+            "{}x{} pixels, {} tiles, guard {}, max {} pixel bytes, max {} objects, {} primitives, {hash:016x}",
+            layout.width(),
+            layout.height(),
+            columns * rows,
+            guard,
+            max_pixel_bytes,
+            max_candidates,
+            primitives,
+        );
+        assert!(max_pixel_bytes < 4 * 1_024 * 1_024);
+        assert!(max_candidates < compiled.world.objects().len());
+        assert_eq!(hash, 0xbf06_04f6_8bc3_8d2c);
+    }
+
+    fn copy_tile(target: &mut IndexedImage, tile: &IndexedImage, x: u32, y: u32) {
+        let target_width = usize::try_from(target.width()).expect("target width");
+        let tile_width = usize::try_from(tile.width()).expect("tile width");
+        let x = usize::try_from(x).expect("x");
+        let y = usize::try_from(y).expect("y");
+        for row in 0..usize::try_from(tile.height()).expect("tile height") {
+            let source_start = row * tile_width;
+            let target_start = (y + row) * target_width + x;
+            target.pixels_mut()[target_start..target_start + tile_width]
+                .copy_from_slice(&tile.pixels()[source_start..source_start + tile_width]);
+        }
     }
 
     #[test]

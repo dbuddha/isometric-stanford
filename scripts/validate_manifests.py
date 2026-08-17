@@ -176,8 +176,8 @@ def validate() -> None:
     if (
         output.get("id") != "hero-vector-preview"
         or output.get("format") != "ppm-p6"
-        or output.get("width") != 1950
-        or output.get("height") != 873
+        or output.get("width") != 1954
+        or output.get("height") != 880
         or output.get("palette_only") is not True
         or output.get("contains_source_pixels") is not False
         or output.get("contains_transients") is not False

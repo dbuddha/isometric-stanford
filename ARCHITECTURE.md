@@ -40,7 +40,7 @@ flowchart LR
     style --> render
     world --> validate
     style --> validate
-    render -. "future guarded tiles" .-> publish
+    render -->|"guarded indexed tiles"| publish
     publish -. "static release" .-> web
 ```
 
@@ -49,8 +49,8 @@ columns. The production raster core now accepts one canonical triangle batch,
 sorts it by stable primitive key, clips work to the bounded viewport, applies a
 half-open shared-edge rule at fixed pixel centers, interpolates integer depth,
 and writes palette indices only when depth is closer. Equal-depth fragments
-retain the lower stable key without an owner buffer. A tile owns exactly one
-palette byte and one 32-bit depth value per pixel.
+retain the lower stable key without an owner buffer. Each active raster surface
+owns exactly one palette byte and one 32-bit depth value per pixel.
 
 The ordinary scene compiler converts every canonical polygon and hole into
 deterministic horizontal trapezoids, then triangles. It renders ground,
@@ -62,10 +62,19 @@ eligible surfaces. A bounded post-process adds sparse world-anchored material
 patterns and one-pixel building and canopy outlines. Flat roof faces and two
 directional facade ramps complete the ordinary-scene layer. A separate
 landmark module replaces three source extrusions with original parameterized
-geometry: a stepped Hoover Tower, a gabled Memorial Church, and a reviewed low
-Main Quad mass with repeated courtyard arcade openings. Guarded supertiles,
-general detailed roof grammar, and the qualified art style remain separate
-unfinished layers.
+geometry: a stepped and windowed Hoover Tower, a gabled Memorial Church with
+repeated openings, and a reviewed low Main Quad mass with repeated courtyard
+arcade openings.
+
+The renderer derives a stable full-scene coordinate layout without allocating
+its framebuffer. Each canonical tile selects objects through conservative
+projected bounds, renders into a style-derived guard, applies every ordinary
+and landmark pass in world coordinates, then crops its saved pixels. The seam
+oracle reconstructs the full hero from independently rendered tiles and
+requires byte equality with the monolithic reference. The 250 millimeter scale
+probe renders the approximately 8K layout through the same bounded API. WebP
+encoding, general detailed roof grammar, and the qualified art style remain
+separate unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, and `render region`. Source
@@ -136,7 +145,7 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- Detailed roof grammar, guarded supertiles, and seam oracle
+- Detailed roof grammar and WebP pyramid encoding
 - DZI/WebP publication
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render
