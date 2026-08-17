@@ -49,8 +49,8 @@ one logical pixel wide. Neither operation introduces alpha blending,
 anti-aliasing, source pixels, or colors outside the style palette.
 
 The resulting vector-only hero preview is 1,950 by 873 pixels with indexed hash
-`72f585ae65f06d01` and lossless PPM SHA-256
-`0214e4526d86a3bbece685869361dbdd6e4f4b5a243ceca577ae0ed8225d1213`.
+`3d0e4f5494425a62` and lossless PPM SHA-256
+`2c5a067c9b834586c6c5cce0a4e0d0a9f5051121e2cd4cf4c83b10cccd060dd4`.
 On the measured development machine, release rendering completed in about 0.3
 seconds of renderer CPU time at roughly 25 MB peak RSS. This is engineering
 evidence, not artistic approval. Guarded supertiles, general detailed roof
