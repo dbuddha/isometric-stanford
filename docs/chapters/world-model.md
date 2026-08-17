@@ -10,6 +10,19 @@ confidence, source references, review status, and dependency bounds. Conflicts
 remain explicit. An unknown region is not silently filled by a plausible
 building, tree, or terrain rule.
 
+The implemented Rust model accepts bounded integer polygon and multipolygon
+geometry with holes. It rejects open, zero-area, self-intersecting, overlapping,
+or excessively large topology before indexing. Objects retain typed roof form,
+direction, floors, material, basis-point confidence, sorted source IDs, and
+parent relations. Overrides and unresolved conflicts require review notes.
+Objects become immutable after validation.
+
+The prototype origin is fixed at easting 573,200,000 mm and northing
+4,142,200,000 mm in EPSG:26910. A deterministic 128 meter grid indexes every
+object by conservative world bounds. Canonical 2:1 screen bounds are also
+derived with integer arithmetic so future tile scheduling does not need to scan
+all geometry.
+
 The v1 renderable class set includes terrain, water, roads, paths, athletic
 surfaces, empty parking surfaces, buildings, vegetation, and unknown. It has no
 person or vehicle type. Qualification rejects unknown objects in hero bounds
@@ -21,5 +34,5 @@ ancestors. Total map size must not determine one worker's memory use.
 
 The portable contract fixture in `fixtures/world/representative.json` freezes
 the first polygon, hole, multipolygon, building-part, confidence, source, and
-unknown examples before the production reader is implemented. Its companion
+unknown examples and is parsed directly by the Rust world model. Its companion
 negative fixtures prove that undeclared provenance fails closed.

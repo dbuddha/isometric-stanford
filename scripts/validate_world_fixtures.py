@@ -89,6 +89,19 @@ def validate_fixture(fixture: dict[str, Any]) -> None:
         raise FixtureError("source_pixels", "fixture must not contain source pixels")
     if fixture.get("contains_transients") is not False:
         raise FixtureError("transients", "fixture must not contain transients")
+    if fixture.get("schema") == "isometric-world-fixture/v1":
+        if fixture.get("crs") != "local integer millimeters derived from EPSG:26910":
+            raise FixtureError("invalid_crs", "canonical fixture CRS is wrong")
+        origin = fixture.get("origin")
+        if not isinstance(origin, dict) or origin.get("epsg") != 26910:
+            raise FixtureError("invalid_origin", "canonical fixture origin is missing")
+        if any(
+            not isinstance(origin.get(field), int)
+            for field in ("easting_mm", "northing_mm", "elevation_mm")
+        ):
+            raise FixtureError(
+                "invalid_origin", "origin coordinates must be integer millimeters"
+            )
 
     sources = fixture.get("sources")
     if not isinstance(sources, list):
@@ -136,6 +149,14 @@ def validate_fixture(fixture: dict[str, Any]) -> None:
         if any(reference not in source_ids for reference in references):
             raise FixtureError(
                 "unknown_source", "feature references an undeclared source"
+            )
+        review = feature.get("review")
+        review_note = feature.get("review_note")
+        if review in {"accepted-override", "unreviewed-conflict"} and (
+            not isinstance(review_note, str) or not review_note
+        ):
+            raise FixtureError(
+                "missing_review_note", "review disposition requires a note"
             )
         validate_geometry(feature.get("geometry"))
 

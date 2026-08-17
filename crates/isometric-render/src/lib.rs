@@ -146,14 +146,14 @@ pub fn render_reference(
     let origin_x = i64::from(width) / 2;
     let origin_y = i64::from(height) / 2;
     for object in world.objects() {
-        let point = project(object.anchor, style)?;
+        let point = project(object.anchor(), style)?;
         let center_x = origin_x + point.x_subpx / style.subpixels_per_pixel;
         let center_y = origin_y + point.y_subpx / style.subpixels_per_pixel;
-        let radius = i64::from(object.radius_mm / 1_000).clamp(2, 48);
-        let color = semantic_color(object.class, object.id.variation(2));
+        let radius = i64::from(object.radius_mm() / 1_000).clamp(2, 48);
+        let color = semantic_color(object.class(), object.id().variation(2));
         draw_diamond(&mut image, center_x, center_y, radius, color);
-        if object.height_mm > 0 {
-            let top = i64::from(object.height_mm / 1_000).clamp(1, 64);
+        if object.height_mm() > 0 {
+            let top = i64::from(object.height_mm() / 1_000).clamp(1, 64);
             draw_column(&mut image, center_x, center_y, radius / 2, top, color);
         }
     }

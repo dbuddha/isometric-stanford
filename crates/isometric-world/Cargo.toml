@@ -9,6 +9,8 @@ repository.workspace = true
 
 [dependencies]
 isometric-core = { path = "../isometric-core", version = "0.1.0" }
+serde.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

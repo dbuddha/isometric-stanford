@@ -9,12 +9,15 @@ The Rust workspace contains seven safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
 content-addressed artifacts through a bounded-memory cache. `isometric-core`
 owns validated IDs, integer world coordinates, fixed
-screen coordinates, and palette indexes. `isometric-world` owns a sorted,
-immutable semantic object list whose class enum intentionally has no transient
-people or vehicle variants. `isometric-style` owns the bounded indexed palette
-and projection scales. `isometric-render` owns the deterministic CPU reference
-projection and bootstrap raster. `isometric-validate` owns fail-closed semantic
-and style checks. `isometric-cli` exposes the complete planned command names,
+screen coordinates, and palette indexes. `isometric-world` owns an immutable,
+spatially partitioned polygonal world with holes, building parts, heights,
+roofs, materials, confidence, provenance, reviewed overrides, fixed
+EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
+has no transient people or vehicle variants. `isometric-style` owns the bounded
+indexed palette and projection scales. `isometric-render` owns the
+deterministic CPU reference projection and bootstrap raster.
+`isometric-validate` owns fail-closed semantic and style checks.
+`isometric-cli` exposes the complete planned command names,
 executes reference rendering and validation, and rejects unfinished commands.
 
 ```mermaid
@@ -63,18 +66,20 @@ release is committed or published.
    local origin. Canonical rasterization does not depend on floating point.
 2. Object ID zero is reserved. Objects are rendered in stable ID order until a
    depth-sorted production scene contract replaces this bootstrap order.
-3. Style palettes contain 1 to 128 colors. Every saved pixel is a palette
+3. Polygon rings are bounded, closed, nonzero-area, and non-self-intersecting.
+   Holes and multipolygon components may not cross or overlap.
+4. Style palettes contain 1 to 128 colors. Every saved pixel is a palette
    index before encoding.
-4. Output dimensions are non-zero and at most 16,384 pixels per image.
-5. Projection arithmetic checks overflow and fails without partial output.
-6. Final renderable semantic types cannot express people or vehicles.
-7. Unknown semantic objects fail qualification instead of becoming invented
+5. Output dimensions are non-zero and at most 16,384 pixels per image.
+6. Projection arithmetic checks overflow and fails without partial output.
+7. Final renderable semantic types cannot express people or vehicles.
+8. Unknown semantic objects fail qualification instead of becoming invented
    geometry.
-8. External artifacts are content-addressed and referenced through manifests,
+9. External artifacts are content-addressed and referenced through manifests,
    never silently vendored into Git.
-9. Canonical exact hashes are Linux CPU evidence. Cross-platform comparisons
+10. Canonical exact hashes are Linux CPU evidence. Cross-platform comparisons
    use semantic IDs and approved palette-index tolerances.
-10. Release publication is unavailable until source, perception, world, style,
+11. Release publication is unavailable until source, perception, world, style,
     render, and release manifests form a complete verified chain.
 
 ## Durable artifact chain
