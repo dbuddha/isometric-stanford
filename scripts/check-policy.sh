@@ -30,4 +30,9 @@ if grep -R -n -E 'uses:[[:space:]]+[^[:space:]#]+@(v[0-9]+|stable|main|master)([
     exit 1
 fi
 
+if ! grep -Fq 'types: [opened, synchronize, reopened, labeled, unlabeled]' .github/workflows/ci.yml; then
+    echo 'pull request CI must rerun when contract labels change' >&2
+    exit 1
+fi
+
 echo 'repository policy passed'
