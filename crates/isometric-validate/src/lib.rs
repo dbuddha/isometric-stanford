@@ -16,13 +16,13 @@ pub fn validate_world(world: &World) -> Result<(), ValidationError> {
     }
     let mut previous = None;
     for object in world.objects() {
-        if previous.is_some_and(|id| id >= object.id) {
+        if previous.is_some_and(|id| id >= object.id()) {
             return Err(ValidationError::ObjectOrder);
         }
-        if object.class == SemanticClass::Unknown {
+        if object.class() == SemanticClass::Unknown {
             return Err(ValidationError::UnknownObject);
         }
-        previous = Some(object.id);
+        previous = Some(object.id());
     }
     Ok(())
 }

@@ -167,6 +167,8 @@ name = "isometric-world"
 version = "0.1.0"
 dependencies = [
  "isometric-core",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

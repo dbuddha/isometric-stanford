@@ -1,10 +1,16 @@
 {
   "schema": "isometric-world-fixture/v1",
   "license": "CC-BY-4.0",
-  "origin": "original synthetic fixture",
+  "fixture_origin": "original synthetic fixture",
   "contains_source_pixels": false,
   "contains_transients": false,
   "crs": "local integer millimeters derived from EPSG:26910",
+  "origin": {
+    "epsg": 26910,
+    "easting_mm": 573200000,
+    "northing_mm": 4142200000,
+    "elevation_mm": 0
+  },
   "sources": [
     {
       "id": "osm-2026-07-15-hero",
@@ -71,7 +77,8 @@
       "material": "terracotta",
       "confidence_bp": 8800,
       "source_ids": ["overture-2026-06-17-buildings", "usgs-lidar-07509800"],
-      "review": "accepted-override"
+      "review": "accepted-override",
+      "review_note": "Synthetic reviewed building-part example"
     },
     {
       "id": 1004,
@@ -114,7 +121,8 @@
       },
       "confidence_bp": 2200,
       "source_ids": ["osm-2026-07-15-hero", "usgs-lidar-07509800"],
-      "review": "unreviewed-conflict"
+      "review": "unreviewed-conflict",
+      "review_note": "Sources disagree, so geometry remains explicitly unknown"
     }
   ]
 }

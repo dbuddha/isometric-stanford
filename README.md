@@ -38,9 +38,9 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 
 Repository foundation and the prototype-first delivery model are established.
 Approved prototype sources can now be synchronized into a verified local
-content cache. Semantic compilation and production rendering are not
-implemented, the prototype is not qualified, and no map release has been
-published.
+content cache, and the validated polygonal canonical-world contract is
+implemented. Hero source fusion and production rendering are not implemented,
+the prototype is not qualified, and no map release has been published.
 
 ## Development
 

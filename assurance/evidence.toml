@@ -43,6 +43,12 @@ evidence = ["fixtures/world/representative.json", "fixtures/world/invalid/missin
 status = "implemented"
 
 [[claim]]
+id = "PROTO-WORLD-001"
+statement = "The Rust world model validates immutable polygonal geometry, semantic metadata, provenance, review state, origin, partitions, and integer screen bounds without transient variants."
+evidence = ["cargo test -p isometric-world", "cargo clippy -p isometric-world --all-targets --all-features -- -D warnings", "fixtures/world/representative.json"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []
