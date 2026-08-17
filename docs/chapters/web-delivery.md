@@ -24,9 +24,9 @@ The production configuration fixes OpenSeadragon to its Canvas drawer, avoiding
 a WebGL dependency for this static indexed artwork. It retains keyboard pan and
 zoom, touch pan and pinch, and explicit Home behavior. Tiles receive two
 bounded retries. Exhausted tile retries and descriptor failures surface a
-visible Retry control, while a restored drawing context forces an immediate
-redraw. No navigation-image CDN is requested because the application owns its
-controls.
+visible Retry control. After the first successful open, retry preserves the
+user's viewport. A restored drawing context forces an immediate redraw. No
+navigation-image CDN is requested because the application owns its controls.
 
 A custom Rust or WebAssembly viewer adds tile scheduling, gesture handling,
 accessibility, browser compatibility, decode behavior, and years of edge cases.
