@@ -155,8 +155,14 @@ assembler verifies the current world hash, release state, exact style, DZI
 descriptor, every WebP hash and byte count, and the absence of pre-staged art
 before it atomically creates an explicitly unqualified preview. This prevents
 an ignored stale `web/public/art` directory from being mistaken for current
-evidence. A locally generated candidate has been exercised in the assembled
-viewer, but no DZI release is committed or published.
+evidence. For the exact Candidate C world, style, and image dimensions, the
+viewer exposes stable `#view=` review states for the whole campus, Hoover Tower,
+Memorial Church, and the Main Quad. Named views use fixed image-space crops,
+support browser history, and fail closed to the whole-campus view when release
+identity changes. Scheduled assurance captures each landmark at desktop and
+mobile sizes against the real pyramid. A locally generated candidate has been
+exercised in the assembled viewer, but no DZI release is committed or
+published.
 
 ## Binding invariants
 

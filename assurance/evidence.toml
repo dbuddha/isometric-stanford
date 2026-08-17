@@ -145,6 +145,12 @@ evidence = ["python scripts/test_assemble_preview.py", "scripts/assemble_preview
 status = "implemented"
 
 [[claim]]
+id = "PROTO-REVIEW-NAV-001"
+statement = "The exact Candidate C artifact exposes deterministic deep-linked landmark review crops with browser history, fail-closed release identity checks, desktop and mobile screenshots, and a complete no-scroll Pixel 7 layout."
+evidence = ["npm --prefix web test -- --run", "npm --prefix web run test:e2e", "web/src/review-views.test.ts", "web/e2e/viewer.spec.ts", ".github/workflows/scheduled-assurance.yml", "docs/chapters/web-delivery.md"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []

@@ -64,6 +64,15 @@ insertion. The implementation now reserves that layout row before metadata
 loads and includes regression coverage.
 The repeated mobile run reported 0.00 cumulative layout shift.
 
+The assembled viewer now exposes exact, deep-linked review crops for Hoover
+Tower, Memorial Church, and the Main Quad. A real-art Playwright run captured
+all three views at 1,280 by 720 desktop and 412 by 839 Pixel 7 sizes. The mobile
+run transferred 1,258,408 initial WebP bytes, used about 5.6 MiB of JavaScript
+heap, sampled 120 frames per second with a 9.4 millisecond longest gap, and fit
+the 839 pixel document exactly without scrolling. These crops remove navigation
+ambiguity but do not resolve the visual decision: the landmarks remain pending
+human recognition and style approval.
+
 ## Gate matrix
 
 | Gate | State | Evidence or gap |

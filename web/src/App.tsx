@@ -2,14 +2,40 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type OpenSeadragon from "openseadragon";
 
 import { loadReleaseMetadata, type ReleaseMetadata } from "./release-metadata";
+import {
+  REVIEW_VIEWS,
+  reviewHash,
+  reviewRectangle,
+  reviewViewFromHash,
+  supportsLandmarkReview,
+  type ReviewViewId,
+} from "./review-views";
 import { viewerPolicy } from "./viewer-policy";
 
 const RELEASE_DZI = import.meta.env.VITE_DZI_URL as string | undefined;
 const RELEASE_MANIFEST = import.meta.env.VITE_RELEASE_URL as string | undefined;
 
+function applyReviewViewport(
+  instance: OpenSeadragon.Viewer,
+  createViewer: typeof OpenSeadragon,
+  release: ReleaseMetadata,
+  view: ReviewViewId,
+) {
+  const rectangle = reviewRectangle(view, release);
+  if (!rectangle) {
+    instance.viewport.goHome(true);
+    return;
+  }
+  instance.viewport.fitBounds(
+    new createViewer.Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height),
+    true,
+  );
+}
+
 export function App() {
   const host = useRef<HTMLDivElement>(null);
   const viewer = useRef<OpenSeadragon.Viewer | null>(null);
+  const viewerFactory = useRef<typeof OpenSeadragon | null>(null);
   const [status, setStatus] = useState(
     RELEASE_DZI
       ? RELEASE_MANIFEST
@@ -19,6 +45,9 @@ export function App() {
   );
   const [canRetry, setCanRetry] = useState(false);
   const [release, setRelease] = useState<ReleaseMetadata | null>(null);
+  const [activeReview, setActiveReview] = useState<ReviewViewId>(() =>
+    reviewViewFromHash(window.location.hash),
+  );
 
   useEffect(() => {
     if (!host.current || !RELEASE_DZI) {
@@ -31,6 +60,7 @@ export function App() {
     let disposed = false;
     let terminalTileFailure = false;
     let hasOpened = false;
+    let handlePopState: (() => void) | null = null;
     let contextCanvas: HTMLCanvasElement | null = null;
     const handleContextLost = (event: Event) => {
       event.preventDefault();
@@ -55,6 +85,7 @@ export function App() {
           return;
         }
         setRelease(loadedRelease);
+        viewerFactory.current = createViewer;
         const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
         const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
         const policy = viewerPolicy(window.innerWidth, memory, coarsePointer);
@@ -84,9 +115,21 @@ export function App() {
         });
         instance.addHandler("open", () => {
           terminalTileFailure = false;
-          if (!hasOpened && policy.initialZoomFactor > 1) {
-            instance.viewport.zoomBy(policy.initialZoomFactor);
-            instance.viewport.applyConstraints();
+          if (!hasOpened) {
+            const requested = reviewViewFromHash(window.location.hash);
+            const supported =
+              requested === "campus" || supportsLandmarkReview(loadedRelease);
+            const initialReview = supported ? requested : "campus";
+            if (window.location.hash !== reviewHash(initialReview)) {
+              window.history.replaceState(null, "", reviewHash(initialReview));
+            }
+            setActiveReview(initialReview);
+            if (initialReview === "campus" && policy.initialZoomFactor > 1) {
+              instance.viewport.zoomBy(policy.initialZoomFactor);
+              instance.viewport.applyConstraints();
+            } else if (initialReview !== "campus") {
+              applyReviewViewport(instance, createViewer, loadedRelease, initialReview);
+            }
           }
           hasOpened = true;
           detachContextHandlers();
@@ -113,6 +156,24 @@ export function App() {
           }
         });
         viewer.current = instance;
+        handlePopState = () => {
+          let requested = reviewViewFromHash(window.location.hash);
+          if (requested !== "campus" && !supportsLandmarkReview(loadedRelease)) {
+            requested = "campus";
+          }
+          if (window.location.hash !== reviewHash(requested)) {
+            window.history.replaceState(null, "", reviewHash(requested));
+          }
+          applyReviewViewport(instance, createViewer, loadedRelease, requested);
+          setActiveReview(requested);
+          setStatus("Rendering artwork");
+          instance.whenFullyLoaded(() => {
+            if (!disposed && !terminalTileFailure) {
+              setStatus("Artwork ready");
+            }
+          });
+        };
+        window.addEventListener("popstate", handlePopState);
       })
       .catch(() => {
         setCanRetry(true);
@@ -121,9 +182,13 @@ export function App() {
 
     return () => {
       disposed = true;
+      if (handlePopState) {
+        window.removeEventListener("popstate", handlePopState);
+      }
       detachContextHandlers();
       viewer.current?.destroy();
       viewer.current = null;
+      viewerFactory.current = null;
     };
   }, []);
 
@@ -132,7 +197,26 @@ export function App() {
     viewer.current?.viewport.applyConstraints();
   }, []);
 
-  const home = useCallback(() => viewer.current?.viewport.goHome(), []);
+  const selectReview = useCallback(
+    (view: ReviewViewId) => {
+      const instance = viewer.current;
+      const createViewer = viewerFactory.current;
+      if (!instance || !createViewer || !release) {
+        return;
+      }
+      if (view !== "campus" && !supportsLandmarkReview(release)) {
+        return;
+      }
+      applyReviewViewport(instance, createViewer, release, view);
+      setActiveReview(view);
+      window.history.pushState(null, "", reviewHash(view));
+      setStatus("Rendering artwork");
+      instance.whenFullyLoaded(() => setStatus("Artwork ready"));
+    },
+    [release],
+  );
+
+  const home = useCallback(() => selectReview("campus"), [selectReview]);
 
   const retry = useCallback(() => {
     if (!RELEASE_DZI || !viewer.current) {
@@ -184,7 +268,12 @@ export function App() {
           Use arrow keys to pan, plus or minus to zoom, or the map controls to reset the view.
         </p>
         <div className="viewer-grid" aria-hidden="true" />
-        <div ref={host} className="viewer" data-testid="viewer" />
+        <div
+          ref={host}
+          className="viewer"
+          data-testid="viewer"
+          data-review-view={activeReview}
+        />
         {!RELEASE_DZI && (
           <div className="empty-state">
             <p className="coordinate">37.4195° N to 37.4375° N</p>
@@ -211,6 +300,20 @@ export function App() {
             </button>
           )}
         </nav>
+        {release && supportsLandmarkReview(release) && (
+          <nav className="review-controls" aria-label="Landmark review views">
+            {REVIEW_VIEWS.map((view) => (
+              <button
+                key={view.id}
+                type="button"
+                aria-pressed={activeReview === view.id}
+                onClick={() => selectReview(view.id)}
+              >
+                {view.label}
+              </button>
+            ))}
+          </nav>
+        )}
       </section>
 
       <footer>

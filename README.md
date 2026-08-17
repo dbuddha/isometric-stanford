@@ -178,6 +178,13 @@ writes `preview.json` with `published_release: false`. Output and staging paths
 must not already exist. The dry-run workflow produces the same portable bundle
 without deploying it.
 
+The exact Candidate C artifact also enables four review controls: Whole campus,
+Hoover Tower, Memorial Church, and Main Quad. Each control writes a stable
+`#view=` fragment, participates in browser history, and restores a fixed crop.
+Landmark controls fail closed unless the release metadata matches the pinned
+world hash, style hash, and 7,623 by 3,325 dimensions, so review URLs cannot
+silently point at the wrong artwork.
+
 Generate the four-scene Candidate A review pack:
 
 ```sh
