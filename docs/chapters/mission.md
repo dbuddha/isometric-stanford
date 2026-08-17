@@ -11,7 +11,10 @@ ordinary buildings, authored landmark silhouettes, chunky tree crowns, clean
 hardscape, and intentional flat water. No captured source pixels, people, cars,
 buses, cranes, or temporary equipment appear in the final image.
 
-The first gate is the accepted 2.8 by 2.0 kilometer slice. Three bounded style
-iterations are allowed. If the slice cannot pass without manual tile painting,
-the procedural architecture is recorded as unqualified and full-estate work
-does not start.
+The first gate is the accepted continuous approximately 600 by 600 meter hero
+prototype containing Hoover Tower, Memorial Church, and the Main Quad. It must
+prove real source compilation, procedural art, guarded rendering, DZI delivery,
+and mobile interaction before the 2.8 by 2.0 kilometer qualification slice
+resumes. Three bounded style iterations are allowed. If the prototype cannot
+pass without manual tile painting, the procedural architecture is recorded as
+unqualified and expansion does not start.

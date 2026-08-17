@@ -20,6 +20,8 @@ Church, Green Library, Stanford Stadium, and other hero landmarks require
 original silhouette and component definitions. They are code or vector-like
 pixel primitives, not copied textures and not manually painted output tiles.
 
-Style candidates A, B, and C each produce full-size contact sheets across all
-twelve canonical scenes. Automated metrics constrain drift, but the owner
-decides whether the art is compelling enough to continue.
+Prototype style candidates A, B, and C use the fixed four-scene set: Hoover
+Tower, Memorial Church and the Main Quad, roads and empty parking, and dense
+canopy with mixed ordinary buildings. The later qualification slice expands to
+twelve scenes. Automated metrics constrain drift, but the owner decides whether
+the art is compelling enough to continue.

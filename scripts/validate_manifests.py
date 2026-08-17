@@ -36,13 +36,21 @@ def validate() -> None:
 
     bounds = manifests["source.lock.json"].get("slice")
     expected = {
-        "west": -122.1900,
-        "east": -122.1580,
-        "south": 37.4195,
-        "north": 37.4375,
+        "west": -122.1722,
+        "east": -122.1653,
+        "south": 37.4245,
+        "north": 37.4299,
+        "guard_meters": 50,
     }
     if not isinstance(bounds, dict) or any(bounds.get(key) != value for key, value in expected.items()):
-        raise ValueError("source lock vertical-slice bounds do not match the accepted plan")
+        raise ValueError("source lock prototype bounds do not match the accepted plan")
+
+    if manifests["source.lock.json"].get("region_id") != "stanford-hero-v1":
+        raise ValueError("source lock must identify the accepted prototype region")
+
+    epoch_policy = bounds.get("epoch_policy")
+    if not isinstance(epoch_policy, str) or "2026-08-17" not in epoch_policy:
+        raise ValueError("source lock must record the accepted prototype epoch")
 
     source_lock = manifests["source.lock.json"]
     if source_lock.get("google_content_permitted") is not False:

@@ -1,9 +1,12 @@
 # Expansion to full Stanford
 
-The vertical slice is the architecture gate. Central campus begins only after
-semantic metrics, no-transients checks, three-run determinism, seams, all twelve
-visual scenes, hero landmarks, no-manual-painting, renderer budgets, web
-budgets, provenance, and a throughput-based forecast all pass.
+The hero prototype is the first architecture gate. The 2.8 by 2.0 kilometer
+qualification slice resumes only after the prototype passes provenance,
+semantic, no-transients, three-run determinism, seams, four-scene style, hero
+landmark, no-manual-painting, renderer, DZI, and browser gates.
+
+Central campus begins only after the qualification slice passes its expanded
+twelve-scene and performance contracts.
 
 Campus Core partitions the qualified area, adds remaining central landmarks,
 reduces core unknown coverage below two percent, and proves a localized update
