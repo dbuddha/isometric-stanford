@@ -3,6 +3,7 @@ set -eu
 
 scripts/check-policy.sh
 python3 scripts/validate_manifests.py
+python3 scripts/validate_world_fixtures.py
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 cargo test --workspace --all-targets --all-features --locked

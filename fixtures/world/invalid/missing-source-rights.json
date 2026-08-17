@@ -1,0 +1,28 @@
+{
+  "schema": "isometric-world-fixture-invalid/v1",
+  "expected_error": "invalid_source",
+  "license": "CC-BY-4.0",
+  "origin": "original synthetic negative fixture",
+  "contains_source_pixels": false,
+  "contains_transients": false,
+  "sources": [
+    {
+      "id": "source-without-rights"
+    }
+  ],
+  "features": [
+    {
+      "id": 9002,
+      "class": "terrain",
+      "geometry": {
+        "type": "polygon",
+        "rings": [
+          [[0, 0, 0], [1000, 0, 0], [1000, 1000, 0], [0, 1000, 0], [0, 0, 0]]
+        ]
+      },
+      "confidence_bp": 10000,
+      "source_ids": ["source-without-rights"],
+      "review": "accepted"
+    }
+  ]
+}

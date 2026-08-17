@@ -24,6 +24,7 @@ jobs:
           python-version: "3.12"
       - run: scripts/check-policy.sh
       - run: python scripts/validate_manifests.py
+      - run: python scripts/validate_world_fixtures.py
 
   rust:
     name: Rust contracts
