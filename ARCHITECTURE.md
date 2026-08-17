@@ -14,9 +14,9 @@ spatially partitioned polygonal world with holes, building parts, heights,
 roofs, materials, confidence, provenance, reviewed overrides, fixed
 EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
 has no transient people or vehicle variants. `isometric-style` owns the bounded
-indexed palette and projection scales. `isometric-render` owns the
-deterministic CPU reference projection, bootstrap grammar, and bounded
-fixed-point triangle and integer-depth raster core.
+indexed palette, projection scales, and versioned ordinary-scene grammar.
+`isometric-render` owns the deterministic CPU reference projection, procedural
+grammar, and bounded fixed-point triangle and integer-depth raster core.
 `isometric-validate` owns fail-closed semantic and style checks.
 `isometric-cli` exposes the complete planned command names, verifies and
 compiles the vector hero world, executes reference rendering and validation,
@@ -52,14 +52,17 @@ and writes palette indices only when depth is closer. Equal-depth fragments
 retain the lower stable key without an owner buffer. A tile owns exactly one
 palette byte and one 32-bit depth value per pixel.
 
-The first scene compiler now converts every canonical polygon and hole into
+The ordinary scene compiler converts every canonical polygon and hole into
 deterministic horizontal trapezoids, then triangles. It renders ground,
 hardscape, roads, paths, empty parking, athletic surfaces, water, mapped
-vegetation footprints, and ordinary building extrusions. Flat roof faces and
-two directional facade ramps produce the first 1,950 by 873 Stanford-shaped
-preview. Guarded supertiles, procedural vegetation, detailed roofs, shadows,
-outlines, landmarks, and the qualified art style remain separate unfinished
-layers.
+vegetation footprints, and ordinary building extrusions. A world-anchored grid
+places stable, jittered, faceted tree crowns only inside mapped vegetation.
+Buildings and crowns cast a separate hard-shadow mask that is composited onto
+eligible surfaces. A bounded post-process adds sparse world-anchored material
+patterns and one-pixel building and canopy outlines. Flat roof faces and two
+directional facade ramps complete the 1,950 by 873 ordinary-scene preview.
+Guarded supertiles, detailed roof grammar, landmarks, and the qualified art
+style remain separate unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, and `render region`. Source
@@ -130,9 +133,8 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- Procedural vegetation, detailed roof grammar, shadows, outlines, dithering,
-  guarded supertiles, and seam oracle
-- Landmark and vegetation grammar
+- Detailed roof grammar, guarded supertiles, and seam oracle
+- Landmark grammar
 - DZI/WebP publication
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render

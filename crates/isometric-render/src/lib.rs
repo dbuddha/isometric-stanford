@@ -64,6 +64,10 @@ impl IndexedImage {
         &self.pixels
     }
 
+    pub(crate) fn pixels_mut(&mut self) -> &mut [u8] {
+        &mut self.pixels
+    }
+
     fn set(&mut self, x: i64, y: i64, color: u8) {
         let Ok(x) = u32::try_from(x) else { return };
         let Ok(y) = u32::try_from(y) else { return };

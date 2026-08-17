@@ -1,5 +1,5 @@
 schema = "isometric-style/v1"
-id = "stanford_v1.bootstrap.1"
+id = "stanford_v1.ordinary.1"
 status = "candidate"
 license = "CC-BY-4.0"
 author = "Deepak Buddha"
@@ -12,6 +12,21 @@ anti_aliasing = false
 max_palette_colors = 128
 shadow_direction = "south-east"
 world_anchored_patterns = true
+
+[ordinary]
+terrain = [1, 0]
+canopy = [2, 3]
+athletic = [12, 13]
+building = [5, 7, 6]
+shadow = 10
+outline = 11
+shadow_x_mm = 12000
+shadow_y_mm = -4000
+tree_spacing_mm = 16000
+tree_radius_mm = 6500
+tree_height_mm = 12000
+terrain_dither_period = 16
+athletic_dither_period = 8
 
 [[palette]]
 name = "sand-light"
