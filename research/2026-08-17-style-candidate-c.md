@@ -56,6 +56,13 @@ The canonical command is:
 cargo run --release --locked -- style candidate-c artifacts/style/candidate-c
 ```
 
+The first current-head hosted evidence run is
+[GitHub Actions run 32054771613](https://github.com/dbuddha/isometric-stanford/actions/runs/32054771613).
+Its immutable
+[deterministic render artifact](https://github.com/dbuddha/isometric-stanford/actions/runs/32054771613/artifacts/9296012776)
+matches the local encoded hash and preserves the complete Candidate A and B
+directories byte for byte.
+
 ## Adversarial verdict
 
 Candidate C is the strongest procedural result. Stanford roof character,
