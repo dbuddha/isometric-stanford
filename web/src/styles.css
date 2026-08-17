@@ -187,7 +187,21 @@ h1 {
   gap: 0.35rem;
 }
 
-.map-controls button {
+.review-controls {
+  position: absolute;
+  z-index: 4;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border: 1px solid rgb(54 50 48 / 35%);
+  border-radius: 0.25rem;
+  background: rgb(239 225 190 / 88%);
+}
+
+.map-controls button,
+.review-controls button {
   min-width: 2.75rem;
   min-height: 2.75rem;
   border: 1px solid #54534e;
@@ -198,7 +212,19 @@ h1 {
   cursor: pointer;
 }
 
+.review-controls button {
+  padding: 0.65rem 0.75rem;
+}
+
+.review-controls button[aria-pressed="true"] {
+  border-color: #793c31;
+  color: #363230;
+  background: #f5eed3;
+  box-shadow: inset 0 -0.2rem #ab5c45;
+}
+
 .map-controls button:focus-visible,
+.review-controls button:focus-visible,
 a:focus-visible {
   outline: 3px solid #518597;
   outline-offset: 3px;
@@ -218,6 +244,7 @@ footer a {
   .app-shell {
     align-content: start;
     grid-template-rows: auto auto auto auto;
+    gap: 0.85rem;
   }
 
   .masthead,
@@ -231,6 +258,14 @@ footer a {
   .viewer-frame {
     height: clamp(26rem, 62dvh, 34rem);
     min-height: 0;
+  }
+
+  .review-controls {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .preview-notice {

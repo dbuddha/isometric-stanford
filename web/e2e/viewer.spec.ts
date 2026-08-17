@@ -15,12 +15,12 @@ const RELEASE = JSON.stringify({
   status: "artifact-candidate",
   qualified: false,
   style_id: "stanford_v1.candidate_c.1",
-  style_sha256: "b".repeat(64),
-  world_sha256: "a".repeat(64),
+  style_sha256: "761cbedd340b6cd9dc4b5be899c9cadf9eb7056def1844ac96e6ef7fd964ddc2",
+  world_sha256: "0f20877ff045b4180612c2b4f656aefe72ebe92390e1252ac604d0eaa06ccbcd",
   dzi: {
     descriptor: "hero.dzi",
-    width: 1,
-    height: 1,
+    width: 7_623,
+    height: 3_325,
     tile_size: 512,
     overlap: 0,
     format: "webp",
@@ -74,6 +74,37 @@ test("release evidence does not shift the viewer when metadata arrives", async (
   await expect(page.getByRole("note")).toContainText("Unqualified engineering preview");
   const after = await frame.boundingBox();
   expect(Math.abs((after?.y ?? 0) - (before?.y ?? 0))).toBeLessThan(1);
+});
+
+test("landmark controls restore stable review URLs and browser history", async ({ page }) => {
+  await page.goto("./#view=hoover-tower");
+  const viewer = page.getByTestId("viewer");
+  await expect(page.getByRole("status")).toContainText("Artwork ready");
+  await expect(viewer).toHaveAttribute("data-review-view", "hoover-tower");
+  await expect(page.getByRole("button", { name: "Hoover Tower" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  await page.getByRole("button", { name: "Memorial Church" }).click();
+  await expect(page).toHaveURL(/#view=memorial-church$/);
+  await expect(viewer).toHaveAttribute("data-review-view", "memorial-church");
+  await page.getByRole("button", { name: "Main Quad" }).click();
+  await expect(page).toHaveURL(/#view=main-quad$/);
+  await expect(viewer).toHaveAttribute("data-review-view", "main-quad");
+
+  await page.goBack();
+  await expect(viewer).toHaveAttribute("data-review-view", "memorial-church");
+  await page.getByRole("button", { name: "Reset map view" }).click();
+  await expect(page).toHaveURL(/#view=campus$/);
+  await expect(viewer).toHaveAttribute("data-review-view", "campus");
+});
+
+test("invalid landmark fragments fail closed to the whole campus", async ({ page }) => {
+  await page.goto("./#view=not-a-landmark");
+  await expect(page.getByRole("status")).toContainText("Artwork ready");
+  await expect(page).toHaveURL(/#view=campus$/);
+  await expect(page.getByTestId("viewer")).toHaveAttribute("data-review-view", "campus");
 });
 
 test("failed tile retries are visible and recoverable", async ({ page }) => {
@@ -233,4 +264,13 @@ test("real Candidate C pyramid records bounded browser regression evidence", asy
   }
   expect(framesPerSecond).toBeGreaterThanOrEqual(30);
   expect(frameProbe.longestGapMs).toBeLessThan(250);
+
+  for (const review of ["Hoover Tower", "Memorial Church", "Main Quad"]) {
+    await page.getByRole("button", { name: review, exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("Artwork ready");
+    await page.screenshot({
+      path: testInfo.outputPath(`${review.toLowerCase().replaceAll(" ", "-")}.png`),
+      fullPage: true,
+    });
+  }
 });

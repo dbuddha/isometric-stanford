@@ -28,6 +28,14 @@ visible Retry control. After the first successful open, retry preserves the
 user's viewport. A restored drawing context forces an immediate redraw. No
 navigation-image CDN is requested because the application owns its controls.
 
+The verified Candidate C release exposes stable review fragments for the whole
+campus, Hoover Tower, Memorial Church, and the Main Quad. Fixed image-space
+crops make the same landmark pixels directly inspectable on every run. Controls
+write browser history, Back and Forward restore the matching viewport, and Home
+returns to `#view=campus`. The feature is pinned to the exact world hash, style
+hash, and image dimensions. Any changed or unsupported release fails closed to
+the campus view instead of applying stale review coordinates.
+
 A custom Rust or WebAssembly viewer adds tile scheduling, gesture handling,
 accessibility, browser compatibility, decode behavior, and years of edge cases.
 It is not simpler unless profiling identifies an OpenSeadragon bottleneck that
@@ -55,18 +63,24 @@ reserves that row before metadata arrives, and browser regression coverage
 protects the behavior. The repeated mobile run reported 0.00 cumulative layout
 shift.
 
-The mobile page bounds the viewer to 62 dVH with a 26 to 34 rem range and does
-not stretch grid rows into unused space. This keeps the wide artwork prominent
-on portrait screens while preserving touch-sized controls and a complete
-no-scroll Pixel 7 layout. Automated accessibility inspection reports no WCAG A
-or AA violations. Fixed iPhone 12-class and physical Pixel 7 frame, decode
-memory, recovery, and network measurements remain qualification work.
+The mobile page bounds the viewer to 62 dVH with a 26 to 34 rem range, uses a
+0.85 rem shell gap, and does not stretch grid rows into unused space. This keeps
+the wide artwork prominent on portrait screens while preserving touch-sized
+controls and a complete no-scroll Pixel 7 layout. The real-art regression run
+at 412 by 839 pixels records a document height of 839 pixels, a 518 pixel viewer,
+1,258,408 initial WebP bytes, about 5.6 MiB of JavaScript heap, 120 sampled
+frames per second, and a 9.4 millisecond longest frame gap. These hosted values
+are regression evidence, not physical-device qualification. Automated
+accessibility inspection reports no WCAG A or AA violations. Fixed iPhone
+12-class and physical Pixel 7 frame, decode memory, recovery, and network
+measurements remain qualification work.
 
 Ordinary pull requests run the recovery suite against an in-process one-pixel
 lossless WebP DZI. Scheduled assurance generates the complete Candidate C hero DZI
-and runs the same desktop and Pixel 7 browser suite against real tiles. The
-release dry run assembles an inspectable static viewer bundle without deploying
-it. `scripts/assemble_preview.py` refuses a qualified claim, stale world hash,
+and runs the same desktop and Pixel 7 browser suite against real tiles. It also
+captures Hoover Tower, Memorial Church, and Main Quad at both viewport sizes.
+The release dry run assembles an inspectable static viewer bundle without
+deploying it. `scripts/assemble_preview.py` refuses a qualified claim, stale world hash,
 corrupt tile, incomplete pyramid, or viewer build containing pre-staged art.
 It writes an independent `preview.json` that states
 `unqualified-engineering-preview` and `published_release: false`. Public Pages
