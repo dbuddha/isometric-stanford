@@ -64,9 +64,11 @@ The resulting vector-only hero preview is 1,954 by 880 pixels with indexed hash
 `a0ac742d6487cc9ddc9cb9e08930ad610d4bfd27be791cb0ad7f6a5f1056a08e`.
 On the measured development machine, release rendering completed in about 0.3
 seconds of renderer CPU time at roughly 25 MB peak RSS. This is engineering
-evidence, not artistic approval. The guarded indexed-tile seam oracle is
-implemented; WebP pyramid encoding and general detailed roof grammar remain
-tracked work.
+evidence, not artistic approval. The guarded indexed-tile seam oracle and
+lossless WebP DZI publisher are implemented. Publication retains indexed
+canonical tiles, derives lower levels with top-left nearest-neighbor sampling,
+and validates decoded WebP colors against the palette before accepting an
+artifact. General detailed roof grammar remains tracked work.
 
 `wgpu` is not a style engine and is not a v1 dependency. It becomes a research
 candidate only after profiling shows the CPU renderer misses the accepted

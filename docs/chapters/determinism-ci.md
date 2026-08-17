@@ -37,5 +37,11 @@ The renderer's ordinary test gate reassembles the hero from independently
 guarded tiles and compares every palette index with the monolithic oracle. The
 scheduled release-only probe renders the complete 250 millimeter tile set,
 checks its aggregate `bf0604f68bc38d2c` hash, and enforces the per-tile pixel
-memory ceiling. WebP determinism remains outside this evidence until the
-encoder decision is accepted and implemented.
+memory ceiling.
+
+The publisher uses pinned pure-Rust `image-webp` 0.2.4. Ordinary Rust tests
+publish the same fixture twice, compare every artifact byte, decode every WebP
+back to approved palette colors, and prove corrupt bytes fail validation.
+Scheduled assurance compiles the locked hero world, publishes two clean
+pyramids, validates both complete hash chains, and requires a recursive
+byte-for-byte directory comparison.

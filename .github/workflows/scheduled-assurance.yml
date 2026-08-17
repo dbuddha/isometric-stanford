@@ -27,6 +27,14 @@ jobs:
           test "$first" = "$second"
           test "$second" = "$third"
       - run: python3 scripts/validate_manifests.py
+      - name: Verify complete hero DZI repeatability
+        run: |
+          cargo run --quiet --release --locked -- world compile artifacts/world
+          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/first
+          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/second
+          cargo run --quiet --release --locked -- validate release artifacts/dzi/first
+          cargo run --quiet --release --locked -- validate release artifacts/dzi/second
+          diff -qr artifacts/dzi/first artifacts/dzi/second
 
   browser:
     name: Desktop and mobile browser smoke

@@ -6,6 +6,7 @@ use std::{
     process::ExitCode,
 };
 
+use isometric_publish::{DziOptions, InputDigests, sha256_hex, validate_dzi};
 use isometric_render::{render_reference, render_world, stable_hash};
 use isometric_style::StylePack;
 use isometric_validate::{validate_style, validate_world};
@@ -19,16 +20,18 @@ const USAGE: &str = "Usage:
   isometric-stanford render region [output.ppm]
   isometric-stanford render fixture [output.ppm]
   isometric-stanford render slice
-  isometric-stanford validate semantic|render|release
-  isometric-stanford publish dzi
+  isometric-stanford validate semantic|render
+  isometric-stanford validate release [artifact-directory]
+  isometric-stanford publish dzi [output-directory]
 
 Implemented commands:
   render region writes the compiled deterministic hero-world PPM.
   render fixture writes the original synthetic regression PPM.
-  validate semantic and validate render are executable.
+  validate semantic, validate render, and validate release are executable.
   source sync verifies approved artifacts in a content-addressed cache.
   world compile verifies the complete source lock, compiles the locked vectors,
   and writes a canonical world plus manifest. world inspect validates an artifact.
+  publish dzi writes a staged, lossless WebP DZI and indexed canonical pyramid.
   Other commands fail closed until their tracked task is implemented.";
 
 fn main() -> ExitCode {
@@ -81,6 +84,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
                 stable_hash(image.pixels())
             ))
         }
+        [group, command] if group == "validate" && command == "release" => {
+            validate_release(Path::new("artifacts/dzi/hero"))
+        }
+        [group, command, input] if group == "validate" && command == "release" => {
+            validate_release(Path::new(input))
+        }
         [group, command] if group == "render" && command == "region" => {
             render_region("artifacts/render/hero.ppm")
         }
@@ -92,6 +101,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, output] if group == "render" && command == "fixture" => {
             render_fixture(output)
+        }
+        [group, command] if group == "publish" && command == "dzi" => {
+            publish_dzi_artifact(Path::new("artifacts/dzi/hero"))
+        }
+        [group, command, output] if group == "publish" && command == "dzi" => {
+            publish_dzi_artifact(Path::new(output))
         }
         [] => Ok(USAGE.into()),
         [single] if single == "--help" || single == "-h" => Ok(USAGE.into()),
@@ -192,6 +207,48 @@ fn render_fixture(output: &str) -> Result<String, String> {
     write_ppm(output, &image, &style)
 }
 
+fn publish_dzi_artifact(output: &Path) -> Result<String, String> {
+    let world_bytes = fs::read("artifacts/world/hero.json")
+        .map_err(|error| format!("read artifacts/world/hero.json after world compile: {error}"))?;
+    let world_json = std::str::from_utf8(&world_bytes).map_err(|error| error.to_string())?;
+    let world = World::from_artifact_json(world_json).map_err(|error| error.to_string())?;
+    let style_bytes =
+        fs::read("styles/stanford_v1/style.toml").map_err(|error| error.to_string())?;
+    let inputs = InputDigests::new(sha256_hex(&world_bytes), sha256_hex(&style_bytes))
+        .map_err(|error| error.to_string())?;
+    let report = isometric_publish::publish_dzi(
+        &world,
+        &StylePack::stanford_v1(),
+        &inputs,
+        output,
+        DziOptions::prototype(),
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(format!(
+        "published {} x {} DZI with {} tiles and {} encoded bytes at {}: {}",
+        report.width,
+        report.height,
+        report.tile_count,
+        report.encoded_bytes,
+        output.display(),
+        report.tile_set_sha256
+    ))
+}
+
+fn validate_release(input: &Path) -> Result<String, String> {
+    let report = validate_dzi(input, &StylePack::stanford_v1().palette)
+        .map_err(|error| error.to_string())?;
+    Ok(format!(
+        "validated {} x {} DZI with {} tiles and {} encoded bytes at {}: {}",
+        report.width,
+        report.height,
+        report.tile_count,
+        report.encoded_bytes,
+        input.display(),
+        report.tile_set_sha256
+    ))
+}
+
 fn write_ppm(
     output: &str,
     image: &isometric_render::IndexedImage,
@@ -228,7 +285,7 @@ mod tests {
 
     #[test]
     fn unimplemented_contract_fails_closed() {
-        let arguments = vec!["publish".into(), "dzi".into()];
+        let arguments = vec!["perceive".into(), "run".into()];
         let result = run(&arguments);
         assert!(result.expect_err("must fail").contains("not implemented"));
     }
