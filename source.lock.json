@@ -80,6 +80,7 @@
       "acquisition": {
         "method": "https",
         "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07509800.laz",
+        "etag": "\"60a43f43-66e2b35\"",
         "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07509800.laz"
       },
       "size_bytes": 107883317,
@@ -100,6 +101,7 @@
       "acquisition": {
         "method": "https",
         "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07509825.laz",
+        "etag": "\"60a451e2-6311412\"",
         "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07509825.laz"
       },
       "size_bytes": 103879698,
@@ -120,6 +122,7 @@
       "acquisition": {
         "method": "https",
         "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07759800.laz",
+        "etag": "\"60a43f5d-6e1a4f1\"",
         "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07759800.laz"
       },
       "size_bytes": 115451121,
@@ -140,6 +143,7 @@
       "acquisition": {
         "method": "https",
         "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07759825.laz",
+        "etag": "\"60a4367d-6cadb43\"",
         "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07759825.laz"
       },
       "size_bytes": 113957699,

@@ -35,13 +35,16 @@ license is added to the repository allowlist because the application uses the
 trust anchors for HTTPS validation and does not redistribute a modified root
 dataset independently.
 
-The cache is content-addressed by SHA-256. Partial files are process-scoped and
-removed before retries and on every error. Each attempt starts from byte zero;
-range resume remains excluded until an immutable upstream range contract is
-implemented. Existing entries are rehashed before reuse. Scheduled assurance
-uses the official pinned `actions/cache` action with the entire source-lock
-digest in its key and no prefix fallback. Source retrieval is not linked into
-the renderer, and render commands do not access the network.
+The cache is content-addressed by SHA-256. Partial files are process-scoped. An
+ordinary transient retry starts from byte zero. A record with a locked strong
+entity tag may continue from its exact partial length only when the upstream
+returns the same tag, status `206`, and the exact remaining `Content-Range`.
+Any mismatch or final failure removes the partial, and the completed bytes must
+still pass full length and digest verification. Existing entries are rehashed
+before reuse. Scheduled assurance uses the official pinned `actions/cache`
+action with the entire source-lock digest in its key and no prefix fallback.
+Source retrieval is not linked into the renderer, and render commands do not
+access the network.
 
 The first namespaced cold assurance run on 2026-08-17 exhausted three 30 second
 connections to `naip-2024-hero` before any response headers arrived. The stable
@@ -56,3 +59,10 @@ a predecessor while reading the body, so a nominal 300 second body deadline
 was still capped at 60 seconds. The implementation now gives headers and body
 one explicit 300 second receive window, retains the separate 30 second connect
 deadline, and tests those production values directly.
+
+That run also showed the first 103 MB USGS object could not complete within one
+clean receive window from a hosted runner. The USGS endpoint advertises byte
+ranges and stable strong entity tags. Those tags are now part of the source
+lock, and deterministic HTTP fixtures prove both successful continuation and
+rejection of a mismatched range. This bounds wasted transfer without weakening
+the final content hash boundary.

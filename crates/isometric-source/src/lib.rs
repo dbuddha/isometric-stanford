@@ -78,6 +78,9 @@ pub enum Acquisition {
     Https {
         /// Full request URL including its locked query.
         url: String,
+        /// Optional immutable entity tag required for guarded range continuation.
+        #[serde(default)]
+        etag: Option<String>,
         /// Stable output filename.
         filename: String,
     },
@@ -340,7 +343,11 @@ fn validate_lock(lock: &SourceLock) -> Result<(), SourceError> {
 
 fn validate_acquisition(source: &SourceRecord) -> Result<(), SourceError> {
     let filename = match &source.acquisition {
-        Acquisition::Https { url, filename } => {
+        Acquisition::Https {
+            url,
+            etag,
+            filename,
+        } => {
             if !url.starts_with("https://") {
                 return Err(SourceError::Invalid(format!(
                     "source {} must use HTTPS",
@@ -350,6 +357,17 @@ fn validate_acquisition(source: &SourceRecord) -> Result<(), SourceError> {
             if url.contains("google.") || url.contains("googleapis.") {
                 return Err(SourceError::Invalid(format!(
                     "source {} attempts prohibited Google retrieval",
+                    source.id
+                )));
+            }
+            if etag.as_ref().is_some_and(|etag| {
+                etag.len() < 3
+                    || !etag.starts_with('"')
+                    || !etag.ends_with('"')
+                    || !etag.bytes().all(|byte| byte.is_ascii_graphic())
+            }) {
+                return Err(SourceError::Invalid(format!(
+                    "source {} has an invalid HTTPS entity tag",
                     source.id
                 )));
             }
@@ -434,7 +452,9 @@ fn acquire_to_partial(
     retry_policy: RetryPolicy,
 ) -> Result<u8, SourceError> {
     match &source.acquisition {
-        Acquisition::Https { url, .. } => acquire_https(source, url, partial, retry_policy),
+        Acquisition::Https { url, etag, .. } => {
+            acquire_https(source, url, etag.as_deref(), partial, retry_policy)
+        }
         Acquisition::Local { path, .. } => {
             let file = OpenOptions::new()
                 .create_new(true)
@@ -459,16 +479,28 @@ fn acquire_to_partial(
 fn acquire_https(
     source: &SourceRecord,
     url: &str,
+    etag: Option<&str>,
     partial: &Path,
     retry_policy: RetryPolicy,
 ) -> Result<u8, SourceError> {
     debug_assert!(retry_policy.max_attempts > 0);
+    let _ = fs::remove_file(partial);
     for attempt in 1..=retry_policy.max_attempts {
-        let _ = fs::remove_file(partial);
-        match acquire_https_once(source, url, partial, retry_policy) {
+        let offset = fs::metadata(partial).map_or(0, |metadata| metadata.len());
+        if offset > source.size_bytes {
+            return Err(acquisition_error(
+                source,
+                "partial file length",
+                attempt,
+                "partial source exceeds locked length",
+            ));
+        }
+        match acquire_https_once(source, url, etag, partial, offset, retry_policy) {
             Ok(()) => return Ok(attempt),
             Err(failure) => {
-                let _ = fs::remove_file(partial);
+                if fs::metadata(partial).is_ok_and(|metadata| metadata.len() == source.size_bytes) {
+                    return Ok(attempt);
+                }
                 if !failure.retryable || attempt == retry_policy.max_attempts {
                     return Err(SourceError::Acquisition {
                         source_id: source.id.clone(),
@@ -476,6 +508,9 @@ fn acquire_https(
                         attempts: attempt,
                         detail: failure.detail,
                     });
+                }
+                if etag.is_none() {
+                    let _ = fs::remove_file(partial);
                 }
                 let multiplier = 1_u32 << u32::from(attempt - 1);
                 thread::sleep(retry_policy.backoff.saturating_mul(multiplier));
@@ -488,7 +523,9 @@ fn acquire_https(
 fn acquire_https_once(
     source: &SourceRecord,
     url: &str,
+    etag: Option<&str>,
     partial: &Path,
+    offset: u64,
     retry_policy: RetryPolicy,
 ) -> Result<(), AttemptFailure> {
     let config = ureq::Agent::config_builder()
@@ -498,23 +535,38 @@ fn acquire_https_once(
         .user_agent("isometric-stanford/0.1 source-sync")
         .build();
     let agent: ureq::Agent = config.into();
-    let response = agent.get(url).call().map_err(|error| AttemptFailure {
+    let mut request = agent.get(url);
+    if offset > 0 {
+        let locked_etag = etag.ok_or_else(|| AttemptFailure {
+            stage: "range request",
+            detail: "partial bytes cannot continue without a locked entity tag".into(),
+            retryable: false,
+        })?;
+        request = request
+            .header("Range", format!("bytes={offset}-"))
+            .header("If-Range", locked_etag);
+    }
+    let response = request.call().map_err(|error| AttemptFailure {
         stage: "response headers",
         detail: http_error_detail(&error),
         retryable: retryable_http_error(&error),
     })?;
-    let file = OpenOptions::new()
-        .create_new(true)
-        .write(true)
-        .open(partial)
-        .map_err(|error| AttemptFailure {
-            stage: "partial file creation",
-            detail: error.to_string(),
-            retryable: false,
-        })?;
-    let mut output = BufWriter::new(file);
+    validate_http_response(&response, source, etag, offset)?;
+    let mut options = OpenOptions::new();
+    options.write(true);
+    if offset == 0 {
+        options.create_new(true);
+    } else {
+        options.append(true);
+    }
+    let mut output = options.open(partial).map_err(|error| AttemptFailure {
+        stage: "partial file creation",
+        detail: error.to_string(),
+        retryable: false,
+    })?;
     let mut reader = response.into_body().into_reader();
-    copy_bounded(&mut reader, &mut output, source.size_bytes).map_err(|error| match error {
+    let remaining = source.size_bytes - offset;
+    copy_bounded(&mut reader, &mut output, remaining).map_err(|error| match error {
         CopyFailure::Io(error) => AttemptFailure {
             stage: "response body",
             detail: io_error_detail(&error),
@@ -531,6 +583,64 @@ fn acquire_https_once(
         detail: error.to_string(),
         retryable: false,
     })?;
+    Ok(())
+}
+
+fn validate_http_response(
+    response: &ureq::http::Response<ureq::Body>,
+    source: &SourceRecord,
+    etag: Option<&str>,
+    offset: u64,
+) -> Result<(), AttemptFailure> {
+    if let Some(expected) = etag {
+        let actual = response
+            .headers()
+            .get("etag")
+            .and_then(|value| value.to_str().ok());
+        if actual != Some(expected) {
+            return Err(AttemptFailure {
+                stage: "response entity tag",
+                detail: "response does not match the locked entity tag".into(),
+                retryable: false,
+            });
+        }
+    }
+
+    let status = response.status().as_u16();
+    if offset == 0 {
+        if status != 200 {
+            return Err(AttemptFailure {
+                stage: "response status",
+                detail: format!("expected HTTP 200, received {status}"),
+                retryable: false,
+            });
+        }
+        return Ok(());
+    }
+
+    if status != 206 {
+        return Err(AttemptFailure {
+            stage: "range response status",
+            detail: format!("expected HTTP 206, received {status}"),
+            retryable: false,
+        });
+    }
+    let expected_range = format!(
+        "bytes {offset}-{}/{}",
+        source.size_bytes - 1,
+        source.size_bytes
+    );
+    let actual_range = response
+        .headers()
+        .get("content-range")
+        .and_then(|value| value.to_str().ok());
+    if actual_range != Some(expected_range.as_str()) {
+        return Err(AttemptFailure {
+            stage: "range response bounds",
+            detail: "response does not match the locked continuation bounds".into(),
+            retryable: false,
+        });
+    }
     Ok(())
 }
 
@@ -775,6 +885,55 @@ mod tests {
         (format!("http://{address}/source.bin"), handle)
     }
 
+    fn serve_range_resume(
+        bytes: &[u8],
+        prefix_bytes: usize,
+        reported_offset: usize,
+    ) -> (String, thread::JoinHandle<()>) {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind range fixture server");
+        let address = listener.local_addr().expect("range fixture server address");
+        let body = bytes.to_vec();
+        let handle = thread::spawn(move || {
+            let (mut first, _) = listener.accept().expect("accept initial request");
+            let mut request = [0_u8; 2048];
+            let count = first.read(&mut request).expect("read initial request");
+            let request = String::from_utf8_lossy(&request[..count]).to_ascii_lowercase();
+            assert!(!request.contains("range:"));
+            write!(
+                first,
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nETag: \"fixture-v1\"\r\nConnection: close\r\n\r\n",
+                body.len()
+            )
+            .expect("write initial headers");
+            first
+                .write_all(&body[..prefix_bytes])
+                .expect("write initial prefix");
+            first.flush().expect("flush initial prefix");
+            thread::sleep(Duration::from_millis(75));
+            let _ = first.write_all(&body[prefix_bytes..]);
+
+            let (mut second, _) = listener.accept().expect("accept range request");
+            let mut second_request = [0_u8; 2048];
+            let count = second
+                .read(&mut second_request)
+                .expect("read range request");
+            let request = String::from_utf8_lossy(&second_request[..count]).to_ascii_lowercase();
+            assert!(request.contains(&format!("range: bytes={prefix_bytes}-")));
+            assert!(request.contains("if-range: \"fixture-v1\""));
+            write!(
+                second,
+                "HTTP/1.1 206 Partial Content\r\nContent-Length: {}\r\nContent-Range: bytes {}-{}/{}\r\nETag: \"fixture-v1\"\r\nConnection: close\r\n\r\n",
+                body.len() - prefix_bytes,
+                reported_offset,
+                body.len() - 1,
+                body.len()
+            )
+            .expect("write range headers");
+            let _ = second.write_all(&body[prefix_bytes..]);
+        });
+        (format!("http://{address}/source.bin"), handle)
+    }
+
     fn test_retry_policy() -> RetryPolicy {
         RetryPolicy {
             max_attempts: 3,
@@ -795,6 +954,7 @@ mod tests {
             acquired_at: "2026-08-17".into(),
             acquisition: Acquisition::Https {
                 url,
+                etag: None,
                 filename: "source.bin".into(),
             },
             size_bytes: u64::try_from(expected.len()).expect("fixture length fits u64"),
@@ -843,6 +1003,7 @@ mod tests {
         lock.sources.sort_by(|left, right| left.id.cmp(&right.id));
         lock.sources[0].acquisition = Acquisition::Https {
             url: "https://maps.googleapis.com/content".into(),
+            etag: None,
             filename: "fixture".into(),
         };
         assert!(super::validate_lock(&lock).is_err());
@@ -952,6 +1113,60 @@ mod tests {
             bytes
         );
         assert_eq!(server.join().expect("join fixture server"), 2);
+        assert!(partial_files(&root).is_empty());
+        fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn resumes_only_with_locked_etag_and_exact_range_bounds() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-source-range-retry-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let bytes = b"licensed immutable remote fixture";
+        let prefix_bytes = 11;
+        let (url, server) = serve_range_resume(bytes, prefix_bytes, prefix_bytes);
+        let mut source = remote_record("remote-range-retry", url, bytes);
+        if let Acquisition::Https { etag, .. } = &mut source.acquisition {
+            *etag = Some("\"fixture-v1\"".into());
+        }
+
+        let artifact = sync_one(&source, Path::new("."), &root, test_retry_policy())
+            .expect("locked range continuation must recover");
+
+        assert_eq!(artifact.attempts, 2);
+        assert_eq!(
+            fs::read(&artifact.path).expect("read range-acquired fixture"),
+            bytes
+        );
+        server.join().expect("join range fixture server");
+        assert!(partial_files(&root).is_empty());
+        fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn rejects_range_response_that_does_not_match_locked_offset() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-source-invalid-range-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        let bytes = b"licensed immutable remote fixture";
+        let prefix_bytes = 11;
+        let (url, server) = serve_range_resume(bytes, prefix_bytes, prefix_bytes + 1);
+        let mut source = remote_record("remote-invalid-range", url, bytes);
+        if let Acquisition::Https { etag, .. } = &mut source.acquisition {
+            *etag = Some("\"fixture-v1\"".into());
+        }
+
+        let error = sync_one(&source, Path::new("."), &root, test_retry_policy())
+            .expect_err("mismatched continuation bounds must fail closed");
+        let message = error.to_string();
+
+        assert!(message.contains("range response bounds"));
+        assert!(message.contains("after 2 attempt(s)"));
+        server.join().expect("join range fixture server");
         assert!(partial_files(&root).is_empty());
         fs::remove_dir_all(root).expect("remove test directory");
     }

@@ -11,11 +11,14 @@ bounded receive window covering response headers and body. It makes at most
 three attempts and retries only connect, timeout, stalled-body, interrupted
 stream, and explicitly transient HTTP status failures. Permanent HTTP status,
 locked-length, digest, local I/O, and partial-file failures are not retried.
-Every failed attempt removes its partial file, and every operator-facing line
-names the stable source ID and acquisition stage without printing its URL.
-Byte-range resume is deliberately deferred until an upstream-specific range
-contract can prove that resumed bytes are immutable and equivalent to a clean
-download.
+Every operator-facing line names the stable source ID and acquisition stage
+without printing its URL. A source without a locked entity tag starts from a
+new partial file after a transient failure. A source with a locked entity tag
+may retain its exact partial length, send `Range` and `If-Range`, and continue
+only when the response repeats that tag with status `206` and the exact
+`Content-Range`. Any mismatch fails immediately, and final failure removes the
+partial. The completed object still receives full length and SHA-256
+verification before atomic promotion.
 
 Scheduled assurance caches `artifacts/source-cache` under a key containing the
 entire `source.lock.json` digest. No prefix restore is allowed. A workflow
@@ -29,7 +32,9 @@ imports and rehashes it locally because the USDA FPAC export endpoint rejects
 connections from GitHub-hosted runners. Its original item, date, dimensions,
 license, attribution, length, and digest remain locked. The approximately 440
 MB USGS LiDAR bundle remains remote and enters the Actions cache only after the
-same exact verification boundary.
+same exact verification boundary. Each LiDAR URL also locks its strong entity
+tag so a slow hosted transfer can continue without accepting bytes from a
+changed upstream object.
 
 A changed hash invalidates perception artifacts, world partitions, shadow dependencies,
 guarded render tiles, DZI ancestors, and the release candidate through explicit

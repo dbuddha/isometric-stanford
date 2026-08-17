@@ -33,7 +33,8 @@ three bounded connection attempts. The fixture preserves the previously locked
 bytes, dimensions, SHA-256, public-data terms, and FPAC attribution, so this
 reliability change does not alter semantic or rendered output. Each LiDAR
 record is an exact USGS staged object with a ScienceBase metadata item. The
-source synchronizer fails if any artifact changes length or content.
+source lock also pins each LiDAR object's strong entity tag. The synchronizer
+fails if any artifact changes entity tag, response range, length, or content.
 
 No Google content was accessed or retained. Raw source bytes are prohibited
 from final render output. Only validated semantic geometry and evidence may
