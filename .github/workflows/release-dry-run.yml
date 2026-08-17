@@ -39,11 +39,19 @@ jobs:
       - run: cargo run --quiet --release --locked -- world compile artifacts/world
       - run: cargo run --quiet --release --locked -- publish dzi artifacts/dzi/hero
       - run: cargo run --quiet --release --locked -- validate release artifacts/dzi/hero
+      - name: Stage public viewer imagery
+        run: |
+          mkdir -p web/public/art
+          cp artifacts/dzi/hero/hero.dzi web/public/art/
+          cp artifacts/dzi/hero/release.json web/public/art/
+          cp -R artifacts/dzi/hero/hero_files web/public/art/
       - run: mdbook build
       - run: npm ci
         working-directory: web
       - run: npm run build
         working-directory: web
+        env:
+          VITE_DZI_URL: /isometric-stanford/art/hero.dzi
       - name: Assemble dry-run bundle
         run: |
           mkdir -p artifacts/release-dry-run

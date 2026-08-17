@@ -103,8 +103,13 @@ The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
 image smoothing disabled, bounds decoded-tile counts from an explicit memory
 policy, starts phone-width screens at a legible zoom, and reports missing
-release configuration. A locally generated candidate has been exercised in the
-viewer, but no DZI release is committed or published.
+release configuration. The viewer uses the Canvas drawer, keeps keyboard and
+touch navigation enabled, retries failed tiles twice, exposes recoverable
+descriptor and tile failures, and redraws after a context restoration event.
+Ordinary CI exercises a routed lossless DZI fixture on desktop and mobile;
+scheduled assurance repeats the same checks against the complete generated
+hero pyramid. A locally generated candidate has been exercised in the viewer,
+but no DZI release is committed or published.
 
 ## Binding invariants
 

@@ -97,6 +97,12 @@ evidence = ["cargo test -p isometric-publish", "cargo run --release --locked -- 
 status = "implemented"
 
 [[claim]]
+id = "PROTO-VIEWER-001"
+statement = "The bounded OpenSeadragon Canvas viewer loads lossless DZI artwork accessibly on desktop and mobile, retries tiles, exposes recoverable failures, and redraws after drawing-context restoration."
+evidence = ["npm --prefix web run test:e2e", "web/e2e/viewer.spec.ts", ".github/workflows/scheduled-assurance.yml", ".github/workflows/release-dry-run.yml", "docs/chapters/web-delivery.md"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-PR-GATE-001"
 statement = "Hosted ci-pass rejects pull requests without a conventional title, required evidence sections, a linked issue, and exactly one release-impact label."
 evidence = ["python scripts/test_validate_pr.py", "scripts/validate_pr.py", ".github/workflows/ci.yml"]

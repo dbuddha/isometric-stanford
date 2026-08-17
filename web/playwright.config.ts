@@ -10,9 +10,13 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run preview -- --host 127.0.0.1",
+    command: "npm run build && npm run preview -- --host 127.0.0.1",
     url: "http://127.0.0.1:4173/isometric-stanford/",
     reuseExistingServer: !process.env.CI,
+    env: {
+      VITE_DZI_URL:
+        process.env.E2E_DZI_URL ?? "/isometric-stanford/fixture/hero.dzi",
+    },
   },
   projects: [
     { name: "desktop-chromium", use: { ...devices["Desktop Chrome"] } },

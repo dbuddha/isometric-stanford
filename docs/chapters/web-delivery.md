@@ -20,6 +20,14 @@ render loop. It adapts decoded cache capacity to the device memory budget,
 prefers current-view requests, cancels stale work, and displays a recoverable
 error instead of a blank canvas when tiles fail.
 
+The production configuration fixes OpenSeadragon to its Canvas drawer, avoiding
+a WebGL dependency for this static indexed artwork. It retains keyboard pan and
+zoom, touch pan and pinch, and explicit Home behavior. Tiles receive two
+bounded retries. Exhausted tile retries and descriptor failures surface a
+visible Retry control, while a restored drawing context forces an immediate
+redraw. No navigation-image CDN is requested because the application owns its
+controls.
+
 A custom Rust or WebAssembly viewer adds tile scheduling, gesture handling,
 accessibility, browser compatibility, decode behavior, and years of edge cases.
 It is not simpler unless profiling identifies an OpenSeadragon bottleneck that
@@ -33,3 +41,9 @@ continuous through zooming, and automated accessibility inspection reported no
 violations. These results prove DZI integration and leave ample room under the
 2.5 MiB initial imagery budget. Fixed iPhone 12-class and Pixel 7-class frame,
 memory, recovery, and network measurements remain qualification work.
+
+Ordinary pull requests run the recovery suite against an in-process one-pixel
+lossless WebP DZI. Scheduled assurance generates the complete locked hero DZI
+and runs the same desktop and Pixel 7 browser suite against real tiles. The
+release dry run assembles an inspectable static viewer bundle without deploying
+it. Public Pages publication remains an owner decision after style approval.
