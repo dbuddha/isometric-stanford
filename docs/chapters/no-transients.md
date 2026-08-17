@@ -7,8 +7,9 @@ This is enforced structurally:
 
 - The final semantic enum cannot represent transient classes.
 - Style validation rejects transient sprite or asset names.
-- Perception masks transient pixels before color or material estimation.
-- Small above-road LiDAR clusters are rejected before world compilation.
+- Perception masks every vector-owned cell before raster material inference.
+- Unclassified LiDAR returns 0.5 to 4 meters above cell ground are discarded
+  from persistent-class evidence and retained only as an aggregate QA counter.
 - Parking and road surfaces render as intentional empty hardscape.
 - Release review includes road, parking, and construction fixtures.
 

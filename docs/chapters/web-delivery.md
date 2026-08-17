@@ -35,8 +35,8 @@ cannot be fixed or bounded. Version 1 therefore keeps OpenSeadragon.
 
 The real 7,623 by 3,325 Candidate C pyramid has been exercised locally through
 the production viewer. A Pixel 7 browser profile requested 23 WebP tiles and
-transferred 890,004 bytes before the artwork-ready state; a 1,280 by 720
-desktop profile requested eleven tiles and transferred 341,122 bytes. Both are
+transferred 1,258,408 bytes before the artwork-ready state; a 1,280 by 720
+desktop profile requested eleven tiles and transferred 493,712 bytes. Both are
 below the 2.5 MiB initial imagery budget. The respective cache limits remain 48
 and 128 decoded tiles, reserving half of each total browser memory budget for
 OpenSeadragon, Canvas, and browser overhead. A one-second hosted interaction

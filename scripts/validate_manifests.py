@@ -127,11 +127,66 @@ def validate() -> None:
             if hashlib.sha256(artifact.read_bytes()).hexdigest() != digest:
                 raise ValueError(f"source {source['id']} local SHA-256 does not match")
 
+    perception = manifests["perception.lock.json"]
+    if (
+        perception.get("status") != "compiled-prototype"
+        or perception.get("models") != []
+    ):
+        raise ValueError("perception lock must identify the model-free prototype compiler")
+    runtime = perception.get("runtime")
+    if (
+        not isinstance(runtime, dict)
+        or runtime.get("compiler") != "rust-naip-lidar-consensus-v1"
+        or runtime.get("lidar_chunk_points") != 250_000
+    ):
+        raise ValueError("perception runtime contract is invalid")
+    perception_artifacts = perception.get("artifacts")
+    if not isinstance(perception_artifacts, list) or len(perception_artifacts) != 1:
+        raise ValueError("perception lock must contain one frozen prototype artifact")
+    perception_record = perception_artifacts[0]
+    perception_path = perception_record.get("path")
+    if (
+        not isinstance(perception_path, str)
+        or Path(perception_path).is_absolute()
+        or ".." in Path(perception_path).parts
+    ):
+        raise ValueError("perception artifact path is unsafe")
+    perception_bytes = (ROOT / perception_path).read_bytes()
+    perception_hash = hashlib.sha256(perception_bytes).hexdigest()
+    if (
+        perception_record.get("sha256") != perception_hash
+        or perception_record.get("contains_source_pixels") is not False
+        or perception_record.get("contains_transients") is not False
+        or perception_record.get("qualified") is not False
+    ):
+        raise ValueError("perception artifact lock is invalid")
+    evidence = json.loads(perception_bytes)
+    expected_perception_hashes = {
+        source["id"]: source["sha256"]
+        for source in sources
+        if source["kind"] in {"imagery", "lidar"}
+    }
+    if (
+        evidence.get("schema") != "isometric-perception-evidence/v1"
+        or evidence.get("region_id") != "stanford-hero-v1"
+        or evidence.get("status") != "compiled-prototype-evidence"
+        or evidence.get("compiler") != "rust-naip-lidar-consensus-v1"
+        or evidence.get("contains_source_pixels") is not False
+        or evidence.get("contains_transients") is not False
+        or evidence.get("source_sha256") != expected_perception_hashes
+        or evidence.get("evidence_cell_count") != 372
+        or evidence.get("vector_masked_cell_count") != 589
+        or len(evidence.get("cells", [])) != 372
+    ):
+        raise ValueError("frozen perception evidence is incomplete or unprovenanced")
+    if sum(cell.get("class") == "unknown" for cell in evidence["cells"]) > 19:
+        raise ValueError("perception evidence exceeds the two-percent unknown budget")
+
     world = manifests["world.manifest.json"]
     if (
-        world.get("status") != "prototype-vector-world"
+        world.get("status") != "prototype-semantic-world"
         or world.get("region_id") != "stanford-hero-v1"
-        or world.get("semantic_version") != "0.2.0"
+        or world.get("semantic_version") != "0.3.0"
     ):
         raise ValueError("world manifest must describe the compiled prototype vector world")
     if not isinstance(world.get("object_count"), int) or world["object_count"] <= 0:
@@ -139,7 +194,7 @@ def validate() -> None:
     if not isinstance(world.get("partition_count"), int) or world["partition_count"] <= 0:
         raise ValueError("world manifest must contain spatial partitions")
     unknown_fraction = world.get("unknown_fraction_ppm")
-    if not isinstance(unknown_fraction, int) or not 0 <= unknown_fraction <= 1_000_000:
+    if not isinstance(unknown_fraction, int) or not 0 <= unknown_fraction < 20_000:
         raise ValueError("world unknown coverage must be an integer fraction in ppm")
     if world.get("landmarks") != ["Hoover Tower", "Main Quad", "Memorial Church"]:
         raise ValueError("world manifest lacks the required prototype landmark evidence")
@@ -147,17 +202,14 @@ def validate() -> None:
     if not isinstance(world_hash, str) or re.fullmatch(r"[0-9a-f]{64}", world_hash) is None:
         raise ValueError("world artifact hash is invalid")
     source_hashes = world.get("source_sha256")
-    expected_vector_hashes = {
-        source["id"]: source["sha256"]
-        for source in sources
-        if source["id"] in {"osm-2026-07-15-hero", "overture-2026-06-17-buildings"}
-    }
-    if source_hashes != expected_vector_hashes:
+    expected_source_hashes = {source["id"]: source["sha256"] for source in sources}
+    if source_hashes != expected_source_hashes:
         raise ValueError("world source hashes do not match the approved source lock")
     deferred = world.get("deferred_source_ids")
-    expected_deferred = sorted(set(source_ids) - set(expected_vector_hashes))
-    if deferred != expected_deferred:
+    if deferred != []:
         raise ValueError("world manifest does not explicitly account for deferred sources")
+    if world.get("perception_sha256") != perception_hash:
+        raise ValueError("world manifest does not pin the frozen perception artifact")
 
     style_lock = manifests["style.lock.json"]
     style_path = style_lock.get("style_path")
@@ -170,11 +222,15 @@ def validate() -> None:
 
     render = manifests["render.manifest.json"]
     outputs = render.get("outputs")
-    if render.get("status") != "hero-vector-preview" or not isinstance(outputs, list) or len(outputs) != 1:
-        raise ValueError("render manifest must describe exactly one hero vector preview")
+    if (
+        render.get("status") != "hero-semantic-preview"
+        or not isinstance(outputs, list)
+        or len(outputs) != 1
+    ):
+        raise ValueError("render manifest must describe exactly one hero semantic preview")
     output = outputs[0]
     if (
-        output.get("id") != "hero-vector-preview"
+        output.get("id") != "hero-semantic-preview"
         or output.get("format") != "ppm-p6"
         or output.get("width") != 1954
         or output.get("height") != 880
@@ -183,10 +239,10 @@ def validate() -> None:
         or output.get("contains_transients") is not False
         or output.get("qualified") is not False
     ):
-        raise ValueError("hero vector preview metadata violates the render contract")
+        raise ValueError("hero semantic preview metadata violates the render contract")
     render_hash = output.get("sha256")
     if not isinstance(render_hash, str) or re.fullmatch(r"[0-9a-f]{64}", render_hash) is None:
-        raise ValueError("hero vector preview SHA-256 is invalid")
+        raise ValueError("hero semantic preview SHA-256 is invalid")
 
     release = manifests["release.json"]
     if (

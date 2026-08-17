@@ -37,15 +37,17 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 ## Status
 
 Repository foundation and the prototype-first delivery model are established.
-The Rust compiler now turns the locked OSM and Overture vectors into a
+The Rust compiler now fuses locked OSM, Overture, NAIP, and USGS LiDAR into a
 deterministic, inspectable hero world. The current artifact contains 2,820
 objects across 72 spatial partitions, including measured Hoover Tower geometry
-and OSM geometry for Memorial Church. The deterministic renderer now publishes
-a complete 7,623 by 3,325 lossless WebP DZI candidate with an explicit style
-identity. Candidate C has been exercised end to end in the responsive viewer.
-NAIP and LiDAR evidence, style approval, fixed-device
-qualification, and release publication remain unfinished. The prototype is not
-qualified, and no map release has been published.
+and OSM geometry for Memorial Church. Frozen model-free perception reduces
+unknown coverage from 387,096 to 5,202 ppm while retaining no source pixels or
+transient semantic classes. The deterministic renderer publishes a complete
+7,623 by 3,325 lossless WebP DZI candidate with an explicit style identity.
+Candidate C has been exercised end to end in the responsive viewer. Style
+approval, fixed-device qualification, and release publication remain
+unfinished. The prototype is not qualified, and no map release has been
+published.
 
 Candidate A can now be generated as a complete visual-review pack. It proves
 the deterministic review boundary, but its recorded evidence shows that the
@@ -95,29 +97,38 @@ transfer, into the ignored content-addressed cache:
 cargo run --locked -- source sync
 ```
 
-Compile and inspect the current vector-only hero world:
+Recompile the frozen semantic evidence from the exact approximately 450 MB
+source cache when source or compiler verification is required:
+
+```sh
+cargo run --release --locked -- perceive run artifacts/perception
+```
+
+Ordinary development and CI consume the small locked evidence artifact and do
+not download or rerun raw perception. Compile and inspect the fused hero world:
 
 ```sh
 cargo run --release --locked -- world compile
 cargo run --locked -- world inspect
 ```
 
-Compilation validates the complete source lock, verifies the two consumed
-vector artifacts, and writes ignored artifacts under `artifacts/world/`. The
-committed `world.manifest.json` freezes
-the expected vector-world hash and reports 387,096 ppm unknown coverage. That
-large unknown fraction is deliberate evidence that NAIP and LiDAR compilation
-must happen before qualification.
+Compilation validates the complete source and perception locks, verifies the
+two vector artifacts plus the frozen NAIP and LiDAR evidence, and writes
+ignored artifacts under `artifacts/world/`. The committed
+`world.manifest.json` freezes every source and artifact hash and reports 5,202
+ppm unknown coverage. Five cells with dominant unmapped building evidence stay
+explicitly unknown instead of receiving invented geometry.
 
-Render the vector-only Stanford preview:
+Render the fused Stanford preview:
 
 ```sh
 cargo run --release --locked -- render region artifacts/render/hero.ppm
 ```
 
 The current 1,954 by 880 preview contains real campus footprints, paths,
-roads, empty parking, ground surfaces, flat roofs, directional facades,
-faceted tree groves, hard shadows, crisp outlines, and world-anchored material
+roads, empty parking, spectrally supported ground, LiDAR-backed canopy, flat
+roofs, directional facades, faceted tree groves, hard shadows, crisp outlines,
+and world-anchored material
 patterns. Parameterized procedural grammar now gives Hoover Tower a stepped
 crown, Memorial Church a gabled roof and facade, and the Main Quad low arcade
 walls with repeated openings. It is deterministic and recognizably Stanford,

@@ -1,0 +1,7498 @@
+{
+  "schema": "isometric-perception-evidence/v1",
+  "region_id": "stanford-hero-v1",
+  "status": "compiled-prototype-evidence",
+  "compiler": "rust-naip-lidar-consensus-v1",
+  "contains_source_pixels": false,
+  "contains_transients": false,
+  "grid": {
+    "crs": "local integer millimeters derived from EPSG:26910",
+    "origin_easting_mm": 573200000,
+    "origin_northing_mm": 4142200000,
+    "min_x_mm": 43583,
+    "min_y_mm": 86784,
+    "cell_size_mm": 20000,
+    "columns": 31,
+    "rows": 31
+  },
+  "source_sha256": {
+    "naip-2024-hero": "2775b4aa72382e808cb8aa39b74ab840550e7c26351fdb9a91cf7d271c907863",
+    "usgs-lidar-07509800": "d13e4a01175c0f7f501ff9b3e899115930dbc66a48f5a7701f04901a6f86c416",
+    "usgs-lidar-07509825": "e19740f598fb3c9d7b796a8d9f596d47f529d02e5bfe9c7a5cbf3d4112936580",
+    "usgs-lidar-07759800": "09283bb7df0e4363fa34116a9b3c9e53b33dba91dde01fb28535508e7ad0957a",
+    "usgs-lidar-07759825": "1e4b92c088bd960eca050a62fad46f0013f70acd95fb761828ec09fc19ae12cd"
+  },
+  "vector_masked_cell_count": 589,
+  "evidence_cell_count": 372,
+  "naip_sample_count": 1065077,
+  "lidar_sample_count": 8506505,
+  "lidar_chunk_points": 250000,
+  "cells": [
+    {
+      "index": {
+        "column": 0,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8578,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1098,
+      "naip_green_fraction_bp": 4644,
+      "lidar_sample_count": 9345,
+      "lidar_vegetation_fraction_bp": 3286,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2638
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7370,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1180,
+      "lidar_sample_count": 7861,
+      "lidar_vegetation_fraction_bp": 1266,
+      "lidar_building_fraction_bp": 3826,
+      "transient_masked_points": 1328
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11270,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1095,
+      "naip_green_fraction_bp": 4210,
+      "lidar_sample_count": 8840,
+      "lidar_vegetation_fraction_bp": 3392,
+      "lidar_building_fraction_bp": 2761,
+      "transient_masked_points": 913
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18464,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 3001,
+      "lidar_sample_count": 8341,
+      "lidar_vegetation_fraction_bp": 2910,
+      "lidar_building_fraction_bp": 845,
+      "transient_masked_points": 612
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25946,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1079,
+      "naip_green_fraction_bp": 5143,
+      "lidar_sample_count": 10889,
+      "lidar_vegetation_fraction_bp": 6005,
+      "lidar_building_fraction_bp": 1925,
+      "transient_masked_points": 892
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19748,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1134,
+      "naip_green_fraction_bp": 7716,
+      "lidar_sample_count": 9663,
+      "lidar_vegetation_fraction_bp": 5594,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 975
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18598,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8846,
+      "lidar_sample_count": 9136,
+      "lidar_vegetation_fraction_bp": 2601,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 646
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 18
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1080,
+      "naip_green_fraction_bp": 4148,
+      "lidar_sample_count": 6765,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1064
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 19
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1128,
+      "naip_green_fraction_bp": 9503,
+      "lidar_sample_count": 7261,
+      "lidar_vegetation_fraction_bp": 408,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 529
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14609,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 9387,
+      "lidar_sample_count": 10139,
+      "lidar_vegetation_fraction_bp": 4331,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 31
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15546,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1107,
+      "naip_green_fraction_bp": 8970,
+      "lidar_sample_count": 9560,
+      "lidar_vegetation_fraction_bp": 7066,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 637
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18904,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1136,
+      "naip_green_fraction_bp": 3283,
+      "lidar_sample_count": 8871,
+      "lidar_vegetation_fraction_bp": 4384,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 663
+    },
+    {
+      "index": {
+        "column": 0,
+        "row": 29
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1082,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 7443,
+      "lidar_vegetation_fraction_bp": 1,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 448
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16945,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 9621,
+      "lidar_sample_count": 14329,
+      "lidar_vegetation_fraction_bp": 5938,
+      "lidar_building_fraction_bp": 1,
+      "transient_masked_points": 1052
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10547,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1113,
+      "naip_green_fraction_bp": 1805,
+      "lidar_sample_count": 6849,
+      "lidar_vegetation_fraction_bp": 1243,
+      "lidar_building_fraction_bp": 4185,
+      "transient_masked_points": 1233
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19079,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 4806,
+      "lidar_sample_count": 9483,
+      "lidar_vegetation_fraction_bp": 4343,
+      "lidar_building_fraction_bp": 683,
+      "transient_masked_points": 2086
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18238,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3954,
+      "lidar_sample_count": 12903,
+      "lidar_vegetation_fraction_bp": 5356,
+      "lidar_building_fraction_bp": 551,
+      "transient_masked_points": 1272
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14688,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 9675,
+      "lidar_sample_count": 10133,
+      "lidar_vegetation_fraction_bp": 7429,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 380
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12478,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 6496,
+      "lidar_sample_count": 7063,
+      "lidar_vegetation_fraction_bp": 1233,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 526
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12832,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1090,
+      "naip_green_fraction_bp": 8623,
+      "lidar_sample_count": 8962,
+      "lidar_vegetation_fraction_bp": 5618,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1760
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 26
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16479,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8594,
+      "lidar_sample_count": 11333,
+      "lidar_vegetation_fraction_bp": 7615,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 550
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23381,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1088,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 9773,
+      "lidar_vegetation_fraction_bp": 2328,
+      "lidar_building_fraction_bp": 5502,
+      "transient_masked_points": 789
+    },
+    {
+      "index": {
+        "column": 1,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10924,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 8905,
+      "lidar_vegetation_fraction_bp": 1396,
+      "lidar_building_fraction_bp": 3988,
+      "transient_masked_points": 935
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14107,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5405,
+      "lidar_sample_count": 6789,
+      "lidar_vegetation_fraction_bp": 3243,
+      "lidar_building_fraction_bp": 2090,
+      "transient_masked_points": 1212
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15505,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1093,
+      "naip_green_fraction_bp": 6075,
+      "lidar_sample_count": 8730,
+      "lidar_vegetation_fraction_bp": 4269,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 963
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19548,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 9,
+      "lidar_sample_count": 7133,
+      "lidar_vegetation_fraction_bp": 2991,
+      "lidar_building_fraction_bp": 5954,
+      "transient_masked_points": 200
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20028,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 702,
+      "lidar_sample_count": 8011,
+      "lidar_vegetation_fraction_bp": 4822,
+      "lidar_building_fraction_bp": 1506,
+      "transient_masked_points": 250
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10433,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 886,
+      "lidar_sample_count": 6542,
+      "lidar_vegetation_fraction_bp": 1614,
+      "lidar_building_fraction_bp": 5179,
+      "transient_masked_points": 1057
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 6
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1103,
+      "naip_green_fraction_bp": 154,
+      "lidar_sample_count": 5158,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 5508,
+      "transient_masked_points": 1599
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 7
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 387,
+      "lidar_sample_count": 6059,
+      "lidar_vegetation_fraction_bp": 470,
+      "lidar_building_fraction_bp": 5578,
+      "transient_masked_points": 714
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19507,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 3819,
+      "lidar_sample_count": 6360,
+      "lidar_vegetation_fraction_bp": 2280,
+      "lidar_building_fraction_bp": 1281,
+      "transient_masked_points": 1676
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 9
+      },
+      "class": "unknown",
+      "material": null,
+      "height_mm": 0,
+      "confidence_bp": 2500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1077,
+      "naip_green_fraction_bp": 64,
+      "lidar_sample_count": 6201,
+      "lidar_vegetation_fraction_bp": 31,
+      "lidar_building_fraction_bp": 7286,
+      "transient_masked_points": 336
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 13
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1088,
+      "naip_green_fraction_bp": 505,
+      "lidar_sample_count": 4871,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 3285,
+      "transient_masked_points": 307
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12590,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1113,
+      "naip_green_fraction_bp": 5220,
+      "lidar_sample_count": 5991,
+      "lidar_vegetation_fraction_bp": 1836,
+      "lidar_building_fraction_bp": 1009,
+      "transient_masked_points": 1400
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23276,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1114,
+      "naip_green_fraction_bp": 1220,
+      "lidar_sample_count": 5755,
+      "lidar_vegetation_fraction_bp": 1274,
+      "lidar_building_fraction_bp": 3711,
+      "transient_masked_points": 1314
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12308,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 3946,
+      "lidar_sample_count": 6808,
+      "lidar_vegetation_fraction_bp": 2186,
+      "lidar_building_fraction_bp": 5423,
+      "transient_masked_points": 873
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16294,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5765,
+      "lidar_sample_count": 7188,
+      "lidar_vegetation_fraction_bp": 5903,
+      "lidar_building_fraction_bp": 1915,
+      "transient_masked_points": 534
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12326,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1094,
+      "naip_green_fraction_bp": 877,
+      "lidar_sample_count": 5944,
+      "lidar_vegetation_fraction_bp": 2771,
+      "lidar_building_fraction_bp": 1767,
+      "transient_masked_points": 918
+    },
+    {
+      "index": {
+        "column": 2,
+        "row": 28
+      },
+      "class": "unknown",
+      "material": null,
+      "height_mm": 0,
+      "confidence_bp": 2500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1098,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6706,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 9844,
+      "transient_masked_points": 0
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9290,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1094,
+      "naip_green_fraction_bp": 4021,
+      "lidar_sample_count": 3641,
+      "lidar_vegetation_fraction_bp": 2966,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 926
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 2
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 1089,
+      "lidar_sample_count": 3561,
+      "lidar_vegetation_fraction_bp": 773,
+      "lidar_building_fraction_bp": 4601,
+      "transient_masked_points": 378
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 3
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 504,
+      "lidar_sample_count": 2860,
+      "lidar_vegetation_fraction_bp": 102,
+      "lidar_building_fraction_bp": 3314,
+      "transient_masked_points": 909
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 6777,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1104,
+      "naip_green_fraction_bp": 1521,
+      "lidar_sample_count": 3518,
+      "lidar_vegetation_fraction_bp": 1231,
+      "lidar_building_fraction_bp": 3882,
+      "transient_masked_points": 220
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 5
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1104,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 3348,
+      "lidar_vegetation_fraction_bp": 210,
+      "lidar_building_fraction_bp": 5852,
+      "transient_masked_points": 552
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 9
+      },
+      "class": "unknown",
+      "material": null,
+      "height_mm": 0,
+      "confidence_bp": 2500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 567,
+      "lidar_sample_count": 3688,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 8182,
+      "transient_masked_points": 182
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 6292,
+      "lidar_sample_count": 5985,
+      "lidar_vegetation_fraction_bp": 6880,
+      "lidar_building_fraction_bp": 1617,
+      "transient_masked_points": 279
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13154,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 4476,
+      "lidar_sample_count": 3933,
+      "lidar_vegetation_fraction_bp": 3808,
+      "lidar_building_fraction_bp": 1286,
+      "transient_masked_points": 310
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 24
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1090,
+      "lidar_sample_count": 2957,
+      "lidar_vegetation_fraction_bp": 2,
+      "lidar_building_fraction_bp": 4025,
+      "transient_masked_points": 844
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 25
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 1720,
+      "lidar_sample_count": 2986,
+      "lidar_vegetation_fraction_bp": 37,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 474
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18448,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 5013,
+      "lidar_sample_count": 4724,
+      "lidar_vegetation_fraction_bp": 5274,
+      "lidar_building_fraction_bp": 3061,
+      "transient_masked_points": 194
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18242,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1125,
+      "naip_green_fraction_bp": 2995,
+      "lidar_sample_count": 4144,
+      "lidar_vegetation_fraction_bp": 4269,
+      "lidar_building_fraction_bp": 3678,
+      "transient_masked_points": 172
+    },
+    {
+      "index": {
+        "column": 3,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18670,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1075,
+      "naip_green_fraction_bp": 1041,
+      "lidar_sample_count": 4131,
+      "lidar_vegetation_fraction_bp": 2681,
+      "lidar_building_fraction_bp": 2653,
+      "transient_masked_points": 309
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13430,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 4774,
+      "lidar_sample_count": 4554,
+      "lidar_vegetation_fraction_bp": 3985,
+      "lidar_building_fraction_bp": 2650,
+      "transient_masked_points": 157
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12332,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1082,
+      "naip_green_fraction_bp": 2837,
+      "lidar_sample_count": 3521,
+      "lidar_vegetation_fraction_bp": 1747,
+      "lidar_building_fraction_bp": 752,
+      "transient_masked_points": 454
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16867,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1107,
+      "naip_green_fraction_bp": 3080,
+      "lidar_sample_count": 3660,
+      "lidar_vegetation_fraction_bp": 2271,
+      "lidar_building_fraction_bp": 2678,
+      "transient_masked_points": 1137
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17117,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 9190,
+      "lidar_sample_count": 4953,
+      "lidar_vegetation_fraction_bp": 8373,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 3
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18519,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 5677,
+      "lidar_sample_count": 4442,
+      "lidar_vegetation_fraction_bp": 6098,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 475
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15191,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 6519,
+      "lidar_sample_count": 4189,
+      "lidar_vegetation_fraction_bp": 5552,
+      "lidar_building_fraction_bp": 1598,
+      "transient_masked_points": 536
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20188,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 1930,
+      "lidar_sample_count": 3895,
+      "lidar_vegetation_fraction_bp": 1346,
+      "lidar_building_fraction_bp": 7,
+      "transient_masked_points": 155
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 387,
+      "lidar_sample_count": 3414,
+      "lidar_vegetation_fraction_bp": 117,
+      "lidar_building_fraction_bp": 1619,
+      "transient_masked_points": 174
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 18
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1084,
+      "naip_green_fraction_bp": 285,
+      "lidar_sample_count": 3583,
+      "lidar_vegetation_fraction_bp": 230,
+      "lidar_building_fraction_bp": 3976,
+      "transient_masked_points": 80
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8570,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3009,
+      "lidar_sample_count": 3655,
+      "lidar_vegetation_fraction_bp": 1377,
+      "lidar_building_fraction_bp": 1434,
+      "transient_masked_points": 858
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18252,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5099,
+      "lidar_sample_count": 5440,
+      "lidar_vegetation_fraction_bp": 4791,
+      "lidar_building_fraction_bp": 561,
+      "transient_masked_points": 722
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 22
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 1901,
+      "lidar_sample_count": 3938,
+      "lidar_vegetation_fraction_bp": 736,
+      "lidar_building_fraction_bp": 3807,
+      "transient_masked_points": 351
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 24
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 1556,
+      "lidar_sample_count": 2978,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 2580,
+      "transient_masked_points": 900
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17960,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1076,
+      "naip_green_fraction_bp": 5501,
+      "lidar_sample_count": 4678,
+      "lidar_vegetation_fraction_bp": 4365,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 383
+    },
+    {
+      "index": {
+        "column": 4,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18266,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 5004,
+      "lidar_sample_count": 5117,
+      "lidar_vegetation_fraction_bp": 5280,
+      "lidar_building_fraction_bp": 293,
+      "transient_masked_points": 369
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12994,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5450,
+      "lidar_sample_count": 8436,
+      "lidar_vegetation_fraction_bp": 6047,
+      "lidar_building_fraction_bp": 730,
+      "transient_masked_points": 1146
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22680,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1098,
+      "naip_green_fraction_bp": 8506,
+      "lidar_sample_count": 10159,
+      "lidar_vegetation_fraction_bp": 7239,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 598
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12877,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 4340,
+      "lidar_sample_count": 8074,
+      "lidar_vegetation_fraction_bp": 5113,
+      "lidar_building_fraction_bp": 1219,
+      "transient_masked_points": 916
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12242,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1084,
+      "naip_green_fraction_bp": 5544,
+      "lidar_sample_count": 5992,
+      "lidar_vegetation_fraction_bp": 1918,
+      "lidar_building_fraction_bp": 707,
+      "transient_masked_points": 2151
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15304,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1119,
+      "naip_green_fraction_bp": 8918,
+      "lidar_sample_count": 9168,
+      "lidar_vegetation_fraction_bp": 7481,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 22
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15590,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 6358,
+      "lidar_sample_count": 7051,
+      "lidar_vegetation_fraction_bp": 3429,
+      "lidar_building_fraction_bp": 23,
+      "transient_masked_points": 861
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18971,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1087,
+      "naip_green_fraction_bp": 9466,
+      "lidar_sample_count": 11075,
+      "lidar_vegetation_fraction_bp": 5854,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2074
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20303,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2522,
+      "lidar_sample_count": 8140,
+      "lidar_vegetation_fraction_bp": 2886,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 436
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12620,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 3146,
+      "lidar_sample_count": 7914,
+      "lidar_vegetation_fraction_bp": 2934,
+      "lidar_building_fraction_bp": 3368,
+      "transient_masked_points": 176
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8128,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 6939,
+      "lidar_sample_count": 5397,
+      "lidar_vegetation_fraction_bp": 972,
+      "lidar_building_fraction_bp": 86,
+      "transient_masked_points": 1619
+    },
+    {
+      "index": {
+        "column": 5,
+        "row": 26
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 1429,
+      "lidar_sample_count": 6069,
+      "lidar_vegetation_fraction_bp": 719,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1369
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12729,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1094,
+      "naip_green_fraction_bp": 4670,
+      "lidar_sample_count": 10078,
+      "lidar_vegetation_fraction_bp": 5355,
+      "lidar_building_fraction_bp": 2003,
+      "transient_masked_points": 1182
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 3
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1909,
+      "lidar_sample_count": 6536,
+      "lidar_vegetation_fraction_bp": 468,
+      "lidar_building_fraction_bp": 6250,
+      "transient_masked_points": 307
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14369,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 2921,
+      "lidar_sample_count": 6433,
+      "lidar_vegetation_fraction_bp": 1877,
+      "lidar_building_fraction_bp": 1585,
+      "transient_masked_points": 1643
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 10
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1114,
+      "naip_green_fraction_bp": 1929,
+      "lidar_sample_count": 5922,
+      "lidar_vegetation_fraction_bp": 696,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1721
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23332,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 7365,
+      "lidar_sample_count": 9485,
+      "lidar_vegetation_fraction_bp": 5626,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 904
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 15
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 270,
+      "lidar_sample_count": 6421,
+      "lidar_vegetation_fraction_bp": 91,
+      "lidar_building_fraction_bp": 2305,
+      "transient_masked_points": 417
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12110,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1078,
+      "naip_green_fraction_bp": 1280,
+      "lidar_sample_count": 7232,
+      "lidar_vegetation_fraction_bp": 1983,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 34
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6366,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 10
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 18
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6115,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 315,
+      "transient_masked_points": 74
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12887,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 5927,
+      "lidar_sample_count": 8451,
+      "lidar_vegetation_fraction_bp": 4608,
+      "lidar_building_fraction_bp": 1068,
+      "transient_masked_points": 951
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13869,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5693,
+      "lidar_sample_count": 9788,
+      "lidar_vegetation_fraction_bp": 4850,
+      "lidar_building_fraction_bp": 1753,
+      "transient_masked_points": 1281
+    },
+    {
+      "index": {
+        "column": 6,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8230,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1093,
+      "naip_green_fraction_bp": 5864,
+      "lidar_sample_count": 7585,
+      "lidar_vegetation_fraction_bp": 3536,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 575
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10894,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 4313,
+      "lidar_sample_count": 10212,
+      "lidar_vegetation_fraction_bp": 5416,
+      "lidar_building_fraction_bp": 499,
+      "transient_masked_points": 1711
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12447,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 6544,
+      "lidar_sample_count": 11428,
+      "lidar_vegetation_fraction_bp": 6275,
+      "lidar_building_fraction_bp": 261,
+      "transient_masked_points": 1321
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 27989,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 3492,
+      "lidar_sample_count": 9488,
+      "lidar_vegetation_fraction_bp": 4878,
+      "lidar_building_fraction_bp": 3203,
+      "transient_masked_points": 308
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7971,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2153,
+      "lidar_sample_count": 8142,
+      "lidar_vegetation_fraction_bp": 1865,
+      "lidar_building_fraction_bp": 4424,
+      "transient_masked_points": 935
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14136,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1136,
+      "naip_green_fraction_bp": 3221,
+      "lidar_sample_count": 6709,
+      "lidar_vegetation_fraction_bp": 1826,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1355
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21654,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1090,
+      "naip_green_fraction_bp": 7293,
+      "lidar_sample_count": 6731,
+      "lidar_vegetation_fraction_bp": 3204,
+      "lidar_building_fraction_bp": 395,
+      "transient_masked_points": 1830
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19194,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 3289,
+      "lidar_sample_count": 8099,
+      "lidar_vegetation_fraction_bp": 3007,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 515
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 18
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 117,
+      "lidar_sample_count": 6523,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 2555,
+      "transient_masked_points": 316
+    },
+    {
+      "index": {
+        "column": 7,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 8280,
+      "lidar_sample_count": 9740,
+      "lidar_vegetation_fraction_bp": 6160,
+      "lidar_building_fraction_bp": 151,
+      "transient_masked_points": 1160
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15449,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1119,
+      "naip_green_fraction_bp": 2582,
+      "lidar_sample_count": 8055,
+      "lidar_vegetation_fraction_bp": 3435,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1344
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6774,
+      "lidar_sample_count": 11332,
+      "lidar_vegetation_fraction_bp": 6659,
+      "lidar_building_fraction_bp": 1,
+      "transient_masked_points": 1353
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10195,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1107,
+      "naip_green_fraction_bp": 1897,
+      "lidar_sample_count": 7582,
+      "lidar_vegetation_fraction_bp": 1326,
+      "lidar_building_fraction_bp": 5767,
+      "transient_masked_points": 1201
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16722,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5198,
+      "lidar_sample_count": 6059,
+      "lidar_vegetation_fraction_bp": 2732,
+      "lidar_building_fraction_bp": 480,
+      "transient_masked_points": 2213
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 6
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16345,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 6589,
+      "lidar_sample_count": 8827,
+      "lidar_vegetation_fraction_bp": 5556,
+      "lidar_building_fraction_bp": 3,
+      "transient_masked_points": 1144
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 8
+      },
+      "class": "unknown",
+      "material": null,
+      "height_mm": 0,
+      "confidence_bp": 2500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 7093,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 8514,
+      "transient_masked_points": 773
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17133,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 7127,
+      "lidar_sample_count": 10573,
+      "lidar_vegetation_fraction_bp": 7072,
+      "lidar_building_fraction_bp": 1631,
+      "transient_masked_points": 262
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22860,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 9276,
+      "lidar_sample_count": 10366,
+      "lidar_vegetation_fraction_bp": 8062,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 137
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13600,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 3012,
+      "lidar_sample_count": 7180,
+      "lidar_vegetation_fraction_bp": 2313,
+      "lidar_building_fraction_bp": 3976,
+      "transient_masked_points": 1409
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8256,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 737,
+      "lidar_sample_count": 6624,
+      "lidar_vegetation_fraction_bp": 1016,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 70
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 63,
+      "lidar_sample_count": 6383,
+      "lidar_vegetation_fraction_bp": 216,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 53
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 18
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1097,
+      "naip_green_fraction_bp": 9,
+      "lidar_sample_count": 6166,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 4144,
+      "transient_masked_points": 942
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 23
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5666,
+      "lidar_sample_count": 5767,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 1591,
+      "transient_masked_points": 1492
+    },
+    {
+      "index": {
+        "column": 8,
+        "row": 26
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 816,
+      "lidar_sample_count": 5706,
+      "lidar_vegetation_fraction_bp": 58,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1454
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20166,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 3605,
+      "lidar_sample_count": 8002,
+      "lidar_vegetation_fraction_bp": 2780,
+      "lidar_building_fraction_bp": 1984,
+      "transient_masked_points": 677
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12140,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 3953,
+      "lidar_sample_count": 8534,
+      "lidar_vegetation_fraction_bp": 4186,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1677
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10997,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5225,
+      "lidar_sample_count": 7405,
+      "lidar_vegetation_fraction_bp": 2462,
+      "lidar_building_fraction_bp": 3444,
+      "transient_masked_points": 884
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10059,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 3996,
+      "lidar_sample_count": 6002,
+      "lidar_vegetation_fraction_bp": 2789,
+      "lidar_building_fraction_bp": 1995,
+      "transient_masked_points": 1407
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 6
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12784,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1082,
+      "naip_green_fraction_bp": 2079,
+      "lidar_sample_count": 6858,
+      "lidar_vegetation_fraction_bp": 2448,
+      "lidar_building_fraction_bp": 295,
+      "transient_masked_points": 2399
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17034,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1097,
+      "naip_green_fraction_bp": 9471,
+      "lidar_sample_count": 10706,
+      "lidar_vegetation_fraction_bp": 7003,
+      "lidar_building_fraction_bp": 114,
+      "transient_masked_points": 1224
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15727,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 9220,
+      "lidar_sample_count": 9067,
+      "lidar_vegetation_fraction_bp": 6972,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 338
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22710,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 9587,
+      "lidar_sample_count": 9557,
+      "lidar_vegetation_fraction_bp": 8308,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 659
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17518,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1107,
+      "naip_green_fraction_bp": 2429,
+      "lidar_sample_count": 7336,
+      "lidar_vegetation_fraction_bp": 2645,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 215
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 19
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5270,
+      "lidar_sample_count": 6083,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 938
+    },
+    {
+      "index": {
+        "column": 9,
+        "row": 25
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1100,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6027,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 180
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1098,
+      "naip_green_fraction_bp": 1948,
+      "lidar_sample_count": 6917,
+      "lidar_vegetation_fraction_bp": 2196,
+      "lidar_building_fraction_bp": 3824,
+      "transient_masked_points": 1660
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14643,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8090,
+      "lidar_sample_count": 7937,
+      "lidar_vegetation_fraction_bp": 5256,
+      "lidar_building_fraction_bp": 1293,
+      "transient_masked_points": 75
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10448,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 4918,
+      "lidar_sample_count": 6564,
+      "lidar_vegetation_fraction_bp": 1918,
+      "lidar_building_fraction_bp": 289,
+      "transient_masked_points": 1494
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12728,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 3876,
+      "lidar_sample_count": 7753,
+      "lidar_vegetation_fraction_bp": 3381,
+      "lidar_building_fraction_bp": 4216,
+      "transient_masked_points": 296
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 7
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 115,
+      "lidar_sample_count": 5488,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 3578,
+      "transient_masked_points": 2094
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13963,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1089,
+      "naip_green_fraction_bp": 6565,
+      "lidar_sample_count": 7447,
+      "lidar_vegetation_fraction_bp": 3871,
+      "lidar_building_fraction_bp": 177,
+      "transient_masked_points": 1384
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16790,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1082,
+      "naip_green_fraction_bp": 9768,
+      "lidar_sample_count": 9448,
+      "lidar_vegetation_fraction_bp": 7646,
+      "lidar_building_fraction_bp": 4,
+      "transient_masked_points": 463
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 14
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1123,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6247,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 2057,
+      "transient_masked_points": 375
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 15
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6357,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 0
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16880,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 414,
+      "lidar_sample_count": 6881,
+      "lidar_vegetation_fraction_bp": 1536,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 69
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16798,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 1779,
+      "lidar_sample_count": 7457,
+      "lidar_vegetation_fraction_bp": 2317,
+      "lidar_building_fraction_bp": 399,
+      "transient_masked_points": 159
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7772,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1100,
+      "naip_green_fraction_bp": 4036,
+      "lidar_sample_count": 6527,
+      "lidar_vegetation_fraction_bp": 2730,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1375
+    },
+    {
+      "index": {
+        "column": 10,
+        "row": 25
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 1279,
+      "lidar_sample_count": 6038,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 374
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8235,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1094,
+      "naip_green_fraction_bp": 2934,
+      "lidar_sample_count": 6505,
+      "lidar_vegetation_fraction_bp": 1495,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 490
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13158,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1119,
+      "naip_green_fraction_bp": 5612,
+      "lidar_sample_count": 8916,
+      "lidar_vegetation_fraction_bp": 4860,
+      "lidar_building_fraction_bp": 1973,
+      "transient_masked_points": 1127
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9605,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1090,
+      "naip_green_fraction_bp": 2091,
+      "lidar_sample_count": 6567,
+      "lidar_vegetation_fraction_bp": 1554,
+      "lidar_building_fraction_bp": 3065,
+      "transient_masked_points": 2108
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13116,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5315,
+      "lidar_sample_count": 10985,
+      "lidar_vegetation_fraction_bp": 6058,
+      "lidar_building_fraction_bp": 610,
+      "transient_masked_points": 841
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 6
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10883,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 3559,
+      "lidar_sample_count": 7625,
+      "lidar_vegetation_fraction_bp": 3010,
+      "lidar_building_fraction_bp": 3250,
+      "transient_masked_points": 1266
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 29897,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1088,
+      "naip_green_fraction_bp": 3970,
+      "lidar_sample_count": 11531,
+      "lidar_vegetation_fraction_bp": 6329,
+      "lidar_building_fraction_bp": 2943,
+      "transient_masked_points": 151
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23998,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1120,
+      "naip_green_fraction_bp": 3919,
+      "lidar_sample_count": 6976,
+      "lidar_vegetation_fraction_bp": 2313,
+      "lidar_building_fraction_bp": 2013,
+      "transient_masked_points": 1203
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11662,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1083,
+      "naip_green_fraction_bp": 3545,
+      "lidar_sample_count": 6445,
+      "lidar_vegetation_fraction_bp": 2640,
+      "lidar_building_fraction_bp": 311,
+      "transient_masked_points": 827
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14030,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 6967,
+      "lidar_sample_count": 8629,
+      "lidar_vegetation_fraction_bp": 5199,
+      "lidar_building_fraction_bp": 3020,
+      "transient_masked_points": 426
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23984,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2594,
+      "lidar_sample_count": 8187,
+      "lidar_vegetation_fraction_bp": 3420,
+      "lidar_building_fraction_bp": 99,
+      "transient_masked_points": 335
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6107,
+      "lidar_vegetation_fraction_bp": 16,
+      "lidar_building_fraction_bp": 2871,
+      "transient_masked_points": 266
+    },
+    {
+      "index": {
+        "column": 11,
+        "row": 22
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 4484,
+      "lidar_sample_count": 6196,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 3760,
+      "transient_masked_points": 1224
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 6
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17262,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1115,
+      "naip_green_fraction_bp": 6008,
+      "lidar_sample_count": 9393,
+      "lidar_vegetation_fraction_bp": 5403,
+      "lidar_building_fraction_bp": 1269,
+      "transient_masked_points": 602
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 27365,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1115,
+      "naip_green_fraction_bp": 5147,
+      "lidar_sample_count": 11883,
+      "lidar_vegetation_fraction_bp": 6184,
+      "lidar_building_fraction_bp": 1485,
+      "transient_masked_points": 439
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9191,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 4845,
+      "lidar_sample_count": 6884,
+      "lidar_vegetation_fraction_bp": 2837,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2690
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16989,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1132,
+      "naip_green_fraction_bp": 8303,
+      "lidar_sample_count": 9715,
+      "lidar_vegetation_fraction_bp": 5704,
+      "lidar_building_fraction_bp": 186,
+      "transient_masked_points": 222
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21811,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1729,
+      "lidar_sample_count": 6868,
+      "lidar_vegetation_fraction_bp": 1110,
+      "lidar_building_fraction_bp": 256,
+      "transient_masked_points": 402
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6333,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 5213,
+      "transient_masked_points": 420
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 20
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 981,
+      "lidar_sample_count": 6218,
+      "lidar_vegetation_fraction_bp": 476,
+      "lidar_building_fraction_bp": 5412,
+      "transient_masked_points": 1595
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 22
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1097,
+      "naip_green_fraction_bp": 5907,
+      "lidar_sample_count": 5593,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 1335,
+      "transient_masked_points": 2037
+    },
+    {
+      "index": {
+        "column": 12,
+        "row": 25
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1075,
+      "naip_green_fraction_bp": 1479,
+      "lidar_sample_count": 5523,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1533
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23761,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 6915,
+      "lidar_sample_count": 9585,
+      "lidar_vegetation_fraction_bp": 5639,
+      "lidar_building_fraction_bp": 1301,
+      "transient_masked_points": 1043
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24445,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1096,
+      "naip_green_fraction_bp": 4689,
+      "lidar_sample_count": 9159,
+      "lidar_vegetation_fraction_bp": 5263,
+      "lidar_building_fraction_bp": 435,
+      "transient_masked_points": 763
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11552,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 4252,
+      "lidar_sample_count": 8490,
+      "lidar_vegetation_fraction_bp": 4217,
+      "lidar_building_fraction_bp": 1421,
+      "transient_masked_points": 1027
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14510,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 6449,
+      "lidar_sample_count": 9350,
+      "lidar_vegetation_fraction_bp": 5960,
+      "lidar_building_fraction_bp": 225,
+      "transient_masked_points": 340
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9034,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5243,
+      "lidar_sample_count": 7250,
+      "lidar_vegetation_fraction_bp": 2161,
+      "lidar_building_fraction_bp": 234,
+      "transient_masked_points": 2783
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24294,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1369,
+      "lidar_sample_count": 6590,
+      "lidar_vegetation_fraction_bp": 1414,
+      "lidar_building_fraction_bp": 3607,
+      "transient_masked_points": 1704
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14636,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3216,
+      "lidar_sample_count": 7919,
+      "lidar_vegetation_fraction_bp": 1394,
+      "lidar_building_fraction_bp": 3896,
+      "transient_masked_points": 841
+    },
+    {
+      "index": {
+        "column": 13,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 6374,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7315,
+      "lidar_sample_count": 5467,
+      "lidar_vegetation_fraction_bp": 830,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1907
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9028,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6162,
+      "lidar_sample_count": 9145,
+      "lidar_vegetation_fraction_bp": 4881,
+      "lidar_building_fraction_bp": 2034,
+      "transient_masked_points": 1468
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25966,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8486,
+      "lidar_sample_count": 9607,
+      "lidar_vegetation_fraction_bp": 6428,
+      "lidar_building_fraction_bp": 1338,
+      "transient_masked_points": 513
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18847,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 6548,
+      "lidar_sample_count": 12661,
+      "lidar_vegetation_fraction_bp": 7973,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 321
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10025,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1136,
+      "naip_green_fraction_bp": 3750,
+      "lidar_sample_count": 5771,
+      "lidar_vegetation_fraction_bp": 2225,
+      "lidar_building_fraction_bp": 1591,
+      "transient_masked_points": 3808
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 8
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1087,
+      "naip_green_fraction_bp": 137,
+      "lidar_sample_count": 5730,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1467
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11619,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1134,
+      "naip_green_fraction_bp": 2469,
+      "lidar_sample_count": 6743,
+      "lidar_vegetation_fraction_bp": 2263,
+      "lidar_building_fraction_bp": 2173,
+      "transient_masked_points": 1106
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12261,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 747,
+      "lidar_sample_count": 6722,
+      "lidar_vegetation_fraction_bp": 859,
+      "lidar_building_fraction_bp": 4552,
+      "transient_masked_points": 645
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23204,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 1215,
+      "lidar_sample_count": 6656,
+      "lidar_vegetation_fraction_bp": 1362,
+      "lidar_building_fraction_bp": 4631,
+      "transient_masked_points": 827
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 16
+      },
+      "class": "unknown",
+      "material": null,
+      "height_mm": 0,
+      "confidence_bp": 2500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 1687,
+      "lidar_sample_count": 7089,
+      "lidar_vegetation_fraction_bp": 106,
+      "lidar_building_fraction_bp": 8012,
+      "transient_masked_points": 708
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15010,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1114,
+      "naip_green_fraction_bp": 2468,
+      "lidar_sample_count": 7879,
+      "lidar_vegetation_fraction_bp": 1551,
+      "lidar_building_fraction_bp": 3091,
+      "transient_masked_points": 1272
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14722,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2468,
+      "lidar_sample_count": 7165,
+      "lidar_vegetation_fraction_bp": 992,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 835
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12766,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3450,
+      "lidar_sample_count": 6401,
+      "lidar_vegetation_fraction_bp": 1496,
+      "lidar_building_fraction_bp": 504,
+      "transient_masked_points": 2387
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7110,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 5456,
+      "lidar_sample_count": 7031,
+      "lidar_vegetation_fraction_bp": 2302,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1038
+    },
+    {
+      "index": {
+        "column": 14,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15995,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1079,
+      "naip_green_fraction_bp": 5227,
+      "lidar_sample_count": 6819,
+      "lidar_vegetation_fraction_bp": 2738,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1276
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15494,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1097,
+      "naip_green_fraction_bp": 3436,
+      "lidar_sample_count": 7568,
+      "lidar_vegetation_fraction_bp": 1638,
+      "lidar_building_fraction_bp": 4556,
+      "transient_masked_points": 1318
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21862,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 6408,
+      "lidar_sample_count": 10140,
+      "lidar_vegetation_fraction_bp": 5634,
+      "lidar_building_fraction_bp": 2029,
+      "transient_masked_points": 720
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17992,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 2366,
+      "lidar_sample_count": 9726,
+      "lidar_vegetation_fraction_bp": 8571,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 213
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19874,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 10539,
+      "lidar_vegetation_fraction_bp": 7727,
+      "lidar_building_fraction_bp": 325,
+      "transient_masked_points": 290
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9274,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 219,
+      "lidar_sample_count": 6699,
+      "lidar_vegetation_fraction_bp": 1608,
+      "lidar_building_fraction_bp": 1956,
+      "transient_masked_points": 1924
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7153,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1095,
+      "naip_green_fraction_bp": 337,
+      "lidar_sample_count": 7151,
+      "lidar_vegetation_fraction_bp": 2206,
+      "lidar_building_fraction_bp": 396,
+      "transient_masked_points": 434
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 9
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 4974,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 3236,
+      "transient_masked_points": 2138
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12264,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 2329,
+      "lidar_sample_count": 7335,
+      "lidar_vegetation_fraction_bp": 3257,
+      "lidar_building_fraction_bp": 2522,
+      "transient_masked_points": 956
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12446,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1125,
+      "naip_green_fraction_bp": 4000,
+      "lidar_sample_count": 7667,
+      "lidar_vegetation_fraction_bp": 4760,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1158
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18966,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1103,
+      "naip_green_fraction_bp": 3916,
+      "lidar_sample_count": 8307,
+      "lidar_vegetation_fraction_bp": 4491,
+      "lidar_building_fraction_bp": 797,
+      "transient_masked_points": 750
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12798,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2819,
+      "lidar_sample_count": 8094,
+      "lidar_vegetation_fraction_bp": 2469,
+      "lidar_building_fraction_bp": 3510,
+      "transient_masked_points": 1250
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12668,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 3273,
+      "lidar_sample_count": 9077,
+      "lidar_vegetation_fraction_bp": 3171,
+      "lidar_building_fraction_bp": 3901,
+      "transient_masked_points": 599
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 21
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1125,
+      "naip_green_fraction_bp": 1013,
+      "lidar_sample_count": 5821,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 3782,
+      "transient_masked_points": 1314
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 23
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 3601,
+      "lidar_sample_count": 6439,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 365
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14046,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1123,
+      "naip_green_fraction_bp": 7479,
+      "lidar_sample_count": 6702,
+      "lidar_vegetation_fraction_bp": 3466,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1224
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 29
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1093,
+      "naip_green_fraction_bp": 3632,
+      "lidar_sample_count": 4802,
+      "lidar_vegetation_fraction_bp": 310,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2239
+    },
+    {
+      "index": {
+        "column": 15,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10683,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 5122,
+      "lidar_sample_count": 7556,
+      "lidar_vegetation_fraction_bp": 2823,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1337
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26445,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1115,
+      "naip_green_fraction_bp": 3946,
+      "lidar_sample_count": 8644,
+      "lidar_vegetation_fraction_bp": 4324,
+      "lidar_building_fraction_bp": 1845,
+      "transient_masked_points": 1166
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16585,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1090,
+      "naip_green_fraction_bp": 7045,
+      "lidar_sample_count": 6629,
+      "lidar_vegetation_fraction_bp": 1289,
+      "lidar_building_fraction_bp": 1704,
+      "transient_masked_points": 1012
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8402,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1125,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 7834,
+      "lidar_vegetation_fraction_bp": 3642,
+      "lidar_building_fraction_bp": 502,
+      "transient_masked_points": 573
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7180,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 7500,
+      "lidar_vegetation_fraction_bp": 1140,
+      "lidar_building_fraction_bp": 6298,
+      "transient_masked_points": 575
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15189,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 5252,
+      "lidar_sample_count": 7952,
+      "lidar_vegetation_fraction_bp": 3367,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2097
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13246,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6495,
+      "lidar_sample_count": 8693,
+      "lidar_vegetation_fraction_bp": 5983,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 658
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 19
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 117,
+      "lidar_sample_count": 6544,
+      "lidar_vegetation_fraction_bp": 162,
+      "lidar_building_fraction_bp": 5402,
+      "transient_masked_points": 1017
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 21
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1095,
+      "naip_green_fraction_bp": 1013,
+      "lidar_sample_count": 5259,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 1129,
+      "transient_masked_points": 1167
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8128,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1094,
+      "naip_green_fraction_bp": 4186,
+      "lidar_sample_count": 7141,
+      "lidar_vegetation_fraction_bp": 2657,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 587
+    },
+    {
+      "index": {
+        "column": 16,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8302,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 4552,
+      "lidar_sample_count": 6416,
+      "lidar_vegetation_fraction_bp": 1634,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 212
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25251,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1115,
+      "naip_green_fraction_bp": 8941,
+      "lidar_sample_count": 12429,
+      "lidar_vegetation_fraction_bp": 7577,
+      "lidar_building_fraction_bp": 325,
+      "transient_masked_points": 694
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11138,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1093,
+      "naip_green_fraction_bp": 5681,
+      "lidar_sample_count": 6754,
+      "lidar_vegetation_fraction_bp": 1360,
+      "lidar_building_fraction_bp": 772,
+      "transient_masked_points": 1445
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13005,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1120,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 8303,
+      "lidar_vegetation_fraction_bp": 2589,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1021
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8389,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1125,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 6812,
+      "lidar_vegetation_fraction_bp": 1982,
+      "lidar_building_fraction_bp": 2487,
+      "transient_masked_points": 1663
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1127,
+      "naip_green_fraction_bp": 0,
+      "lidar_sample_count": 5281,
+      "lidar_vegetation_fraction_bp": 1938,
+      "lidar_building_fraction_bp": 3597,
+      "transient_masked_points": 0
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13439,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5099,
+      "lidar_sample_count": 7575,
+      "lidar_vegetation_fraction_bp": 3731,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1162
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12820,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 2379,
+      "lidar_sample_count": 7190,
+      "lidar_vegetation_fraction_bp": 2437,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 353
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13378,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1128,
+      "naip_green_fraction_bp": 2597,
+      "lidar_sample_count": 9005,
+      "lidar_vegetation_fraction_bp": 3587,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1018
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12502,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1134,
+      "naip_green_fraction_bp": 6940,
+      "lidar_sample_count": 6563,
+      "lidar_vegetation_fraction_bp": 1509,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 26
+    },
+    {
+      "index": {
+        "column": 17,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16618,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6162,
+      "lidar_sample_count": 8117,
+      "lidar_vegetation_fraction_bp": 3883,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 106
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 5
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 1732,
+      "lidar_sample_count": 6322,
+      "lidar_vegetation_fraction_bp": 782,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1333
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25814,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 3916,
+      "lidar_sample_count": 9845,
+      "lidar_vegetation_fraction_bp": 5377,
+      "lidar_building_fraction_bp": 2209,
+      "transient_masked_points": 1061
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21695,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1080,
+      "naip_green_fraction_bp": 3574,
+      "lidar_sample_count": 8415,
+      "lidar_vegetation_fraction_bp": 2705,
+      "lidar_building_fraction_bp": 5217,
+      "transient_masked_points": 472
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16211,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 7164,
+      "lidar_sample_count": 10454,
+      "lidar_vegetation_fraction_bp": 5943,
+      "lidar_building_fraction_bp": 1108,
+      "transient_masked_points": 571
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19099,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 5676,
+      "lidar_sample_count": 9135,
+      "lidar_vegetation_fraction_bp": 4379,
+      "lidar_building_fraction_bp": 2601,
+      "transient_masked_points": 901
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22676,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8477,
+      "lidar_sample_count": 11893,
+      "lidar_vegetation_fraction_bp": 6252,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 699
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22046,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 6616,
+      "lidar_sample_count": 9020,
+      "lidar_vegetation_fraction_bp": 6132,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 558
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19808,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6135,
+      "lidar_sample_count": 8967,
+      "lidar_vegetation_fraction_bp": 5172,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1088
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20252,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 6344,
+      "lidar_sample_count": 8780,
+      "lidar_vegetation_fraction_bp": 4720,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 962
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18082,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1136,
+      "naip_green_fraction_bp": 7605,
+      "lidar_sample_count": 7629,
+      "lidar_vegetation_fraction_bp": 3416,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1024
+    },
+    {
+      "index": {
+        "column": 18,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20470,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8243,
+      "lidar_sample_count": 10691,
+      "lidar_vegetation_fraction_bp": 7150,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 568
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17990,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 4166,
+      "lidar_sample_count": 6717,
+      "lidar_vegetation_fraction_bp": 2272,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1145
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 28762,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 8511,
+      "lidar_sample_count": 14015,
+      "lidar_vegetation_fraction_bp": 7919,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 125
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13645,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1100,
+      "naip_green_fraction_bp": 4181,
+      "lidar_sample_count": 7538,
+      "lidar_vegetation_fraction_bp": 4084,
+      "lidar_building_fraction_bp": 1771,
+      "transient_masked_points": 1224
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 26
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1085,
+      "naip_green_fraction_bp": 691,
+      "lidar_sample_count": 5796,
+      "lidar_vegetation_fraction_bp": 380,
+      "lidar_building_fraction_bp": 985,
+      "transient_masked_points": 1720
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17823,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1132,
+      "naip_green_fraction_bp": 7526,
+      "lidar_sample_count": 9260,
+      "lidar_vegetation_fraction_bp": 6166,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1279
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23153,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1113,
+      "naip_green_fraction_bp": 9263,
+      "lidar_sample_count": 9932,
+      "lidar_vegetation_fraction_bp": 7037,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 222
+    },
+    {
+      "index": {
+        "column": 19,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12518,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 7620,
+      "lidar_sample_count": 6469,
+      "lidar_vegetation_fraction_bp": 2231,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2584
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 8
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 4563,
+      "lidar_sample_count": 5388,
+      "lidar_vegetation_fraction_bp": 602,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1834
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 17
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 2025,
+      "lidar_sample_count": 6024,
+      "lidar_vegetation_fraction_bp": 367,
+      "lidar_building_fraction_bp": 2182,
+      "transient_masked_points": 985
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15108,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1103,
+      "naip_green_fraction_bp": 5412,
+      "lidar_sample_count": 7703,
+      "lidar_vegetation_fraction_bp": 3336,
+      "lidar_building_fraction_bp": 384,
+      "transient_masked_points": 735
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26840,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 9230,
+      "lidar_sample_count": 14547,
+      "lidar_vegetation_fraction_bp": 8229,
+      "lidar_building_fraction_bp": 130,
+      "transient_masked_points": 323
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26238,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1078,
+      "naip_green_fraction_bp": 6985,
+      "lidar_sample_count": 13739,
+      "lidar_vegetation_fraction_bp": 7785,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 105
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 28585,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 7511,
+      "lidar_sample_count": 9867,
+      "lidar_vegetation_fraction_bp": 4985,
+      "lidar_building_fraction_bp": 1540,
+      "transient_masked_points": 1205
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25513,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 7191,
+      "lidar_sample_count": 8378,
+      "lidar_vegetation_fraction_bp": 3509,
+      "lidar_building_fraction_bp": 1579,
+      "transient_masked_points": 2472
+    },
+    {
+      "index": {
+        "column": 20,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10721,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509825",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1119,
+      "naip_green_fraction_bp": 8159,
+      "lidar_sample_count": 6148,
+      "lidar_vegetation_fraction_bp": 1385,
+      "lidar_building_fraction_bp": 131,
+      "transient_masked_points": 1898
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 9900,
+      "lidar_sample_count": 13529,
+      "lidar_vegetation_fraction_bp": 7979,
+      "lidar_building_fraction_bp": 235,
+      "transient_masked_points": 497
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19659,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 8692,
+      "lidar_sample_count": 10089,
+      "lidar_vegetation_fraction_bp": 6068,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1465
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20857,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07509800",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 5426,
+      "lidar_sample_count": 9000,
+      "lidar_vegetation_fraction_bp": 4793,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 348
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 9
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1073,
+      "naip_green_fraction_bp": 549,
+      "lidar_sample_count": 6138,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1102
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 15
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1702,
+      "lidar_sample_count": 5155,
+      "lidar_vegetation_fraction_bp": 71,
+      "lidar_building_fraction_bp": 766,
+      "transient_masked_points": 2159
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23256,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 6820,
+      "lidar_sample_count": 9801,
+      "lidar_vegetation_fraction_bp": 6358,
+      "lidar_building_fraction_bp": 1733,
+      "transient_masked_points": 818
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 28098,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1084,
+      "naip_green_fraction_bp": 8902,
+      "lidar_sample_count": 14255,
+      "lidar_vegetation_fraction_bp": 8261,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 115
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26894,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1109,
+      "naip_green_fraction_bp": 8827,
+      "lidar_sample_count": 11614,
+      "lidar_vegetation_fraction_bp": 7182,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 641
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14584,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 7446,
+      "lidar_sample_count": 9590,
+      "lidar_vegetation_fraction_bp": 6152,
+      "lidar_building_fraction_bp": 709,
+      "transient_masked_points": 957
+    },
+    {
+      "index": {
+        "column": 21,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12251,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7153,
+      "lidar_sample_count": 9097,
+      "lidar_vegetation_fraction_bp": 4104,
+      "lidar_building_fraction_bp": 2095,
+      "transient_masked_points": 486
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7351,
+      "lidar_sample_count": 11116,
+      "lidar_vegetation_fraction_bp": 6451,
+      "lidar_building_fraction_bp": 42,
+      "transient_masked_points": 515
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 3
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22973,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 6678,
+      "lidar_sample_count": 11019,
+      "lidar_vegetation_fraction_bp": 5715,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1048
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16188,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 4653,
+      "lidar_sample_count": 9249,
+      "lidar_vegetation_fraction_bp": 4731,
+      "lidar_building_fraction_bp": 911,
+      "transient_masked_points": 1700
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11366,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 5004,
+      "lidar_sample_count": 6920,
+      "lidar_vegetation_fraction_bp": 2248,
+      "lidar_building_fraction_bp": 463,
+      "transient_masked_points": 2370
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15819,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1261,
+      "lidar_sample_count": 5281,
+      "lidar_vegetation_fraction_bp": 1305,
+      "lidar_building_fraction_bp": 1713,
+      "transient_masked_points": 2596
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 15
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 27,
+      "lidar_sample_count": 6096,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1091
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 16
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1109,
+      "naip_green_fraction_bp": 811,
+      "lidar_sample_count": 5454,
+      "lidar_vegetation_fraction_bp": 102,
+      "lidar_building_fraction_bp": 4820,
+      "transient_masked_points": 1263
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18408,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1089,
+      "naip_green_fraction_bp": 9458,
+      "lidar_sample_count": 8654,
+      "lidar_vegetation_fraction_bp": 5236,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 354
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24414,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1108,
+      "naip_green_fraction_bp": 9738,
+      "lidar_sample_count": 10665,
+      "lidar_vegetation_fraction_bp": 7248,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 756
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 28500,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 8452,
+      "lidar_sample_count": 15620,
+      "lidar_vegetation_fraction_bp": 7414,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1058
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1081,
+      "naip_green_fraction_bp": 7215,
+      "lidar_sample_count": 12510,
+      "lidar_vegetation_fraction_bp": 6251,
+      "lidar_building_fraction_bp": 607,
+      "transient_masked_points": 1563
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15250,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1119,
+      "naip_green_fraction_bp": 2109,
+      "lidar_sample_count": 7480,
+      "lidar_vegetation_fraction_bp": 1997,
+      "lidar_building_fraction_bp": 3133,
+      "transient_masked_points": 2053
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12740,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1127,
+      "naip_green_fraction_bp": 1765,
+      "lidar_sample_count": 7716,
+      "lidar_vegetation_fraction_bp": 2959,
+      "lidar_building_fraction_bp": 4135,
+      "transient_masked_points": 1063
+    },
+    {
+      "index": {
+        "column": 22,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15388,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6441,
+      "lidar_sample_count": 7789,
+      "lidar_vegetation_fraction_bp": 3443,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 368
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20447,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 4937,
+      "lidar_sample_count": 7826,
+      "lidar_vegetation_fraction_bp": 3373,
+      "lidar_building_fraction_bp": 2133,
+      "transient_masked_points": 892
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 27393,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1097,
+      "naip_green_fraction_bp": 7383,
+      "lidar_sample_count": 8345,
+      "lidar_vegetation_fraction_bp": 5852,
+      "lidar_building_fraction_bp": 166,
+      "transient_masked_points": 1039
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25364,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1120,
+      "naip_green_fraction_bp": 7892,
+      "lidar_sample_count": 9553,
+      "lidar_vegetation_fraction_bp": 5581,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1522
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23453,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1126,
+      "naip_green_fraction_bp": 5452,
+      "lidar_sample_count": 10145,
+      "lidar_vegetation_fraction_bp": 4942,
+      "lidar_building_fraction_bp": 1003,
+      "transient_masked_points": 1873
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 15
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1113,
+      "naip_green_fraction_bp": 2920,
+      "lidar_sample_count": 6826,
+      "lidar_vegetation_fraction_bp": 125,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 583
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15290,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1095,
+      "naip_green_fraction_bp": 2127,
+      "lidar_sample_count": 5754,
+      "lidar_vegetation_fraction_bp": 1829,
+      "lidar_building_fraction_bp": 3364,
+      "transient_masked_points": 1070
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16526,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1114,
+      "naip_green_fraction_bp": 6768,
+      "lidar_sample_count": 9777,
+      "lidar_vegetation_fraction_bp": 4318,
+      "lidar_building_fraction_bp": 1072,
+      "transient_masked_points": 672
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16734,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 6569,
+      "lidar_sample_count": 9835,
+      "lidar_vegetation_fraction_bp": 3625,
+      "lidar_building_fraction_bp": 2213,
+      "transient_masked_points": 1657
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15694,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 6654,
+      "lidar_sample_count": 10282,
+      "lidar_vegetation_fraction_bp": 5046,
+      "lidar_building_fraction_bp": 893,
+      "transient_masked_points": 1956
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 26
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12432,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1095,
+      "naip_green_fraction_bp": 2748,
+      "lidar_sample_count": 8026,
+      "lidar_vegetation_fraction_bp": 2467,
+      "lidar_building_fraction_bp": 4167,
+      "transient_masked_points": 1352
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11392,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1133,
+      "naip_green_fraction_bp": 3274,
+      "lidar_sample_count": 6791,
+      "lidar_vegetation_fraction_bp": 2343,
+      "lidar_building_fraction_bp": 1932,
+      "transient_masked_points": 2308
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13346,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 2720,
+      "lidar_sample_count": 7300,
+      "lidar_vegetation_fraction_bp": 2814,
+      "lidar_building_fraction_bp": 1622,
+      "transient_masked_points": 2080
+    },
+    {
+      "index": {
+        "column": 23,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13964,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1081,
+      "naip_green_fraction_bp": 7178,
+      "lidar_sample_count": 8522,
+      "lidar_vegetation_fraction_bp": 3866,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 813
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 0
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15196,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5486,
+      "lidar_sample_count": 8192,
+      "lidar_vegetation_fraction_bp": 4059,
+      "lidar_building_fraction_bp": 1591,
+      "transient_masked_points": 939
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 1
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14604,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 2354,
+      "lidar_sample_count": 7355,
+      "lidar_vegetation_fraction_bp": 1914,
+      "lidar_building_fraction_bp": 4180,
+      "transient_masked_points": 658
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 2
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17936,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 4325,
+      "lidar_sample_count": 8600,
+      "lidar_vegetation_fraction_bp": 3931,
+      "lidar_building_fraction_bp": 1527,
+      "transient_masked_points": 1188
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18404,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 5522,
+      "lidar_sample_count": 8219,
+      "lidar_vegetation_fraction_bp": 3585,
+      "lidar_building_fraction_bp": 2127,
+      "transient_masked_points": 1070
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 7
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24485,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 8408,
+      "lidar_sample_count": 9837,
+      "lidar_vegetation_fraction_bp": 5403,
+      "lidar_building_fraction_bp": 507,
+      "transient_masked_points": 1744
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 8
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25339,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1131,
+      "naip_green_fraction_bp": 8682,
+      "lidar_sample_count": 10896,
+      "lidar_vegetation_fraction_bp": 6538,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1211
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26066,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 4945,
+      "lidar_sample_count": 12116,
+      "lidar_vegetation_fraction_bp": 6360,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 635
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23135,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 4258,
+      "lidar_sample_count": 9335,
+      "lidar_vegetation_fraction_bp": 4753,
+      "lidar_building_fraction_bp": 2315,
+      "transient_masked_points": 868
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20537,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 5331,
+      "lidar_sample_count": 9276,
+      "lidar_vegetation_fraction_bp": 5313,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 753
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14848,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 3342,
+      "lidar_sample_count": 7454,
+      "lidar_vegetation_fraction_bp": 3252,
+      "lidar_building_fraction_bp": 1020,
+      "transient_masked_points": 2193
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15743,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 7097,
+      "lidar_sample_count": 7991,
+      "lidar_vegetation_fraction_bp": 4718,
+      "lidar_building_fraction_bp": 65,
+      "transient_masked_points": 1718
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24001,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 7929,
+      "lidar_sample_count": 12575,
+      "lidar_vegetation_fraction_bp": 6761,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 691
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 21
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1079,
+      "naip_green_fraction_bp": 2548,
+      "lidar_sample_count": 4221,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 3077
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 10850,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3126,
+      "lidar_sample_count": 7509,
+      "lidar_vegetation_fraction_bp": 2711,
+      "lidar_building_fraction_bp": 1992,
+      "transient_masked_points": 1260
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13658,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1080,
+      "naip_green_fraction_bp": 8601,
+      "lidar_sample_count": 11691,
+      "lidar_vegetation_fraction_bp": 6191,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1413
+    },
+    {
+      "index": {
+        "column": 24,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9540,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6072,
+      "lidar_sample_count": 7691,
+      "lidar_vegetation_fraction_bp": 2644,
+      "lidar_building_fraction_bp": 2273,
+      "transient_masked_points": 1197
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 4
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18185,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1134,
+      "naip_green_fraction_bp": 6657,
+      "lidar_sample_count": 8917,
+      "lidar_vegetation_fraction_bp": 5617,
+      "lidar_building_fraction_bp": 1069,
+      "transient_masked_points": 832
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 6
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13565,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1107,
+      "naip_green_fraction_bp": 6142,
+      "lidar_sample_count": 9575,
+      "lidar_vegetation_fraction_bp": 5595,
+      "lidar_building_fraction_bp": 1117,
+      "transient_masked_points": 1049
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 9
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 22358,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1080,
+      "naip_green_fraction_bp": 4638,
+      "lidar_sample_count": 8432,
+      "lidar_vegetation_fraction_bp": 3913,
+      "lidar_building_fraction_bp": 1592,
+      "transient_masked_points": 674
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24941,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 7303,
+      "lidar_sample_count": 7098,
+      "lidar_vegetation_fraction_bp": 2825,
+      "lidar_building_fraction_bp": 172,
+      "transient_masked_points": 905
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25972,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7369,
+      "lidar_sample_count": 9088,
+      "lidar_vegetation_fraction_bp": 3633,
+      "lidar_building_fraction_bp": 1422,
+      "transient_masked_points": 818
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 27827,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 7726,
+      "lidar_sample_count": 12153,
+      "lidar_vegetation_fraction_bp": 6611,
+      "lidar_building_fraction_bp": 755,
+      "transient_masked_points": 771
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23538,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 8146,
+      "lidar_sample_count": 10792,
+      "lidar_vegetation_fraction_bp": 6436,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 388
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19609,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5819,
+      "lidar_sample_count": 9244,
+      "lidar_vegetation_fraction_bp": 5082,
+      "lidar_building_fraction_bp": 940,
+      "transient_masked_points": 1992
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 8203,
+      "lidar_sample_count": 14074,
+      "lidar_vegetation_fraction_bp": 8449,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 603
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 30000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1078,
+      "naip_green_fraction_bp": 9016,
+      "lidar_sample_count": 13855,
+      "lidar_vegetation_fraction_bp": 7790,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 303
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11018,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 3774,
+      "lidar_sample_count": 6920,
+      "lidar_vegetation_fraction_bp": 3340,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 2104
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14926,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 8792,
+      "lidar_sample_count": 12416,
+      "lidar_vegetation_fraction_bp": 6190,
+      "lidar_building_fraction_bp": 4,
+      "transient_masked_points": 1757
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 9552,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1082,
+      "naip_green_fraction_bp": 2162,
+      "lidar_sample_count": 7089,
+      "lidar_vegetation_fraction_bp": 2346,
+      "lidar_building_fraction_bp": 2025,
+      "transient_masked_points": 767
+    },
+    {
+      "index": {
+        "column": 25,
+        "row": 28
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13396,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1123,
+      "naip_green_fraction_bp": 7934,
+      "lidar_sample_count": 12432,
+      "lidar_vegetation_fraction_bp": 5659,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 718
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 5
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 6564,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1105,
+      "naip_green_fraction_bp": 3746,
+      "lidar_sample_count": 6898,
+      "lidar_vegetation_fraction_bp": 2317,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 892
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12331,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 6753,
+      "lidar_sample_count": 7503,
+      "lidar_vegetation_fraction_bp": 3111,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 356
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 11
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 8055,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1092,
+      "naip_green_fraction_bp": 7152,
+      "lidar_sample_count": 7208,
+      "lidar_vegetation_fraction_bp": 961,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 642
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 26713,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1113,
+      "naip_green_fraction_bp": 8238,
+      "lidar_sample_count": 10369,
+      "lidar_vegetation_fraction_bp": 6213,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 502
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20083,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 4927,
+      "lidar_sample_count": 9482,
+      "lidar_vegetation_fraction_bp": 3695,
+      "lidar_building_fraction_bp": 2937,
+      "transient_masked_points": 1006
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11062,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 560,
+      "lidar_sample_count": 7266,
+      "lidar_vegetation_fraction_bp": 2527,
+      "lidar_building_fraction_bp": 2577,
+      "transient_masked_points": 1379
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15438,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1127,
+      "naip_green_fraction_bp": 363,
+      "lidar_sample_count": 7306,
+      "lidar_vegetation_fraction_bp": 2311,
+      "lidar_building_fraction_bp": 4685,
+      "transient_masked_points": 869
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 27146,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1081,
+      "naip_green_fraction_bp": 8871,
+      "lidar_sample_count": 10558,
+      "lidar_vegetation_fraction_bp": 6419,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1155
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 20
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15102,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5954,
+      "lidar_sample_count": 8843,
+      "lidar_vegetation_fraction_bp": 4068,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 979
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23102,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 7203,
+      "lidar_sample_count": 9940,
+      "lidar_vegetation_fraction_bp": 5667,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1894
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 23804,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 7807,
+      "lidar_sample_count": 10626,
+      "lidar_vegetation_fraction_bp": 4908,
+      "lidar_building_fraction_bp": 1791,
+      "transient_masked_points": 1056
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15628,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1089,
+      "naip_green_fraction_bp": 9522,
+      "lidar_sample_count": 12835,
+      "lidar_vegetation_fraction_bp": 5275,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1135
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18344,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1129,
+      "naip_green_fraction_bp": 6297,
+      "lidar_sample_count": 12406,
+      "lidar_vegetation_fraction_bp": 5217,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1212
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11147,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 4400,
+      "lidar_sample_count": 8892,
+      "lidar_vegetation_fraction_bp": 4184,
+      "lidar_building_fraction_bp": 73,
+      "transient_masked_points": 776
+    },
+    {
+      "index": {
+        "column": 26,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19460,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 9395,
+      "lidar_sample_count": 11964,
+      "lidar_vegetation_fraction_bp": 7124,
+      "lidar_building_fraction_bp": 443,
+      "transient_masked_points": 401
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 10
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12147,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1093,
+      "naip_green_fraction_bp": 6349,
+      "lidar_sample_count": 9326,
+      "lidar_vegetation_fraction_bp": 4148,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1087
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24957,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1118,
+      "naip_green_fraction_bp": 3506,
+      "lidar_sample_count": 8187,
+      "lidar_vegetation_fraction_bp": 4090,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 847
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14571,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1099,
+      "naip_green_fraction_bp": 6287,
+      "lidar_sample_count": 8739,
+      "lidar_vegetation_fraction_bp": 4870,
+      "lidar_building_fraction_bp": 1370,
+      "transient_masked_points": 1544
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15077,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 4432,
+      "lidar_sample_count": 8072,
+      "lidar_vegetation_fraction_bp": 4231,
+      "lidar_building_fraction_bp": 3000,
+      "transient_masked_points": 1825
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 11713,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 1954,
+      "lidar_sample_count": 7010,
+      "lidar_vegetation_fraction_bp": 2056,
+      "lidar_building_fraction_bp": 4515,
+      "transient_masked_points": 2013
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25944,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1085,
+      "naip_green_fraction_bp": 2884,
+      "lidar_sample_count": 11255,
+      "lidar_vegetation_fraction_bp": 6116,
+      "lidar_building_fraction_bp": 1402,
+      "transient_masked_points": 1626
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 24346,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 9342,
+      "lidar_sample_count": 11066,
+      "lidar_vegetation_fraction_bp": 6577,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 552
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 25190,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1106,
+      "naip_green_fraction_bp": 8607,
+      "lidar_sample_count": 12449,
+      "lidar_vegetation_fraction_bp": 6041,
+      "lidar_building_fraction_bp": 94,
+      "transient_masked_points": 967
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 23
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1124,
+      "naip_green_fraction_bp": 2500,
+      "lidar_sample_count": 7484,
+      "lidar_vegetation_fraction_bp": 731,
+      "lidar_building_fraction_bp": 5791,
+      "transient_masked_points": 180
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 19816,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 4112,
+      "lidar_sample_count": 8707,
+      "lidar_vegetation_fraction_bp": 3662,
+      "lidar_building_fraction_bp": 3919,
+      "transient_masked_points": 534
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18536,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1084,
+      "naip_green_fraction_bp": 4806,
+      "lidar_sample_count": 8005,
+      "lidar_vegetation_fraction_bp": 4353,
+      "lidar_building_fraction_bp": 1925,
+      "transient_masked_points": 425
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 26
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13987,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1112,
+      "naip_green_fraction_bp": 2931,
+      "lidar_sample_count": 7397,
+      "lidar_vegetation_fraction_bp": 2470,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1149
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13604,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1122,
+      "naip_green_fraction_bp": 3877,
+      "lidar_sample_count": 9251,
+      "lidar_vegetation_fraction_bp": 4144,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 797
+    },
+    {
+      "index": {
+        "column": 27,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18170,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1123,
+      "naip_green_fraction_bp": 9973,
+      "lidar_sample_count": 11475,
+      "lidar_vegetation_fraction_bp": 6538,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 908
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 5
+      },
+      "class": "terrain",
+      "material": "grass",
+      "height_mm": 0,
+      "confidence_bp": 7500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 5949,
+      "lidar_sample_count": 5805,
+      "lidar_vegetation_fraction_bp": 0,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 713
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 15
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15532,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8216,
+      "lidar_sample_count": 7974,
+      "lidar_vegetation_fraction_bp": 4188,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 368
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16035,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1120,
+      "naip_green_fraction_bp": 4633,
+      "lidar_sample_count": 8883,
+      "lidar_vegetation_fraction_bp": 5914,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 943
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12988,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1089,
+      "naip_green_fraction_bp": 1313,
+      "lidar_sample_count": 9176,
+      "lidar_vegetation_fraction_bp": 6371,
+      "lidar_building_fraction_bp": 370,
+      "transient_masked_points": 1279
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20852,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5810,
+      "lidar_sample_count": 8956,
+      "lidar_vegetation_fraction_bp": 5857,
+      "lidar_building_fraction_bp": 115,
+      "transient_masked_points": 1162
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21518,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1121,
+      "naip_green_fraction_bp": 9420,
+      "lidar_sample_count": 12471,
+      "lidar_vegetation_fraction_bp": 7495,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 630
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 21856,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 9198,
+      "lidar_sample_count": 12858,
+      "lidar_vegetation_fraction_bp": 7228,
+      "lidar_building_fraction_bp": 243,
+      "transient_masked_points": 342
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13000,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1085,
+      "naip_green_fraction_bp": 5271,
+      "lidar_sample_count": 9292,
+      "lidar_vegetation_fraction_bp": 3479,
+      "lidar_building_fraction_bp": 3271,
+      "transient_masked_points": 1299
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 26
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1127,
+      "naip_green_fraction_bp": 1322,
+      "lidar_sample_count": 6675,
+      "lidar_vegetation_fraction_bp": 8,
+      "lidar_building_fraction_bp": 3055,
+      "transient_masked_points": 628
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13048,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5162,
+      "lidar_sample_count": 10093,
+      "lidar_vegetation_fraction_bp": 4010,
+      "lidar_building_fraction_bp": 8,
+      "transient_masked_points": 861
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16652,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1128,
+      "naip_green_fraction_bp": 2907,
+      "lidar_sample_count": 9225,
+      "lidar_vegetation_fraction_bp": 4175,
+      "lidar_building_fraction_bp": 714,
+      "transient_masked_points": 2540
+    },
+    {
+      "index": {
+        "column": 28,
+        "row": 30
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18932,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7369,
+      "lidar_sample_count": 9450,
+      "lidar_vegetation_fraction_bp": 4770,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1126
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 12
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 15660,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1091,
+      "naip_green_fraction_bp": 3510,
+      "lidar_sample_count": 7931,
+      "lidar_vegetation_fraction_bp": 3982,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 957
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 13
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18580,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1117,
+      "naip_green_fraction_bp": 7914,
+      "lidar_sample_count": 9974,
+      "lidar_vegetation_fraction_bp": 4417,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 361
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 14
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 18536,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 6711,
+      "lidar_sample_count": 8179,
+      "lidar_vegetation_fraction_bp": 1912,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 811
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16052,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8621,
+      "lidar_sample_count": 9383,
+      "lidar_vegetation_fraction_bp": 4978,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 108
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 20364,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1116,
+      "naip_green_fraction_bp": 2983,
+      "lidar_sample_count": 9481,
+      "lidar_vegetation_fraction_bp": 5402,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 182
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 21
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17610,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1115,
+      "naip_green_fraction_bp": 9165,
+      "lidar_sample_count": 10614,
+      "lidar_vegetation_fraction_bp": 5415,
+      "lidar_building_fraction_bp": 323,
+      "transient_masked_points": 1108
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 12816,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1130,
+      "naip_green_fraction_bp": 5814,
+      "lidar_sample_count": 8809,
+      "lidar_vegetation_fraction_bp": 3911,
+      "lidar_building_fraction_bp": 1391,
+      "transient_masked_points": 769
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 23
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14606,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1086,
+      "naip_green_fraction_bp": 7946,
+      "lidar_sample_count": 9437,
+      "lidar_vegetation_fraction_bp": 6173,
+      "lidar_building_fraction_bp": 476,
+      "transient_masked_points": 659
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 14920,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1101,
+      "naip_green_fraction_bp": 6721,
+      "lidar_sample_count": 8547,
+      "lidar_vegetation_fraction_bp": 4883,
+      "lidar_building_fraction_bp": 1305,
+      "transient_masked_points": 247
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 25
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1132,
+      "naip_green_fraction_bp": 812,
+      "lidar_sample_count": 7095,
+      "lidar_vegetation_fraction_bp": 199,
+      "lidar_building_fraction_bp": 5716,
+      "transient_masked_points": 208
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 27
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13522,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1077,
+      "naip_green_fraction_bp": 5626,
+      "lidar_sample_count": 9982,
+      "lidar_vegetation_fraction_bp": 4082,
+      "lidar_building_fraction_bp": 1792,
+      "transient_masked_points": 963
+    },
+    {
+      "index": {
+        "column": 29,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16775,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 8405,
+      "lidar_sample_count": 10193,
+      "lidar_vegetation_fraction_bp": 4594,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1724
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 4
+      },
+      "class": "terrain",
+      "material": "dry-grass",
+      "height_mm": 0,
+      "confidence_bp": 7000,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1075,
+      "naip_green_fraction_bp": 1841,
+      "lidar_sample_count": 5924,
+      "lidar_vegetation_fraction_bp": 572,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 1334
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 16
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16850,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 7666,
+      "lidar_sample_count": 8484,
+      "lidar_vegetation_fraction_bp": 4299,
+      "lidar_building_fraction_bp": 2961,
+      "transient_masked_points": 1419
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 17
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17972,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759800",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1111,
+      "naip_green_fraction_bp": 9414,
+      "lidar_sample_count": 9786,
+      "lidar_vegetation_fraction_bp": 6708,
+      "lidar_building_fraction_bp": 539,
+      "transient_masked_points": 449
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 18
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17702,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1123,
+      "naip_green_fraction_bp": 6518,
+      "lidar_sample_count": 8659,
+      "lidar_vegetation_fraction_bp": 5303,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 520
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 19
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 17093,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1084,
+      "naip_green_fraction_bp": 6826,
+      "lidar_sample_count": 9453,
+      "lidar_vegetation_fraction_bp": 7001,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 423
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 22
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 7966,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1087,
+      "naip_green_fraction_bp": 4250,
+      "lidar_sample_count": 7005,
+      "lidar_vegetation_fraction_bp": 2329,
+      "lidar_building_fraction_bp": 3,
+      "transient_masked_points": 1436
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 24
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 6936,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1135,
+      "naip_green_fraction_bp": 6123,
+      "lidar_sample_count": 6954,
+      "lidar_vegetation_fraction_bp": 2271,
+      "lidar_building_fraction_bp": 698,
+      "transient_masked_points": 2136
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 25
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 13530,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1110,
+      "naip_green_fraction_bp": 5162,
+      "lidar_sample_count": 7259,
+      "lidar_vegetation_fraction_bp": 1702,
+      "lidar_building_fraction_bp": 1161,
+      "transient_masked_points": 2060
+    },
+    {
+      "index": {
+        "column": 30,
+        "row": 29
+      },
+      "class": "vegetation",
+      "material": "canopy",
+      "height_mm": 16414,
+      "confidence_bp": 8500,
+      "source_ids": [
+        "naip-2024-hero",
+        "usgs-lidar-07759825"
+      ],
+      "naip_sample_count": 1102,
+      "naip_green_fraction_bp": 6424,
+      "lidar_sample_count": 8368,
+      "lidar_vegetation_fraction_bp": 2677,
+      "lidar_building_fraction_bp": 0,
+      "transient_masked_points": 224
+    }
+  ]
+}

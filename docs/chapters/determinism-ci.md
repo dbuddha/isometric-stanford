@@ -27,16 +27,22 @@ to obtain green status, or treat hosted timing as fixed-device qualification.
 
 The hero compiler runs twice in the Rust test suite and compares complete JSON
 bytes. The second comparison checks the generated manifest against the
-committed `world.manifest.json`, which pins the world SHA-256 and both vector
-source SHA-256 values. On the measured development machine, a release build
-compiled 2,820 objects using approximately 16 MB maximum resident memory after
-the one-time Rust build. Source verification is streamed separately with a 64
-KiB copy buffer.
+committed `world.manifest.json`, which pins the world SHA-256, all seven source
+SHA-256 values, and the frozen perception SHA-256. The suite also removes one
+evidence cell and proves incomplete coverage fails closed. Source verification is
+streamed separately with a 64 KiB copy buffer.
+
+The model-free perception compiler is tested independently for its CRS control
+point, artifact ordering, policy metadata, and transient exclusion. Ordinary CI
+validates the frozen artifact and does not download 450 MB of raw sources. The
+weekly scheduled job synchronizes every exact source, recompiles evidence twice
+with a serial 250,000-point LAZ buffer, compares both runs, and requires the
+committed SHA-256.
 
 The renderer's ordinary test gate reassembles the hero from independently
 guarded tiles and compares every palette index with the monolithic oracle. The
 scheduled release-only probe renders the complete 250 millimeter tile set,
-checks its aggregate `bf0604f68bc38d2c` hash, and enforces the per-tile pixel
+checks its aggregate `8a79308a6218f976` hash, and enforces the per-tile pixel
 memory ceiling.
 
 Ordinary CI regenerates Candidates A, B, and C from the same locked world and

@@ -37,11 +37,12 @@ the first polygon, hole, multipolygon, building-part, confidence, source, and
 unknown examples and is parsed directly by the Rust world model. Its companion
 negative fixtures prove that undeclared provenance fails closed.
 
-## Hero vector compilation
+## Hero semantic compilation
 
-`isometric-stanford world compile` validates the complete lock, verifies the
-consumed OSM and Overture artifacts, and compiles those vectors. It uses Overture as the
-primary building-footprint and height source, enriches matching features with
+`isometric-stanford world compile` validates the source and perception locks,
+verifies the OSM and Overture artifacts plus frozen NAIP and LiDAR evidence,
+and compiles the fused world. It uses Overture as the primary
+building-footprint and height source, enriches matching features with
 OSM names, floors, and roof tags, and uses nonduplicated OSM buildings as a
 fallback. OSM ways become deterministic roads, paths, parking, water, athletic
 surfaces, vegetation, and mapped terrain. Construction-tagged ways are omitted.
@@ -51,8 +52,9 @@ integer millimeters. Rasterization never receives longitude, latitude, or
 floating-point world coordinates. Object IDs use a stable source-identity hash,
 not collection position, and compilation order cannot change canonical output.
 
-The current vector-only hero world has 2,820 objects in 72 partitions. A 20
-meter review grid marks cells without accepted vector surface evidence as
-unknown, producing 387,096 ppm unknown coverage. This is a progress metric, not
-a qualification claim. The committed manifest explicitly defers NAIP and four
-LiDAR tiles to the later perception and terrain compiler.
+The current fused hero world has 2,820 objects in 72 partitions. A 20 meter
+review grid starts with 372 cells that lack accepted vector surface evidence.
+The frozen perception artifact resolves 367 as terrain or canopy and leaves
+five cells with dominant unmapped building evidence explicit. Unknown coverage
+is therefore 5,202 ppm. Every source hash, the perception hash, and the
+canonical world hash are pinned in the committed manifest.

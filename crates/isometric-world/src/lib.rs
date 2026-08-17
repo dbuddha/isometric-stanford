@@ -2,7 +2,7 @@
 
 mod compiler;
 
-pub use compiler::{CompileReport, CompiledHero, compile_hero};
+pub use compiler::{CompileReport, CompiledHero, compile_hero, compile_hero_with_evidence};
 
 use std::{
     collections::{BTreeMap, BTreeSet},
