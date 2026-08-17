@@ -27,14 +27,12 @@ jobs:
           test "$first" = "$second"
           test "$second" = "$third"
       - run: python3 scripts/validate_manifests.py
-      - name: Verify complete hero DZI repeatability
+      - name: Measure three-run Candidate C DZI assurance
         run: |
-          cargo run --quiet --release --locked -- world compile artifacts/world
-          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/first
-          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/second
-          cargo run --quiet --release --locked -- validate release artifacts/dzi/first
-          cargo run --quiet --release --locked -- validate release artifacts/dzi/second
-          diff -qr artifacts/dzi/first artifacts/dzi/second
+          cargo build --quiet --release --locked --bin isometric-stanford
+          python3 scripts/measure_prototype.py \
+            --binary target/release/isometric-stanford \
+            --output artifacts/assurance/prototype
       - name: Verify Candidate C repeatability without earlier-candidate drift
         run: |
           cargo run --quiet --release --locked -- style candidate-a artifacts/style/candidate-a
@@ -44,6 +42,11 @@ jobs:
           diff -qr artifacts/style/candidate-c-first artifacts/style/candidate-c-second
           test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 3c6f880e282778588bace57e48a3a91cbc7ad154569d8ec2933e87808bb58970
           test "$(sha256sum artifacts/style/candidate-b/contact-sheet.webp | cut -d' ' -f1)" = 1fb51fa2ed7af9d99da386d75e195414b4e748337c8b411ddaa40fa2cfac8dc6
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: prototype-performance-evidence
+          path: artifacts/assurance/prototype/prototype-performance.json
+          if-no-files-found: error
 
   browser:
     name: Real DZI desktop and mobile browser recovery
@@ -66,7 +69,7 @@ jobs:
         working-directory: .
         run: |
           cargo run --quiet --release --locked -- world compile artifacts/world
-          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/browser
+          cargo run --quiet --release --locked -- publish dzi artifacts/dzi/browser candidate-c
           cargo run --quiet --release --locked -- validate release artifacts/dzi/browser
           mkdir -p web/public/art
           cp artifacts/dzi/browser/hero.dzi web/public/art/

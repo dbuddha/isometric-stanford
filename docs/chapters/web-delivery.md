@@ -33,17 +33,26 @@ accessibility, browser compatibility, decode behavior, and years of edge cases.
 It is not simpler unless profiling identifies an OpenSeadragon bottleneck that
 cannot be fixed or bounded. Version 1 therefore keeps OpenSeadragon.
 
-The real 7,623 by 3,325 candidate pyramid has been exercised locally through
-the production viewer. A 390 by 844 mobile viewport initially requested three
-WebP tiles and transferred about 107 KiB; a 1,280 by 720 desktop viewport
-requested eleven tiles and transferred about 293 KiB. Both remained visually
-continuous through zooming, and automated accessibility inspection reported no
-violations. These results prove DZI integration and leave ample room under the
-2.5 MiB initial imagery budget. Fixed iPhone 12-class and Pixel 7-class frame,
+The real 7,623 by 3,325 Candidate C pyramid has been exercised locally through
+the production viewer. A Pixel 7 browser profile requested 23 WebP tiles and
+transferred 890,004 bytes before the artwork-ready state; a 1,280 by 720
+desktop profile requested eleven tiles and transferred 341,122 bytes. Both are
+below the 2.5 MiB initial imagery budget. The respective cache limits remain 48
+and 128 decoded tiles, reserving half of each total browser memory budget for
+OpenSeadragon, Canvas, and browser overhead. A one-second hosted interaction
+probe records frame cadence, longest frame gap, JavaScript heap, requests,
+bytes, and cache policy as regression evidence. It is deliberately not treated
+as fixed-device FPS qualification.
+
+The mobile page bounds the viewer to 62 dVH with a 26 to 34 rem range and does
+not stretch grid rows into unused space. This keeps the wide artwork prominent
+on portrait screens while preserving touch-sized controls and a complete
+no-scroll Pixel 7 layout. Automated accessibility inspection reports no WCAG A
+or AA violations. Fixed iPhone 12-class and physical Pixel 7 frame, decode
 memory, recovery, and network measurements remain qualification work.
 
 Ordinary pull requests run the recovery suite against an in-process one-pixel
-lossless WebP DZI. Scheduled assurance generates the complete locked hero DZI
+lossless WebP DZI. Scheduled assurance generates the complete Candidate C hero DZI
 and runs the same desktop and Pixel 7 browser suite against real tiles. The
 release dry run assembles an inspectable static viewer bundle without deploying
 it. Public Pages publication remains an owner decision after style approval.

@@ -24,7 +24,7 @@ const USAGE: &str = "Usage:
   isometric-stanford render slice
   isometric-stanford validate semantic|render
   isometric-stanford validate release [artifact-directory]
-  isometric-stanford publish dzi [output-directory]
+  isometric-stanford publish dzi [output-directory] [base|candidate-c]
   isometric-stanford style candidate-a [output-directory]
   isometric-stanford style candidate-b [output-directory]
   isometric-stanford style candidate-c [output-directory]
@@ -37,6 +37,8 @@ Implemented commands:
   world compile verifies the complete source lock, compiles the locked vectors,
   and writes a canonical world plus manifest. world inspect validates an artifact.
   publish dzi writes a staged, lossless WebP DZI and indexed canonical pyramid.
+  The optional style selector is explicit so Candidate C can be inspected without
+  implying approval of the locked base style.
   style candidate-a writes four native review scenes, masks, metrics, and a contact sheet.
   style candidate-b writes the bounded second procedural style iteration.
   style candidate-c writes the final bounded procedural style iteration.
@@ -115,6 +117,9 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, output] if group == "publish" && command == "dzi" => {
             publish_dzi_artifact(Path::new(output))
+        }
+        [group, command, output, style] if group == "publish" && command == "dzi" => {
+            publish_dzi_artifact_with_style(Path::new(output), style)
         }
         [group, command] if group == "style" && command == "candidate-a" => {
             write_style_candidate(Path::new("artifacts/style/candidate-a"))
@@ -234,26 +239,50 @@ fn render_fixture(output: &str) -> Result<String, String> {
 }
 
 fn publish_dzi_artifact(output: &Path) -> Result<String, String> {
+    publish_dzi_artifact_with_style(output, "base")
+}
+
+fn publication_style(selection: &str) -> Result<(StylePack, &'static Path), String> {
+    match selection {
+        "base" => Ok((
+            StylePack::stanford_v1(),
+            Path::new("styles/stanford_v1/style.toml"),
+        )),
+        "candidate-c" => Ok((
+            StylePack::stanford_v1_candidate_c(),
+            Path::new("styles/stanford_v1/candidate_c.toml"),
+        )),
+        _ => Err(format!(
+            "unknown DZI style {selection:?}; expected base or candidate-c"
+        )),
+    }
+}
+
+fn style_by_id(style_id: &str) -> Result<StylePack, String> {
+    match style_id {
+        "stanford_v1.landmarks.1" => Ok(StylePack::stanford_v1()),
+        "stanford_v1.candidate_c.1" => Ok(StylePack::stanford_v1_candidate_c()),
+        _ => Err(format!("release artifact names unknown style {style_id:?}")),
+    }
+}
+
+fn publish_dzi_artifact_with_style(output: &Path, style_selection: &str) -> Result<String, String> {
     let world_bytes = fs::read("artifacts/world/hero.json")
         .map_err(|error| format!("read artifacts/world/hero.json after world compile: {error}"))?;
     let world_json = std::str::from_utf8(&world_bytes).map_err(|error| error.to_string())?;
     let world = World::from_artifact_json(world_json).map_err(|error| error.to_string())?;
-    let style_bytes =
-        fs::read("styles/stanford_v1/style.toml").map_err(|error| error.to_string())?;
+    let (style, style_path) = publication_style(style_selection)?;
+    let style_bytes = fs::read(style_path).map_err(|error| error.to_string())?;
     let inputs = InputDigests::new(sha256_hex(&world_bytes), sha256_hex(&style_bytes))
         .map_err(|error| error.to_string())?;
-    let report = isometric_publish::publish_dzi(
-        &world,
-        &StylePack::stanford_v1(),
-        &inputs,
-        output,
-        DziOptions::prototype(),
-    )
-    .map_err(|error| error.to_string())?;
+    let report =
+        isometric_publish::publish_dzi(&world, &style, &inputs, output, DziOptions::prototype())
+            .map_err(|error| error.to_string())?;
     Ok(format!(
-        "published {} x {} DZI with {} tiles and {} encoded bytes at {}: {}",
+        "published {} x {} {} DZI with {} tiles and {} encoded bytes at {}: {}",
         report.width,
         report.height,
+        style.id,
         report.tile_count,
         report.encoded_bytes,
         output.display(),
@@ -262,12 +291,25 @@ fn publish_dzi_artifact(output: &Path) -> Result<String, String> {
 }
 
 fn validate_release(input: &Path) -> Result<String, String> {
-    let report = validate_dzi(input, &StylePack::stanford_v1().palette)
-        .map_err(|error| error.to_string())?;
+    let manifest_path = input.join("release.json");
+    let metadata = fs::metadata(&manifest_path).map_err(|error| error.to_string())?;
+    if metadata.len() > 8 * 1_024 * 1_024 {
+        return Err("release manifest exceeds the 8 MiB CLI read limit".into());
+    }
+    let manifest_bytes = fs::read(&manifest_path).map_err(|error| error.to_string())?;
+    let manifest: serde_json::Value =
+        serde_json::from_slice(&manifest_bytes).map_err(|error| error.to_string())?;
+    let style_id = manifest
+        .get("style_id")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "release artifact does not identify its style".to_string())?;
+    let style = style_by_id(style_id)?;
+    let report = validate_dzi(input, &style).map_err(|error| error.to_string())?;
     Ok(format!(
-        "validated {} x {} DZI with {} tiles and {} encoded bytes at {}: {}",
+        "validated {} x {} {} DZI with {} tiles and {} encoded bytes at {}: {}",
         report.width,
         report.height,
+        style.id,
         report.tile_count,
         report.encoded_bytes,
         input.display(),
@@ -345,7 +387,7 @@ fn write_ppm(
 
 #[cfg(test)]
 mod tests {
-    use super::run;
+    use super::{publication_style, run, style_by_id};
 
     #[test]
     fn semantic_validation_command_runs() {
@@ -362,5 +404,25 @@ mod tests {
         let arguments = vec!["perceive".into(), "run".into()];
         let result = run(&arguments);
         assert!(result.expect_err("must fail").contains("not implemented"));
+    }
+
+    #[test]
+    fn publication_style_selection_is_explicit_and_fail_closed() {
+        assert_eq!(
+            publication_style("base").expect("base").0.id,
+            "stanford_v1.landmarks.1"
+        );
+        assert_eq!(
+            publication_style("candidate-c").expect("Candidate C").0.id,
+            "stanford_v1.candidate_c.1"
+        );
+        assert!(publication_style("candidate-b").is_err());
+        assert_eq!(
+            style_by_id("stanford_v1.candidate_c.1")
+                .expect("known style")
+                .id,
+            "stanford_v1.candidate_c.1"
+        );
+        assert!(style_by_id("stanford_v1.unknown").is_err());
     }
 }

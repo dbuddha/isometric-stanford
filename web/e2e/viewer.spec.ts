@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { writeFile } from "node:fs/promises";
 
 const DZI = `<?xml version="1.0" encoding="UTF-8"?>
 <Image TileSize="512" Overlap="0" Format="webp" xmlns="http://schemas.microsoft.com/deepzoom/2008">
@@ -87,4 +88,87 @@ test("display context interruption redraws after restoration", async ({ page }) 
   await expect(page.getByRole("status")).toContainText("Artwork display interrupted");
   await canvas.evaluate((element) => element.dispatchEvent(new Event("contextrestored")));
   await expect(page.getByRole("status")).toContainText("Artwork ready");
+});
+
+test("real Candidate C pyramid records bounded browser regression evidence", async ({ page }, testInfo) => {
+  test.skip(!process.env.E2E_DZI_URL, "requires the complete generated pyramid");
+  let initialWebpBytes = 0;
+  let initialWebpRequests = 0;
+  page.on("response", async (response) => {
+    if (!response.url().endsWith(".webp")) {
+      return;
+    }
+    const length = Number(response.headers()["content-length"] ?? 0);
+    initialWebpBytes += length || (await response.body()).byteLength;
+    initialWebpRequests += 1;
+  });
+
+  await page.goto("./");
+  await expect(page.getByRole("status")).toContainText("Artwork ready");
+  const viewer = page.getByTestId("viewer");
+  const cacheTileLimit = Number(await viewer.getAttribute("data-cache-tile-limit"));
+  const decodedBudgetBytes = Number(await viewer.getAttribute("data-decoded-budget-bytes"));
+  const viewerBox = await viewer.boundingBox();
+  const frameProbe = await viewer.evaluate((element) =>
+    new Promise<{ frames: number; durationMs: number; longestGapMs: number }>((resolve) => {
+      let frames = 0;
+      let started = 0;
+      let previous = 0;
+      let longestGapMs = 0;
+      const sample = (timestamp: number) => {
+        started ||= timestamp;
+        if (previous > 0) {
+          longestGapMs = Math.max(longestGapMs, timestamp - previous);
+        }
+        previous = timestamp;
+        frames += 1;
+        element.dispatchEvent(
+          new WheelEvent("wheel", { deltaY: frames % 2 === 0 ? -2 : 2, bubbles: true }),
+        );
+        if (timestamp - started < 1_000) {
+          requestAnimationFrame(sample);
+        } else {
+          resolve({ frames, durationMs: timestamp - started, longestGapMs });
+        }
+      };
+      requestAnimationFrame(sample);
+    }),
+  );
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Performance.enable");
+  const performanceMetrics = await cdp.send("Performance.getMetrics");
+  const javascriptHeapBytes =
+    performanceMetrics.metrics.find((metric) => metric.name === "JSHeapUsedSize")?.value ?? 0;
+  const documentHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  const framesPerSecond = (frameProbe.frames - 1) / (frameProbe.durationMs / 1_000);
+  const metrics = {
+    project: testInfo.project.name,
+    viewport: page.viewportSize(),
+    initialWebpBytes,
+    initialWebpRequests,
+    cacheTileLimit,
+    decodedBudgetBytes,
+    viewerHeight: viewerBox?.height ?? 0,
+    javascriptHeapBytes,
+    documentHeight,
+    framesPerSecond,
+    longestFrameGapMs: frameProbe.longestGapMs,
+  };
+  const metricsPath = testInfo.outputPath("browser-metrics.json");
+  await writeFile(metricsPath, JSON.stringify(metrics, null, 2));
+  await testInfo.attach("browser-metrics", {
+    path: metricsPath,
+    contentType: "application/json",
+  });
+
+  expect(initialWebpBytes).toBeLessThanOrEqual(2.5 * 1_024 * 1_024);
+  expect(cacheTileLimit * 512 * 512 * 4).toBeLessThanOrEqual(decodedBudgetBytes / 2);
+  if (testInfo.project.name === "mobile-chromium") {
+    expect(viewerBox?.height ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(
+      (page.viewportSize()?.height ?? 0) * 0.65,
+    );
+    expect(documentHeight).toBeLessThanOrEqual(page.viewportSize()?.height ?? 0);
+  }
+  expect(framesPerSecond).toBeGreaterThanOrEqual(30);
+  expect(frameProbe.longestGapMs).toBeLessThan(250);
 });

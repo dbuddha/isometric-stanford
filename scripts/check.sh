@@ -3,6 +3,7 @@ set -eu
 
 scripts/check-policy.sh
 python3 scripts/test_validate_pr.py
+python3 scripts/test_measure_prototype.py
 python3 scripts/validate_manifests.py
 python3 scripts/validate_world_fixtures.py
 cargo fmt --all -- --check

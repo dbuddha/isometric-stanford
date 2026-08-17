@@ -57,3 +57,15 @@ primitives. A complete four-scene review pack completed in 1.35 seconds with
 were byte-identical, and guarded Candidate C tiles reconstruct the monolithic
 scene exactly. This remains development evidence rather than fixed-device
 release qualification.
+
+The end-to-end Candidate C publication harness builds three independent
+7,623 by 3,325 pyramids and compares every path and byte. On the 10-logical-core
+arm64 development machine, the three runs completed in 0.92 to 0.93 seconds,
+used at most 16,089,088 bytes maximum RSS, and produced the same 157-tile
+artifact and tile-set SHA-256
+`d5cba2ce1bb6ca2fd5b909d6f0f341f9bca1b188844acd956eeebd043f981e3b`.
+The 105 maximum-resolution tiles sustained at least 6,753 tiles per minute.
+Candidate C's complete served WebP set is 3,421,208 bytes. Initial viewport
+bytes are measured separately because browsers do not fetch the complete
+pyramid at startup. These are development regression results, not fixed-device
+qualification evidence.

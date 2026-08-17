@@ -99,6 +99,14 @@ contact-sheet work; canonical tile workers remain bounded independently of map
 area. All other documented command names fail with an explicit not-implemented
 error.
 
+`publish dzi` keeps the locked base style as its default and accepts the
+explicit selector `candidate-c` for inspectable, unapproved preview pyramids.
+Every generated release manifest records the exact style ID and style-file
+digest. Release validation fails closed unless both the palette bytes and style
+identity match a known implementation. Scheduled assurance, the release dry
+run, and the real-pyramid browser suite use Candidate C explicitly without
+changing `style.lock.json` or representing the candidate as approved.
+
 Candidate B extends the ordinary grammar without changing the raster boundary.
 Eligible walls receive repeated depth-safe window and door quads. Convex simple
 footprints receive bounded hip-roof planes, while complex footprints fail back
@@ -133,7 +141,7 @@ touch navigation enabled, retries failed tiles twice, exposes recoverable
 descriptor and tile failures, and redraws after a context restoration event.
 Ordinary CI exercises a routed lossless DZI fixture on desktop and mobile;
 scheduled assurance repeats the same checks against the complete generated
-hero pyramid. A locally generated candidate has been exercised in the viewer,
+Candidate C hero pyramid. A locally generated candidate has been exercised in the viewer,
 but no DZI release is committed or published.
 
 ## Binding invariants

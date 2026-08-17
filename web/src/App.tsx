@@ -44,6 +44,8 @@ export function App() {
         const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
         const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
         const policy = viewerPolicy(window.innerWidth, memory, coarsePointer);
+        host.current.dataset.cacheTileLimit = String(policy.maxImageCacheCount);
+        host.current.dataset.decodedBudgetBytes = String(policy.decodedBudgetBytes);
         const instance = createViewer({
           element: host.current,
           tileSources: RELEASE_DZI,

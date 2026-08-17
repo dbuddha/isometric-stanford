@@ -25,6 +25,7 @@ jobs:
           python-version: "3.12"
       - run: scripts/check-policy.sh
       - run: python scripts/test_validate_pr.py
+      - run: python scripts/test_measure_prototype.py
       - if: github.event_name == 'pull_request'
         run: python scripts/validate_pr.py "$GITHUB_EVENT_PATH"
       - run: python scripts/validate_manifests.py

@@ -41,8 +41,9 @@ The Rust compiler now turns the locked OSM and Overture vectors into a
 deterministic, inspectable hero world. The current artifact contains 2,820
 objects across 72 spatial partitions, including measured Hoover Tower geometry
 and OSM geometry for Memorial Church. The deterministic renderer now publishes
-a complete 7,623 by 3,325 lossless WebP DZI candidate that has been exercised
-in the responsive viewer. NAIP and LiDAR evidence, style approval, fixed-device
+a complete 7,623 by 3,325 lossless WebP DZI candidate with an explicit style
+identity. Candidate C has been exercised end to end in the responsive viewer.
+NAIP and LiDAR evidence, style approval, fixed-device
 qualification, and release publication remain unfinished. The prototype is not
 qualified, and no map release has been published.
 
@@ -114,7 +115,7 @@ Render the vector-only Stanford preview:
 cargo run --release --locked -- render region artifacts/render/hero.ppm
 ```
 
-The current 1,950 by 873 preview contains real campus footprints, paths,
+The current 1,954 by 880 preview contains real campus footprints, paths,
 roads, empty parking, ground surfaces, flat roofs, directional facades,
 faceted tree groves, hard shadows, crisp outlines, and world-anchored material
 patterns. Parameterized procedural grammar now gives Hoover Tower a stepped
@@ -132,6 +133,18 @@ cargo run --release --locked -- validate release artifacts/dzi/hero
 Publication is atomic and fails if the destination already exists. The
 candidate retains canonical indexed tiles for exact validation and serves only
 the lossless WebP pyramid to OpenSeadragon.
+
+Publish the unapproved Candidate C style for local visual inspection by naming
+it explicitly:
+
+```sh
+cargo run --release --locked -- publish dzi artifacts/dzi/candidate-c candidate-c
+cargo run --release --locked -- validate release artifacts/dzi/candidate-c
+```
+
+The generated `release.json` records `stanford_v1.candidate_c.1`, and validation
+rejects the pyramid if a different known style is supplied. This preview path
+does not change `style.lock.json` or imply final style approval.
 
 Generate the four-scene Candidate A review pack:
 
