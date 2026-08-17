@@ -13,7 +13,10 @@ mod raster;
 mod scene;
 
 pub use raster::{RasterSurface, RasterVertex, Triangle};
-pub use scene::render_world;
+pub use scene::{
+    RenderLayout, TileRender, TileRenderStats, TileRequest, render_layout, render_tile,
+    render_world, required_tile_guard,
+};
 
 /// Indexed-palette image with one byte per pixel.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -248,6 +251,8 @@ pub enum RenderError {
     EmptyWorld,
     /// Polygon decomposition could not produce valid triangles.
     Triangulation,
+    /// Tile coordinates, size, or guard do not satisfy the bounded render contract.
+    InvalidTileRequest,
 }
 
 impl fmt::Display for RenderError {
@@ -264,6 +269,7 @@ impl fmt::Display for RenderError {
             Self::SurfaceAlreadyRasterized => "raster surface accepts one canonical batch",
             Self::EmptyWorld => "world contains no renderable geometry",
             Self::Triangulation => "polygon could not be decomposed deterministically",
+            Self::InvalidTileRequest => "tile request is outside the bounded render contract",
         })
     }
 }
