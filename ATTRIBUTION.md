@@ -15,10 +15,11 @@ Each record must include:
 - Generated artifact hashes and dependency relationship
 - Reviewer and approval reference
 
-The production baseline may use properly attributed open data such as USDA
-NAIP, Santa Clara County LiDAR, OpenStreetMap, Overture Buildings, and Microsoft
-US Building Footprints only after the exact release and terms are recorded in
-`source.lock.json`.
+The prototype baseline uses the exact OpenStreetMap, Overture Buildings, USDA
+NAIP, and USGS 3DEP LiDAR records approved in `source.lock.json`. The lock
+records retrieval and metadata URLs, dates, geographic bounds, licenses,
+required attribution, byte lengths, and SHA-256 hashes. Adding another source
+requires an explicit provenance review and lock update.
 
 Google content is not an approved production source. It may enter the pipeline
 only after written permission expressly authorizes the intended retrieval,

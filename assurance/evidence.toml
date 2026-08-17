@@ -31,6 +31,12 @@ evidence = ["source.lock.json", "ADR 0004", "ADR 0005", "research/2026-08-17-pro
 status = "implemented"
 
 [[claim]]
+id = "PROTO-SOURCE-001"
+statement = "Approved hero sources synchronize into a bounded-memory content-addressed cache only after exact length and SHA-256 verification."
+evidence = ["cargo test -p isometric-source", "cargo run --locked -- source sync", "python scripts/validate_manifests.py"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []

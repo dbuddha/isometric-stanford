@@ -1,6 +1,10 @@
 //! User-facing orchestration commands.
 
-use std::{env, fs, process::ExitCode};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    process::ExitCode,
+};
 
 use isometric_render::{render_reference, stable_hash};
 use isometric_style::StylePack;
@@ -8,7 +12,7 @@ use isometric_validate::{validate_style, validate_world};
 use isometric_world::World;
 
 const USAGE: &str = "Usage:
-  isometric-stanford source sync
+  isometric-stanford source sync [cache-directory]
   isometric-stanford perceive run
   isometric-stanford world compile|inspect
   isometric-stanford render region [output.ppm]
@@ -19,6 +23,7 @@ const USAGE: &str = "Usage:
 Bootstrap implementation:
   render region writes an original deterministic reference PPM.
   validate semantic and validate render are executable.
+  source sync verifies approved artifacts in a content-addressed cache.
   Other commands fail closed until their tracked task is implemented.";
 
 fn main() -> ExitCode {
@@ -37,6 +42,12 @@ fn main() -> ExitCode {
 
 fn run(arguments: &[String]) -> Result<String, String> {
     match arguments {
+        [group, command] if group == "source" && command == "sync" => {
+            sync_sources(Path::new("artifacts/source-cache"))
+        }
+        [group, command, cache] if group == "source" && command == "sync" => {
+            sync_sources(&PathBuf::from(cache))
+        }
         [group, command] if group == "validate" && command == "semantic" => {
             validate_world(&World::reference_fixture()).map_err(|error| error.to_string())?;
             Ok("semantic fixture passed".into())
@@ -66,6 +77,17 @@ fn run(arguments: &[String]) -> Result<String, String> {
         )),
         _ => Err("unrecognized command".into()),
     }
+}
+
+fn sync_sources(cache: &Path) -> Result<String, String> {
+    let artifacts = isometric_source::sync(Path::new("source.lock.json"), cache)
+        .map_err(|error| error.to_string())?;
+    let downloaded = artifacts.iter().filter(|artifact| !artifact.reused).count();
+    Ok(format!(
+        "verified {} sources in {} ({downloaded} downloaded)",
+        artifacts.len(),
+        cache.display()
+    ))
 }
 
 fn render_region(output: &str) -> Result<String, String> {

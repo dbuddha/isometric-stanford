@@ -9,7 +9,148 @@
     "guard_meters": 50,
     "epoch_policy": "prototype epoch 2026-08-17; retain each source acquisition date and expose temporal disagreement"
   },
-  "sources": [],
-  "status": "unqualified",
+  "sources": [
+    {
+      "id": "naip-2024-hero",
+      "kind": "imagery",
+      "role": "land-cover and material evidence",
+      "release": "NAIP 2024 60cm California",
+      "source_date": "2024-05-20",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "https",
+        "url": "https://apps.geo.fpac.usda.gov/geo-imagery/rest/services/naip/conus_naip/ImageServer/exportImage?bbox=-122.17277%2C37.42405%2C-122.16473%2C37.43035&bboxSR=4326&imageSR=4326&size=1326%2C1168&format=tiff&pixelType=U8&bandIds=0%2C1%2C2%2C3&mosaicRule=%7B%22mosaicMethod%22%3A%22esriMosaicNorthwest%22%2C%22where%22%3A%22year_ts+%3D+2024%22%7D&f=image",
+        "filename": "naip-2024-hero.tif"
+      },
+      "size_bytes": 7211134,
+      "sha256": "2775b4aa72382e808cb8aa39b74ab840550e7c26351fdb9a91cf7d271c907863",
+      "license": "USDA public data with FPAC-BC derived-product credit requested",
+      "attribution": "Imagery: USDA FPAC-BC GEO, NAIP 2024",
+      "metadata_url": "https://www.arcgis.com/home/item.html?id=061537e1c20744cb95506c12a028bff4",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "osm-2026-07-15-hero",
+      "kind": "vector",
+      "role": "roads, paths, land use, names, and complementary buildings",
+      "release": "OpenStreetMap historical snapshot",
+      "source_date": "2026-07-15T00:00:00Z",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "local",
+        "path": "fixtures/sources/osm-2026-07-15-hero.json",
+        "filename": "osm-2026-07-15-hero.json"
+      },
+      "size_bytes": 680542,
+      "sha256": "0ec274128b61387e5b28c8aac4e15bcf2a2199af71c04240fafbee1f2efc585f",
+      "license": "ODbL-1.0",
+      "attribution": "OpenStreetMap contributors",
+      "metadata_url": "https://www.openstreetmap.org/copyright",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "overture-2026-06-17-buildings",
+      "kind": "vector",
+      "role": "primary building and building-part geometry",
+      "release": "Overture 2026-06-17.0 buildings",
+      "source_date": "2026-06-17",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "local",
+        "path": "fixtures/sources/overture-buildings.geojson",
+        "filename": "overture-buildings.geojson"
+      },
+      "size_bytes": 77626,
+      "sha256": "eeba6bbf6a6382db1339cdfaff44d362b43aa250c059bc7f43a0b369ce5cd5e9",
+      "license": "ODbL-1.0",
+      "attribution": "OpenStreetMap contributors and Overture Maps Foundation",
+      "metadata_url": "https://docs.overturemaps.org/guides/buildings/",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "usgs-lidar-07509800",
+      "kind": "lidar",
+      "role": "terrain, height, roof, and canopy evidence",
+      "release": "CA_SantaClaraCounty_2020_A20 07509800",
+      "source_date": "2020",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "https",
+        "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07509800.laz",
+        "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07509800.laz"
+      },
+      "size_bytes": 107883317,
+      "sha256": "d13e4a01175c0f7f501ff9b3e899115930dbc66a48f5a7701f04901a6f86c416",
+      "license": "USGS public domain without use restrictions",
+      "attribution": "USGS 3D Elevation Program",
+      "metadata_url": "https://www.sciencebase.gov/catalog/item/60a97b94d34ea221ce511212",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "usgs-lidar-07509825",
+      "kind": "lidar",
+      "role": "terrain, height, roof, and canopy evidence",
+      "release": "CA_SantaClaraCounty_2020_A20 07509825",
+      "source_date": "2020",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "https",
+        "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07509825.laz",
+        "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07509825.laz"
+      },
+      "size_bytes": 103879698,
+      "sha256": "e19740f598fb3c9d7b796a8d9f596d47f529d02e5bfe9c7a5cbf3d4112936580",
+      "license": "USGS public domain without use restrictions",
+      "attribution": "USGS 3D Elevation Program",
+      "metadata_url": "https://www.sciencebase.gov/catalog/item/60a95777d34ea221ce50f031",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "usgs-lidar-07759800",
+      "kind": "lidar",
+      "role": "terrain, height, roof, and canopy evidence",
+      "release": "CA_SantaClaraCounty_2020_A20 07759800",
+      "source_date": "2020",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "https",
+        "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07759800.laz",
+        "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07759800.laz"
+      },
+      "size_bytes": 115451121,
+      "sha256": "09283bb7df0e4363fa34116a9b3c9e53b33dba91dde01fb28535508e7ad0957a",
+      "license": "USGS public domain without use restrictions",
+      "attribution": "USGS 3D Elevation Program",
+      "metadata_url": "https://www.sciencebase.gov/catalog/item/60a97b6dd34ea221ce5111ea",
+      "approved": true,
+      "raw_content_in_final_output": false
+    },
+    {
+      "id": "usgs-lidar-07759825",
+      "kind": "lidar",
+      "role": "terrain, height, roof, and canopy evidence",
+      "release": "CA_SantaClaraCounty_2020_A20 07759825",
+      "source_date": "2020",
+      "acquired_at": "2026-08-17",
+      "acquisition": {
+        "method": "https",
+        "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_SantaClaraCounty_2020_A20/CA_SantaClaraCounty_2020/LAZ/USGS_LPC_CA_SantaClaraCounty_2020_A20_07759825.laz",
+        "filename": "USGS_LPC_CA_SantaClaraCounty_2020_A20_07759825.laz"
+      },
+      "size_bytes": 113957699,
+      "sha256": "1e4b92c088bd960eca050a62fad46f0013f70acd95fb761828ec09fc19ae12cd",
+      "license": "USGS public domain without use restrictions",
+      "attribution": "USGS 3D Elevation Program",
+      "metadata_url": "https://www.sciencebase.gov/catalog/item/60a98b40d34ea221ce51226d",
+      "approved": true,
+      "raw_content_in_final_output": false
+    }
+  ],
+  "status": "prototype-sources-locked",
   "google_content_permitted": false
 }

@@ -37,8 +37,10 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 ## Status
 
 Repository foundation and the prototype-first delivery model are established.
-Source compilation and production rendering are not implemented, the prototype
-is not qualified, and no map release has been published.
+Approved prototype sources can now be synchronized into a verified local
+content cache. Semantic compilation and production rendering are not
+implemented, the prototype is not qualified, and no map release has been
+published.
 
 ## Development
 
@@ -63,7 +65,14 @@ Generate the original deterministic bootstrap preview:
 cargo run --locked -- render region artifacts/reference.ppm
 ```
 
-The other CLI command names are reserved and fail closed until their tracked
+Synchronize the pinned prototype source bundle, an approximately 450 MB
+transfer, into the ignored content-addressed cache:
+
+```sh
+cargo run --locked -- source sync
+```
+
+Remaining CLI command names are reserved and fail closed until their tracked
 implementation tasks merge. See the
 [engineering guide](https://dbuddha.github.io/isometric-stanford/) and
 [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented boundary.
