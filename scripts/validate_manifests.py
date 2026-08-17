@@ -127,6 +127,38 @@ def validate() -> None:
             if hashlib.sha256(artifact.read_bytes()).hexdigest() != digest:
                 raise ValueError(f"source {source['id']} local SHA-256 does not match")
 
+    world = manifests["world.manifest.json"]
+    if (
+        world.get("status") != "prototype-vector-world"
+        or world.get("region_id") != "stanford-hero-v1"
+        or world.get("semantic_version") != "0.2.0"
+    ):
+        raise ValueError("world manifest must describe the compiled prototype vector world")
+    if not isinstance(world.get("object_count"), int) or world["object_count"] <= 0:
+        raise ValueError("world manifest must contain accepted objects")
+    if not isinstance(world.get("partition_count"), int) or world["partition_count"] <= 0:
+        raise ValueError("world manifest must contain spatial partitions")
+    unknown_fraction = world.get("unknown_fraction_ppm")
+    if not isinstance(unknown_fraction, int) or not 0 <= unknown_fraction <= 1_000_000:
+        raise ValueError("world unknown coverage must be an integer fraction in ppm")
+    if world.get("landmarks") != ["Hoover Tower", "Main Quad", "Memorial Church"]:
+        raise ValueError("world manifest lacks the required prototype landmark evidence")
+    world_hash = world.get("world_sha256")
+    if not isinstance(world_hash, str) or re.fullmatch(r"[0-9a-f]{64}", world_hash) is None:
+        raise ValueError("world artifact hash is invalid")
+    source_hashes = world.get("source_sha256")
+    expected_vector_hashes = {
+        source["id"]: source["sha256"]
+        for source in sources
+        if source["id"] in {"osm-2026-07-15-hero", "overture-2026-06-17-buildings"}
+    }
+    if source_hashes != expected_vector_hashes:
+        raise ValueError("world source hashes do not match the approved source lock")
+    deferred = world.get("deferred_source_ids")
+    expected_deferred = sorted(set(source_ids) - set(expected_vector_hashes))
+    if deferred != expected_deferred:
+        raise ValueError("world manifest does not explicitly account for deferred sources")
+
     style_lock = manifests["style.lock.json"]
     style_path = style_lock.get("style_path")
     if not isinstance(style_path, str):
@@ -141,7 +173,7 @@ def validate() -> None:
         release.get("qualified") is not False
         or release.get("status") != "not-published"
     ):
-        raise ValueError("bootstrap release must remain unqualified and unpublished")
+        raise ValueError("release must remain unqualified and unpublished")
 
 
 if __name__ == "__main__":

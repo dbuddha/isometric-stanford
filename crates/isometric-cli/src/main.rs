@@ -14,7 +14,8 @@ use isometric_world::World;
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
   isometric-stanford perceive run
-  isometric-stanford world compile|inspect
+  isometric-stanford world compile [output-directory]
+  isometric-stanford world inspect [world.json]
   isometric-stanford render region [output.ppm]
   isometric-stanford render slice
   isometric-stanford validate semantic|render|release
@@ -24,6 +25,8 @@ Bootstrap implementation:
   render region writes an original deterministic reference PPM.
   validate semantic and validate render are executable.
   source sync verifies approved artifacts in a content-addressed cache.
+  world compile verifies the complete source lock, compiles the locked vectors,
+  and writes a canonical world plus manifest. world inspect validates an artifact.
   Other commands fail closed until their tracked task is implemented.";
 
 fn main() -> ExitCode {
@@ -47,6 +50,18 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, cache] if group == "source" && command == "sync" => {
             sync_sources(&PathBuf::from(cache))
+        }
+        [group, command] if group == "world" && command == "compile" => {
+            compile_world(Path::new("artifacts/world"))
+        }
+        [group, command, output] if group == "world" && command == "compile" => {
+            compile_world(Path::new(output))
+        }
+        [group, command] if group == "world" && command == "inspect" => {
+            inspect_world(Path::new("artifacts/world/hero.json"))
+        }
+        [group, command, input] if group == "world" && command == "inspect" => {
+            inspect_world(Path::new(input))
         }
         [group, command] if group == "validate" && command == "semantic" => {
             validate_world(&World::reference_fixture()).map_err(|error| error.to_string())?;
@@ -88,6 +103,67 @@ fn sync_sources(cache: &Path) -> Result<String, String> {
         artifacts.len(),
         cache.display()
     ))
+}
+
+fn compile_world(output: &Path) -> Result<String, String> {
+    let artifacts = isometric_source::sync(
+        Path::new("source.lock.json"),
+        Path::new("artifacts/source-cache"),
+    )
+    .map_err(|error| error.to_string())?;
+    let path_for = |id: &str| {
+        artifacts
+            .iter()
+            .find(|artifact| artifact.id == id)
+            .map(|artifact| artifact.path.as_path())
+            .ok_or_else(|| format!("verified source cache lacks {id}"))
+    };
+    let osm = fs::read(path_for("osm-2026-07-15-hero")?).map_err(|error| error.to_string())?;
+    let overture =
+        fs::read(path_for("overture-2026-06-17-buildings")?).map_err(|error| error.to_string())?;
+    let compiled =
+        isometric_world::compile_hero(&osm, &overture).map_err(|error| error.to_string())?;
+    fs::create_dir_all(output).map_err(|error| error.to_string())?;
+    atomic_write(&output.join("hero.json"), compiled.world_json.as_bytes())?;
+    atomic_write(
+        &output.join("world.manifest.json"),
+        compiled.manifest_json.as_bytes(),
+    )?;
+    Ok(format!(
+        "compiled {} objects into {} partitions at {} (unknown {} ppm; rejected {} source geometries)",
+        compiled.report.object_count,
+        compiled.world.partitions().len(),
+        output.display(),
+        compiled.report.unknown_fraction_ppm,
+        compiled.report.rejected_geometry_count
+    ))
+}
+
+fn inspect_world(input: &Path) -> Result<String, String> {
+    let json = fs::read_to_string(input).map_err(|error| error.to_string())?;
+    let world = World::from_artifact_json(&json).map_err(|error| error.to_string())?;
+    let named = world
+        .objects()
+        .iter()
+        .filter(|object| object.name().is_some())
+        .count();
+    Ok(format!(
+        "validated {} objects ({} named) across {} partitions from {} sources",
+        world.objects().len(),
+        named,
+        world.partitions().len(),
+        world.sources().len()
+    ))
+}
+
+fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    let extension = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .unwrap_or("artifact");
+    let temporary = path.with_extension(format!("{extension}.partial"));
+    fs::write(&temporary, bytes).map_err(|error| error.to_string())?;
+    fs::rename(&temporary, path).map_err(|error| error.to_string())
 }
 
 fn render_region(output: &str) -> Result<String, String> {
