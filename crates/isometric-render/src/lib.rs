@@ -1,13 +1,17 @@
-//! Deterministic fixed-point reference renderer.
+//! Deterministic fixed-point reference renderer and production raster core.
 //!
-//! This foundation intentionally renders simple world-anchored diamonds. It
-//! proves the portable contracts and byte determinism before the production
-//! triangle rasterizer, depth buffer, shadows, and procedural grammar land.
+//! The original diamond-and-column grammar remains a small regression fixture.
+//! Production scene passes target the bounded fixed-point triangle and integer
+//! depth surface exposed by this crate.
 
 use core::fmt;
 use isometric_core::{ScreenPoint, WorldPoint};
 use isometric_style::{Rgb8, StylePack};
 use isometric_world::{SemanticClass, World};
+
+mod raster;
+
+pub use raster::{RasterSurface, RasterVertex, Triangle};
 
 /// Indexed-palette image with one byte per pixel.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -226,16 +230,28 @@ pub enum RenderError {
     InvalidStyle,
     /// A pixel references a palette entry that does not exist.
     PaletteIndex,
+    /// A triangle has zero signed area.
+    DegenerateTriangle,
+    /// A primitive key is zero, duplicated, or otherwise noncanonical.
+    InvalidPrimitiveKey,
+    /// A vertex exceeds the bounded raster coordinate contract.
+    InvalidVertex,
+    /// A surface was submitted more than once.
+    SurfaceAlreadyRasterized,
 }
 
 impl fmt::Display for RenderError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str(match self {
-            Self::InvalidDimensions => "image dimensions must be between 1 and 16384",
+            Self::InvalidDimensions => "image dimensions are outside the accepted bounds",
             Self::CapacityOverflow => "image capacity overflow",
             Self::ArithmeticOverflow => "fixed-point projection overflow",
             Self::InvalidStyle => "style pack is invalid",
             Self::PaletteIndex => "rendered palette index does not exist",
+            Self::DegenerateTriangle => "triangle has zero signed area",
+            Self::InvalidPrimitiveKey => "primitive keys must be nonzero and unique",
+            Self::InvalidVertex => "raster vertex exceeds the accepted coordinate range",
+            Self::SurfaceAlreadyRasterized => "raster surface accepts one canonical batch",
         })
     }
 }
