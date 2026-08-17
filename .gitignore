@@ -1,0 +1,16 @@
+/target/
+/book/
+/node_modules/
+/dist/
+/.venv/
+/.pytest_cache/
+/.mypy_cache/
+/.ruff_cache/
+/artifacts/
+/data/
+*.pyc
+*.profraw
+.DS_Store
+.env
+.env.*
+!.env.example
