@@ -37,7 +37,7 @@ jobs:
           test "$first" = "$second"
           test "$second" = "$third"
       - run: cargo run --quiet --release --locked -- world compile artifacts/world
-      - run: cargo run --quiet --release --locked -- publish dzi artifacts/dzi/hero
+      - run: cargo run --quiet --release --locked -- publish dzi artifacts/dzi/hero candidate-c
       - run: cargo run --quiet --release --locked -- validate release artifacts/dzi/hero
       - name: Stage public viewer imagery
         run: |
@@ -56,7 +56,10 @@ jobs:
         run: |
           mkdir -p artifacts/release-dry-run
           cp -R artifacts/dzi/hero artifacts/release-dry-run/
-          cp release.json render.manifest.json style.lock.json artifacts/release-dry-run/
+          cp release.json artifacts/release-dry-run/project-release-status.json
+          cp render.manifest.json artifacts/release-dry-run/
+          cp style.lock.json artifacts/release-dry-run/project-style-status.json
+          cp styles/stanford_v1/candidate_c.toml artifacts/release-dry-run/candidate-style.toml
           cp -R book artifacts/release-dry-run/documentation
           cp -R web/dist artifacts/release-dry-run/viewer
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

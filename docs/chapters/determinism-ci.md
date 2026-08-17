@@ -46,16 +46,25 @@ is added. Scheduled assurance also generates Candidate C twice, recursively
 compares every artifact byte, and rechecks the encoded Candidate A and B
 hashes.
 
+The prototype performance harness separately publishes three complete
+Candidate C DZI directories under the pinned release binary. It hashes sorted
+paths and bytes, validates the style identity and complete artifact chain, and
+fails if any run differs, exceeds 512 MiB RSS or 20 minutes, or falls below 100
+maximum-level tiles per minute. The resulting JSON records the commit, machine,
+commands, timings, peak RSS, throughput, release dimensions, served bytes, and
+tile hashes.
+
 The publisher uses pinned pure-Rust `image-webp` 0.2.4. Ordinary Rust tests
 publish the same fixture twice, compare every artifact byte, decode every WebP
 back to approved palette colors, and prove corrupt bytes fail validation.
-Scheduled assurance compiles the locked hero world, publishes two clean
-pyramids, validates both complete hash chains, and requires a recursive
-byte-for-byte directory comparison.
+Scheduled assurance compiles the locked hero world, publishes three clean
+Candidate C pyramids, validates each complete hash chain, and requires one
+directory hash across every run.
 
 The ordinary web gate runs desktop and mobile Playwright checks against a
 minimal lossless DZI, including descriptor retry, exhausted tile retry, Canvas
 context restoration, keyboard-accessible controls, and painted output. The
 scheduled browser gate replaces that fixture with a newly compiled complete
-hero pyramid. This separates fast recovery-contract feedback from full-artifact
+Candidate C hero pyramid and attaches desktop and mobile regression metrics.
+This separates fast recovery-contract feedback from full-artifact
 integration evidence.

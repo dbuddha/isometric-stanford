@@ -29,6 +29,24 @@ The public site is a static DZI/WebP pyramid in OpenSeadragon, not a live 3D
 world. This cleanly separates expensive offline art production from a mature,
 responsive browser viewer.
 
+The source tree at the recorded commit confirms that the generation dashboard
+can invoke fine-tuned Qwen through Modal or Oxen and a Gemini image model. Its
+operator tools include rectangle generation, prompt overrides, deletion,
+flagging, manual water replacement, water filling, and rectangle export for
+editing in Affinity. A later `unfake` postprocess snaps generated pixels,
+performs dominant downscaling, removes morphological and diagonal noise, and
+maps tiles to a shared palette. The DZI export then uses libvips, with lossy
+WebP at quality 95 as its documented default. Those steps improve and deliver
+already generated imagery; they do not form a deterministic world-to-art
+renderer.
+
+Isometric Stanford now shares the static DZI and OpenSeadragon delivery
+boundary, but not the image-production boundary. Its Candidate C pyramid is
+rendered directly from semantic geometry into palette indexes by safe Rust,
+encoded as lossless WebP, and validated against an explicit style identity.
+This gives up learned texture richness and manual correction in exchange for
+repeatable bytes, bounded memory, fail-closed provenance, and scalable seams.
+
 ## Adopted lessons
 
 - Keep static DZI delivery and OpenSeadragon for version 1.

@@ -191,7 +191,8 @@ footer a {
 
 @media (max-width: 640px) {
   .app-shell {
-    grid-template-rows: auto minmax(32rem, 1fr) auto;
+    align-content: start;
+    grid-template-rows: auto auto auto;
   }
 
   .masthead,
@@ -202,7 +203,8 @@ footer a {
   }
 
   .viewer-frame {
-    min-height: 32rem;
+    height: clamp(26rem, 62dvh, 34rem);
+    min-height: 0;
   }
 
   .empty-state {

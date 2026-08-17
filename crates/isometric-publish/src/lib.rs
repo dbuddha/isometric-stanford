@@ -149,12 +149,14 @@ pub fn publish_dzi(
 ///
 /// Returns an error when metadata, completeness, hashes, indexed bytes, WebP
 /// losslessness, dimensions, or decoded palette colors do not match.
-pub fn validate_dzi(output: &Path, palette: &[Rgb8]) -> Result<PublishReport, PublishError> {
+pub fn validate_dzi(output: &Path, style: &StylePack) -> Result<PublishReport, PublishError> {
     let manifest_bytes = read_bounded(&output.join("release.json"), MAX_MANIFEST_BYTES)?;
     let manifest: ReleaseArtifact = serde_json::from_slice(&manifest_bytes)?;
+    let palette = &style.palette;
     if manifest.schema != "isometric-release/v1"
         || manifest.status != "artifact-candidate"
         || manifest.qualified
+        || manifest.style_id != style.id
         || manifest.dzi.descriptor != "hero.dzi"
         || manifest.dzi.format != FORMAT
         || manifest.dzi.tile_size != 512
@@ -335,6 +337,7 @@ fn publish_staged(
         schema: "isometric-release/v1",
         status: "artifact-candidate",
         qualified: false,
+        style_id: style.id,
         world_sha256: &inputs.world_sha256,
         style_sha256: &inputs.style_sha256,
         dzi: DziManifest {
@@ -641,6 +644,7 @@ struct ReleaseManifest<'a> {
     schema: &'static str,
     status: &'static str,
     qualified: bool,
+    style_id: &'a str,
     world_sha256: &'a str,
     style_sha256: &'a str,
     dzi: DziManifest<'a>,
@@ -670,6 +674,7 @@ struct ReleaseArtifact {
     schema: String,
     status: String,
     qualified: bool,
+    style_id: String,
     world_sha256: String,
     style_sha256: String,
     dzi: DziArtifact,
@@ -1013,10 +1018,7 @@ mod tests {
         let report_b = publish_dzi(&world, &style, &inputs(), &second, DziOptions::prototype())
             .expect("second publish");
         assert_eq!(report_a, report_b);
-        assert_eq!(
-            validate_dzi(&first, &style.palette).expect("validate"),
-            report_a
-        );
+        assert_eq!(validate_dzi(&first, &style).expect("validate"), report_a);
         assert!(report_a.tile_count > usize::try_from(report_a.max_level).expect("level"));
         assert_eq!(directory_bytes(&first), directory_bytes(&second));
         assert!(first.join("hero.dzi").is_file());
@@ -1024,6 +1026,21 @@ mod tests {
         assert!(!first_staging.exists());
         remove_test_output(&first);
         remove_test_output(&second);
+    }
+
+    #[test]
+    fn validation_rejects_a_different_style_identity() {
+        let output = test_output("style-mismatch");
+        let world = World::reference_fixture();
+        let style = StylePack::stanford_v1_candidate_c();
+        publish_dzi(&world, &style, &inputs(), &output, DziOptions::prototype())
+            .expect("publish Candidate C");
+        assert!(matches!(
+            validate_dzi(&output, &StylePack::stanford_v1()),
+            Err(PublishError::InvalidManifest)
+        ));
+        assert!(validate_dzi(&output, &style).is_ok());
+        remove_test_output(&output);
     }
 
     #[test]
@@ -1037,7 +1054,7 @@ mod tests {
         bytes[0] ^= 0xff;
         fs::write(tile, bytes).expect("corrupt tile");
         assert!(matches!(
-            validate_dzi(&output, &style.palette),
+            validate_dzi(&output, &style),
             Err(PublishError::HashMismatch)
         ));
         remove_test_output(&output);
@@ -1060,7 +1077,7 @@ mod tests {
         )
         .expect("tamper manifest");
         assert!(matches!(
-            validate_dzi(&output, &style.palette),
+            validate_dzi(&output, &style),
             Err(PublishError::InvalidManifest)
         ));
         remove_test_output(&output);

@@ -110,8 +110,14 @@ status = "implemented"
 
 [[claim]]
 id = "PROTO-DZI-001"
-statement = "The canonical Rust publisher creates an atomic lossless WebP DZI from bounded guarded tiles, retains indexed canonical levels, and validates completeness, palette fidelity, and the full artifact hash chain."
+statement = "The canonical Rust publisher creates an atomic lossless WebP DZI from bounded guarded tiles, records the exact style identity, retains indexed canonical levels, and validates completeness, palette fidelity, style identity, and the full artifact hash chain."
 evidence = ["cargo test -p isometric-publish", "cargo run --release --locked -- publish dzi", "cargo run --release --locked -- validate release", ".github/workflows/scheduled-assurance.yml", "docs/chapters/performance.md"]
+status = "implemented"
+
+[[claim]]
+id = "PROTO-ASSURANCE-001"
+statement = "Three explicit Candidate C DZI publications are byte-identical under one release binary, stay below the prototype RSS and duration ceilings, exceed the accepted throughput floor, and load within hosted mobile and desktop request and cache budgets."
+evidence = ["python3 scripts/test_measure_prototype.py", "python3 scripts/measure_prototype.py --binary target/release/isometric-stanford --output artifacts/assurance/prototype", "web/e2e/viewer.spec.ts", ".github/workflows/scheduled-assurance.yml", "docs/chapters/performance.md", "docs/chapters/web-delivery.md"]
 status = "implemented"
 
 [[claim]]
