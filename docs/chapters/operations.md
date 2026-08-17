@@ -6,8 +6,8 @@ verifies the declared length and SHA-256 hash, and atomically promotes each
 artifact into `artifacts/source-cache/sha256`. Existing cache entries are
 rehashed before reuse. A hash or length mismatch leaves no accepted artifact.
 
-HTTPS acquisition applies separate 30 second connection, 60 second response
-header, and 300 second response-body deadlines. It makes at most
+HTTPS acquisition applies a 30 second connection deadline and a 300 second
+bounded receive window covering response headers and body. It makes at most
 three attempts and retries only connect, timeout, stalled-body, interrupted
 stream, and explicitly transient HTTP status failures. Permanent HTTP status,
 locked-length, digest, local I/O, and partial-file failures are not retried.

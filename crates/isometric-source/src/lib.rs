@@ -16,7 +16,10 @@ use sha2::{Digest, Sha256};
 const LOCK_SCHEMA: &str = "isometric-source-lock/v1";
 const COPY_BUFFER_BYTES: usize = 64 * 1024;
 const HTTP_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
-const HTTP_RESPONSE_TIMEOUT: Duration = Duration::from_secs(60);
+// ureq keeps the receive-response timer active while the body is read. Keep
+// both receive limits equal so a large valid body receives the documented
+// bounded window instead of inheriting a shorter header-only assumption.
+const HTTP_RESPONSE_TIMEOUT: Duration = Duration::from_secs(300);
 const HTTP_BODY_TIMEOUT: Duration = Duration::from_secs(300);
 const HTTP_MAX_ATTEMPTS: u8 = 3;
 const HTTP_RETRY_BACKOFF: Duration = Duration::from_millis(250);
@@ -915,6 +918,15 @@ mod tests {
         assert_eq!(server.join().expect("join fixture server"), 2);
         assert!(partial_files(&root).is_empty());
         fs::remove_dir_all(root).expect("remove test directory");
+    }
+
+    #[test]
+    fn production_receive_deadlines_share_one_large_artifact_window() {
+        let policy = RetryPolicy::production();
+
+        assert_eq!(policy.connect_timeout, Duration::from_secs(30));
+        assert_eq!(policy.response_timeout, Duration::from_secs(300));
+        assert_eq!(policy.body_timeout, Duration::from_secs(300));
     }
 
     #[test]

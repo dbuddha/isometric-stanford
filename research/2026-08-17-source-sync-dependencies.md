@@ -22,10 +22,12 @@ an async runtime or a geospatial parser to the renderer.
 response body. Its Rustls feature supplies TLS without a platform OpenSSL
 dependency. Downloads use a 64 KiB heap buffer, enforce the locked length while
 streaming, verify SHA-256 before rename, and never allocate in proportion to
-artifact size. Connection, response-header, and response-body waits are bounded
-at 30, 60, and 300 seconds. The synchronizer makes at most three
-attempts for classified transient conditions. Permanent status responses,
-length mismatches, and digest mismatches fail without retry.
+artifact size. Connection establishment is bounded at 30 seconds and response
+receipt, including headers and body, has one 300 second window. This matches
+`ureq` timing semantics, which keep the receive-response timer active while the
+body is read. The synchronizer makes at most three attempts for classified
+transient conditions. Permanent status responses, length mismatches, and digest
+mismatches fail without retry.
 
 The TLS root dataset uses the permissive CDLA 2.0. Its license text ships in
 the dependency source and permits unrestricted computational results. The
@@ -47,3 +49,10 @@ source ID and stage were preserved without exposing the export URL. Because the
 exact crop is 7.2 MB and redistributable public federal imagery, it is now a
 committed licensed fixture. This keeps the retry policy honest and avoids
 turning a permanently blocked runner-to-host route into a longer retry loop.
+
+The next cold run exposed an independent timeout configuration error while
+streaming `usgs-lidar-07509800`. `ureq` applies the receive-response deadline as
+a predecessor while reading the body, so a nominal 300 second body deadline
+was still capped at 60 seconds. The implementation now gives headers and body
+one explicit 300 second receive window, retains the separate 30 second connect
+deadline, and tests those production values directly.
