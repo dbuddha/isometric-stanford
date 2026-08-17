@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +26,7 @@ jobs:
       - run: scripts/check-policy.sh
       - run: python scripts/test_validate_pr.py
       - run: python scripts/test_measure_prototype.py
+      - run: python scripts/test_assemble_preview.py
       - if: github.event_name == 'pull_request'
         run: python scripts/validate_pr.py "$GITHUB_EVENT_PATH"
       - run: python scripts/validate_manifests.py

@@ -139,6 +139,12 @@ evidence = ["python scripts/test_validate_pr.py", "scripts/validate_pr.py", ".gi
 status = "implemented"
 
 [[claim]]
+id = "PROTO-PREVIEW-001"
+statement = "A portable browser preview can be assembled only from the current verified Candidate C world and DZI bytes, is visibly marked unqualified, and cannot claim publication or final approval."
+evidence = ["python scripts/test_assemble_preview.py", "scripts/assemble_preview.py", "web/src/release-metadata.test.ts", ".github/workflows/release-dry-run.yml", "research/2026-08-17-prototype-qualification.md"]
+status = "implemented"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []

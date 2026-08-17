@@ -99,11 +99,13 @@ jobs:
           cargo run --quiet --release --locked -- validate release artifacts/dzi/browser
           mkdir -p web/public/art
           cp artifacts/dzi/browser/hero.dzi web/public/art/
+          cp artifacts/dzi/browser/release.json web/public/art/
           cp -R artifacts/dzi/browser/hero_files web/public/art/
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
           E2E_DZI_URL: /isometric-stanford/art/hero.dzi
+          E2E_RELEASE_URL: /isometric-stanford/art/release.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: real-dzi-browser-evidence

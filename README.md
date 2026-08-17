@@ -157,6 +157,27 @@ The generated `release.json` records `stanford_v1.candidate_c.1`, and validation
 rejects the pyramid if a different known style is supplied. This preview path
 does not change `style.lock.json` or imply final style approval.
 
+Build an inspectable, explicitly unqualified browser bundle from a fresh
+Candidate C artifact:
+
+```sh
+VITE_DZI_URL=/isometric-stanford/art/hero.dzi \
+VITE_RELEASE_URL=/isometric-stanford/art/release.json \
+  npm --prefix web run build
+python3 scripts/assemble_preview.py \
+  --viewer-dist web/dist \
+  --dzi-artifact artifacts/dzi/candidate-c \
+  --output artifacts/preview-site
+cd web
+npm exec vite -- preview --outDir ../artifacts/preview-site
+```
+
+The assembler verifies every DZI byte against `release.json`, requires the
+current committed world hash, rejects pre-staged artwork in `web/dist`, and
+writes `preview.json` with `published_release: false`. Output and staging paths
+must not already exist. The dry-run workflow produces the same portable bundle
+without deploying it.
+
 Generate the four-scene Candidate A review pack:
 
 ```sh
