@@ -14,6 +14,25 @@ use serde_json::json;
 
 const PARKING_SCENE_OBJECT_ID: u64 = 195_279_117_591_313_501;
 
+#[derive(Clone, Copy)]
+struct CandidateSpec {
+    id: &'static str,
+    label: &'static str,
+    deviations: &'static str,
+}
+
+const CANDIDATE_A: CandidateSpec = CandidateSpec {
+    id: "stanford_v1.candidate_a",
+    label: "Candidate A",
+    deviations: "# Candidate A known deviations\n\n- The world remains vector-only with 387,096 ppm unknown coverage; NAIP and LiDAR evidence are not compiled.\n- Ordinary buildings still use flat roofs and do not yet have facade window cadence.\n- Vegetation coverage follows mapped vector polygons and lacks LiDAR-refined individual canopy.\n- The original palette contains 16 colors, substantially less tonal variation than the live Isometric NYC reference.\n- A same-viewport observation found much lower edge density and a dominant ground field; Candidate A is recognizably Stanford but remains more diagrammatic and sparse than the target analogue.\n- No reference screenshots, generated final pixels, or manually painted saved tiles are included.\n- Candidate A requires explicit owner acceptance or rejection before Candidate B starts.\n",
+};
+
+const CANDIDATE_B: CandidateSpec = CandidateSpec {
+    id: "stanford_v1.candidate_b",
+    label: "Candidate B",
+    deviations: "# Candidate B known deviations\n\n- The world remains vector-only with 387,096 ppm unknown coverage; NAIP and LiDAR evidence are not compiled.\n- Convex ordinary buildings receive procedural hip roofs; complex and courtyard footprints retain flat roofs.\n- Facade openings use stable grammar rather than surveyed architectural detail.\n- Vegetation remains bounded by mapped vector polygons and lacks LiDAR-refined species or individual canopy evidence.\n- Parking markings are world-anchored visual grammar, not surveyed stall geometry.\n- No reference screenshots, generated final pixels, or manually painted saved tiles are included.\n- Candidate B requires review before it can become the approved style.\n",
+};
+
 struct Scene {
     id: &'static str,
     title: &'static str,
@@ -37,6 +56,42 @@ pub(super) fn write_candidate_a(
     style_sha256: &str,
     output: &Path,
 ) -> Result<String, String> {
+    write_candidate(
+        world,
+        base_style,
+        world_sha256,
+        style_sha256,
+        output,
+        CANDIDATE_A,
+    )
+}
+
+/// Writes the bounded Candidate B review pack.
+pub(super) fn write_candidate_b(
+    world: &World,
+    style: &StylePack,
+    world_sha256: &str,
+    style_sha256: &str,
+    output: &Path,
+) -> Result<String, String> {
+    write_candidate(
+        world,
+        style,
+        world_sha256,
+        style_sha256,
+        output,
+        CANDIDATE_B,
+    )
+}
+
+fn write_candidate(
+    world: &World,
+    base_style: &StylePack,
+    world_sha256: &str,
+    style_sha256: &str,
+    output: &Path,
+    spec: CandidateSpec,
+) -> Result<String, String> {
     if output.exists() {
         return Err(format!(
             "candidate output already exists: {}",
@@ -54,11 +109,18 @@ pub(super) fn write_candidate_a(
         fs::create_dir_all(parent).map_err(|error| error.to_string())?;
     }
     fs::create_dir(&staging).map_err(|error| error.to_string())?;
-    let result =
-        write_staged(world, base_style, world_sha256, style_sha256, &staging).and_then(|summary| {
-            fs::rename(&staging, output).map_err(|error| error.to_string())?;
-            Ok(format!("{summary} at {}", output.display()))
-        });
+    let result = write_staged(
+        world,
+        base_style,
+        world_sha256,
+        style_sha256,
+        &staging,
+        spec,
+    )
+    .and_then(|summary| {
+        fs::rename(&staging, output).map_err(|error| error.to_string())?;
+        Ok(format!("{summary} at {}", output.display()))
+    });
     if result.is_err() && staging.exists() {
         fs::remove_dir_all(&staging).map_err(|error| error.to_string())?;
     }
@@ -72,6 +134,7 @@ fn write_staged(
     world_sha256: &str,
     style_sha256: &str,
     output: &Path,
+    spec: CandidateSpec,
 ) -> Result<String, String> {
     let mut style = base_style.clone();
     style.world_mm_per_half_step = 250;
@@ -170,7 +233,7 @@ fn write_staged(
         .collect::<Vec<_>>();
     let report = json!({
         "schema": "isometric-style-candidate/v1",
-        "candidate": "stanford_v1.candidate_a",
+        "candidate": spec.id,
         "status": "owner-review-required",
         "style_id": style.id,
         "world_sha256": world_sha256,
@@ -198,13 +261,14 @@ fn write_staged(
     let mut report_bytes = serde_json::to_vec_pretty(&report).map_err(|error| error.to_string())?;
     report_bytes.push(b'\n');
     fs::write(output.join("metrics.json"), report_bytes).map_err(|error| error.to_string())?;
-    fs::write(output.join("index.html"), contact_html(&scenes))
+    fs::write(output.join("index.html"), contact_html(&scenes, spec))
         .map_err(|error| error.to_string())?;
-    fs::write(output.join("known-deviations.md"), known_deviations())
+    fs::write(output.join("known-deviations.md"), spec.deviations)
         .map_err(|error| error.to_string())?;
 
     Ok(format!(
-        "wrote Candidate A with {} scenes and contact sheet: {:016x}",
+        "wrote {} with {} scenes and contact sheet: {:016x}",
+        spec.label,
         scenes.len(),
         stable_hash(contact.pixels())
     ))
@@ -459,7 +523,7 @@ fn write_webp(path: &Path, image: &IndexedImage, style: &StylePack) -> Result<()
     fs::write(path, bytes).map_err(|error| error.to_string())
 }
 
-fn contact_html(scenes: &[Scene]) -> String {
+fn contact_html(scenes: &[Scene], spec: CandidateSpec) -> String {
     let mut figures = String::new();
     for scene in scenes {
         write!(
@@ -474,12 +538,9 @@ fn contact_html(scenes: &[Scene]) -> String {
             .expect("writing to String cannot fail");
     }
     format!(
-        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Stanford Candidate A</title><style>body{{margin:0;background:#363230;color:#f5eed3;font:16px system-ui}}main{{padding:24px}}h1{{font-weight:500}}.grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}figure{{margin:0}}img{{display:block;width:100%;height:auto;image-rendering:pixelated;background:#efe1be}}figcaption{{padding:8px 0 16px}}@media(max-width:720px){{.grid{{grid-template-columns:1fr}}}}</style><main><h1>Isometric Stanford, Candidate A</h1><p>Original deterministic procedural output. Reference imagery is not redistributed.</p><div class=\"grid\">{figures}</div></main></html>"
+        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Stanford {}</title><style>body{{margin:0;background:#363230;color:#f5eed3;font:16px system-ui}}main{{padding:24px}}h1{{font-weight:500}}.grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}figure{{margin:0}}img{{display:block;width:100%;height:auto;image-rendering:pixelated;background:#efe1be}}figcaption{{padding:8px 0 16px}}@media(max-width:720px){{.grid{{grid-template-columns:1fr}}}}</style><main><h1>Isometric Stanford, {}</h1><p>Original deterministic procedural output. Reference imagery is not redistributed.</p><div class=\"grid\">{figures}</div></main></html>",
+        spec.label, spec.label
     )
-}
-
-fn known_deviations() -> &'static str {
-    "# Candidate A known deviations\n\n- The world remains vector-only with 387,096 ppm unknown coverage; NAIP and LiDAR evidence are not compiled.\n- Ordinary buildings still use flat roofs and do not yet have facade window cadence.\n- Vegetation coverage follows mapped vector polygons and lacks LiDAR-refined individual canopy.\n- The original palette contains 16 colors, substantially less tonal variation than the live Isometric NYC reference.\n- A same-viewport observation found much lower edge density and a dominant ground field; Candidate A is recognizably Stanford but remains more diagrammatic and sparse than the target analogue.\n- No reference screenshots, generated final pixels, or manually painted saved tiles are included.\n- Candidate A requires explicit owner acceptance or rejection before Candidate B starts.\n"
 }
 
 fn staging_path(output: &Path) -> Result<std::path::PathBuf, String> {

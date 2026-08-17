@@ -16,6 +16,9 @@ const PASS_WALL: u8 = 2;
 const PASS_ROOF: u8 = 3;
 const PASS_CROWN: u8 = 4;
 const PASS_SHADOW: u8 = 5;
+const PASS_ORDINARY_DETAIL: u8 = 8;
+const MAX_FACADE_QUADS_PER_OBJECT: usize = 512;
+const MAX_HIP_ROOF_PLANES: usize = 32;
 
 /// Stable content ID of the canonical Main Quad courtyard object.
 pub const MAIN_QUAD_OBJECT_ID: u64 = 7_375_667_649_447_908_307;
@@ -482,6 +485,8 @@ fn object_render_bounds(
         );
     }
 
+    max_z = ordinary_roof_max_z(object, style, max_z)?;
+
     let landmark_extent = match object.name() {
         Some("Hoover Tower" | "Memorial Church") => 40_000,
         _ => 0,
@@ -552,6 +557,19 @@ fn object_render_bounds(
     }
 
     projected_box(min_x, min_y, source.min_z_mm, max_x, max_y, max_z, style)
+}
+
+fn ordinary_roof_max_z(
+    object: &WorldObject,
+    style: &StylePack,
+    source_max_z: i64,
+) -> Result<i64, RenderError> {
+    if object.class() != SemanticClass::Building || !style.ordinary.roof_details {
+        return Ok(source_max_z);
+    }
+    source_max_z
+        .checked_add(style.ordinary.roof_rise_mm)
+        .ok_or(RenderError::ArithmeticOverflow)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -721,21 +739,28 @@ fn append_object(
             continue;
         }
         append_walls(output, polygon, object, style, view, &mut ordinal)?;
-        let roof_rings = scene_rings(
-            polygon,
-            i64::from(object.height_mm()),
-            SemanticClass::Building,
-            style,
-            view,
-        )?;
-        append_polygon_fill(
-            output,
-            &roof_rings,
-            style.ordinary.building[0],
-            object.id(),
-            PASS_ROOF,
-            &mut ordinal,
-        )?;
+        if style.ordinary.facade_details {
+            append_facade_details(output, polygon, object, style, view, &mut ordinal)?;
+        }
+        if !style.ordinary.roof_details
+            || !append_hip_roof(output, polygon, object, style, view, &mut ordinal)?
+        {
+            let roof_rings = scene_rings(
+                polygon,
+                i64::from(object.height_mm()),
+                SemanticClass::Building,
+                style,
+                view,
+            )?;
+            append_polygon_fill(
+                output,
+                &roof_rings,
+                style.ordinary.building[0],
+                object.id(),
+                PASS_ROOF,
+                &mut ordinal,
+            )?;
+        }
     }
     Ok(())
 }
@@ -790,6 +815,258 @@ fn append_walls(
         }
     }
     Ok(())
+}
+
+fn append_facade_details(
+    output: &mut Vec<Triangle>,
+    polygon: &Polygon,
+    object: &WorldObject,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let height = i64::from(object.height_mm());
+    if height < 4_500 {
+        return Ok(());
+    }
+    let floor_count = ((height - 2_000) / style.ordinary.facade_floor_spacing_mm).clamp(1, 8);
+    let mut detail_count = 0_usize;
+    'facades: for ring in polygon.rings() {
+        for edge in ring.points().windows(2) {
+            let dx = edge[1].x_mm - edge[0].x_mm;
+            let dy = edge[1].y_mm - edge[0].y_mm;
+            let edge_length = dx.abs().max(dy.abs());
+            if edge_length < style.ordinary.window_mm[0] * 2 {
+                continue;
+            }
+            let bay_count = (edge_length / style.ordinary.facade_bay_spacing_mm).clamp(1, 16);
+            let half_width = (style.ordinary.window_mm[0] / 2)
+                .min(edge_length / (bay_count + 1) / 3)
+                .max(250);
+            let window_color = style.ordinary.windows[usize::from(dx < dy)];
+            for floor in 0..floor_count {
+                let bottom = 1_500 + floor * style.ordinary.facade_floor_spacing_mm;
+                let top = (bottom + style.ordinary.window_mm[1]).min(height - 750);
+                if top <= bottom {
+                    continue;
+                }
+                for bay in 0..bay_count {
+                    if detail_count == MAX_FACADE_QUADS_PER_OBJECT {
+                        break 'facades;
+                    }
+                    let center = point_between(edge[0], edge[1], bay + 1, bay_count + 1)?;
+                    let along_x = dx
+                        .checked_mul(half_width)
+                        .ok_or(RenderError::ArithmeticOverflow)?
+                        / edge_length;
+                    let along_y = dy
+                        .checked_mul(half_width)
+                        .ok_or(RenderError::ArithmeticOverflow)?
+                        / edge_length;
+                    append_facade_quad(
+                        output,
+                        WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm),
+                        WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm),
+                        bottom + 50,
+                        top + 50,
+                        window_color,
+                        object.id(),
+                        style,
+                        view,
+                        ordinal,
+                    )?;
+                    detail_count += 1;
+                }
+            }
+        }
+    }
+
+    if let Some(edge) = polygon.rings()[0].points().windows(2).max_by_key(|edge| {
+        (edge[1].x_mm - edge[0].x_mm)
+            .abs()
+            .max((edge[1].y_mm - edge[0].y_mm).abs())
+    }) {
+        let dx = edge[1].x_mm - edge[0].x_mm;
+        let dy = edge[1].y_mm - edge[0].y_mm;
+        let edge_length = dx.abs().max(dy.abs());
+        if edge_length >= style.ordinary.door_mm[0] * 2 {
+            let center = point_between(edge[0], edge[1], 1, 2)?;
+            let half_width = style.ordinary.door_mm[0] / 2;
+            let along_x = dx
+                .checked_mul(half_width)
+                .ok_or(RenderError::ArithmeticOverflow)?
+                / edge_length;
+            let along_y = dy
+                .checked_mul(half_width)
+                .ok_or(RenderError::ArithmeticOverflow)?
+                / edge_length;
+            append_facade_quad(
+                output,
+                WorldPoint::new(center.x_mm - along_x, center.y_mm - along_y, center.z_mm),
+                WorldPoint::new(center.x_mm + along_x, center.y_mm + along_y, center.z_mm),
+                100,
+                style.ordinary.door_mm[1].min(height - 500),
+                style.ordinary.door,
+                object.id(),
+                style,
+                view,
+                ordinal,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_facade_quad(
+    output: &mut Vec<Triangle>,
+    left: WorldPoint,
+    right: WorldPoint,
+    bottom: i64,
+    top: i64,
+    color: u8,
+    object_id: ObjectId,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<(), RenderError> {
+    let vertices = [
+        scene_vertex(left, bottom, SemanticClass::Building, style, view)?,
+        scene_vertex(right, bottom, SemanticClass::Building, style, view)?,
+        scene_vertex(right, top, SemanticClass::Building, style, view)?,
+        scene_vertex(left, top, SemanticClass::Building, style, view)?,
+    ];
+    push_triangle(
+        output,
+        [vertices[0], vertices[1], vertices[2]],
+        color,
+        object_id,
+        PASS_ORDINARY_DETAIL,
+        ordinal,
+    );
+    push_triangle(
+        output,
+        [vertices[0], vertices[2], vertices[3]],
+        color,
+        object_id,
+        PASS_ORDINARY_DETAIL,
+        ordinal,
+    );
+    Ok(())
+}
+
+fn append_hip_roof(
+    output: &mut Vec<Triangle>,
+    polygon: &Polygon,
+    object: &WorldObject,
+    style: &StylePack,
+    view: Viewport,
+    ordinal: &mut u32,
+) -> Result<bool, RenderError> {
+    if polygon.rings().len() != 1 || !hip_roof_ring_supported(polygon.rings()[0].points()) {
+        return Ok(false);
+    }
+    let ring = polygon.rings()[0].points();
+    let vertices = &ring[..ring.len() - 1];
+    let count = i64::try_from(vertices.len()).map_err(|_| RenderError::ArithmeticOverflow)?;
+    let center = WorldPoint::new(
+        vertices
+            .iter()
+            .try_fold(0_i64, |sum, point| sum.checked_add(point.x_mm))
+            .ok_or(RenderError::ArithmeticOverflow)?
+            / count,
+        vertices
+            .iter()
+            .try_fold(0_i64, |sum, point| sum.checked_add(point.y_mm))
+            .ok_or(RenderError::ArithmeticOverflow)?
+            / count,
+        vertices
+            .iter()
+            .try_fold(0_i64, |sum, point| sum.checked_add(point.z_mm))
+            .ok_or(RenderError::ArithmeticOverflow)?
+            / count,
+    );
+    let wall_height = i64::from(object.height_mm());
+    let roof_rise = (wall_height / 3).clamp(1_500, style.ordinary.roof_rise_mm);
+    let apex = scene_vertex(
+        center,
+        wall_height
+            .checked_add(roof_rise)
+            .ok_or(RenderError::ArithmeticOverflow)?,
+        SemanticClass::Building,
+        style,
+        view,
+    )?;
+    for (index, edge) in ring.windows(2).enumerate() {
+        push_triangle(
+            output,
+            [
+                scene_vertex(edge[0], wall_height, SemanticClass::Building, style, view)?,
+                scene_vertex(edge[1], wall_height, SemanticClass::Building, style, view)?,
+                apex,
+            ],
+            style.ordinary.roof_faces[(index + usize::from(object.id().variation(2))) % 2],
+            object.id(),
+            PASS_ROOF,
+            ordinal,
+        );
+    }
+    Ok(true)
+}
+
+fn hip_roof_ring_supported(points: &[WorldPoint]) -> bool {
+    points.len().saturating_sub(1) <= MAX_HIP_ROOF_PLANES && ring_is_convex(points)
+}
+
+fn ring_is_convex(points: &[WorldPoint]) -> bool {
+    let vertices = &points[..points.len().saturating_sub(1)];
+    if vertices.len() < 3 {
+        return false;
+    }
+    let mut sign = 0_i8;
+    for index in 0..vertices.len() {
+        let a = vertices[index];
+        let b = vertices[(index + 1) % vertices.len()];
+        let c = vertices[(index + 2) % vertices.len()];
+        let cross = i128::from(b.x_mm - a.x_mm) * i128::from(c.y_mm - b.y_mm)
+            - i128::from(b.y_mm - a.y_mm) * i128::from(c.x_mm - b.x_mm);
+        if cross == 0 {
+            continue;
+        }
+        let current = if cross > 0 { 1 } else { -1 };
+        if sign != 0 && sign != current {
+            return false;
+        }
+        sign = current;
+    }
+    sign != 0
+}
+
+fn point_between(
+    start: WorldPoint,
+    end: WorldPoint,
+    numerator: i64,
+    denominator: i64,
+) -> Result<WorldPoint, RenderError> {
+    fn component(
+        start: i64,
+        end: i64,
+        numerator: i64,
+        denominator: i64,
+    ) -> Result<i64, RenderError> {
+        let value = i128::from(end)
+            .checked_sub(i128::from(start))
+            .ok_or(RenderError::ArithmeticOverflow)?
+            .checked_mul(i128::from(numerator))
+            .and_then(|delta| i128::from(start).checked_add(delta / i128::from(denominator)))
+            .ok_or(RenderError::ArithmeticOverflow)?;
+        i64::try_from(value).map_err(|_| RenderError::ArithmeticOverflow)
+    }
+    Ok(WorldPoint::new(
+        component(start.x_mm, end.x_mm, numerator, denominator)?,
+        component(start.y_mm, end.y_mm, numerator, denominator)?,
+        component(start.z_mm, end.z_mm, numerator, denominator)?,
+    ))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -848,7 +1125,8 @@ fn append_tree_crown(
         let low_right = scene_vertex(lower[next], 0, SemanticClass::Vegetation, style, view)?;
         let high_left = scene_vertex(upper[index], 0, SemanticClass::Vegetation, style, view)?;
         let high_right = scene_vertex(upper[next], 0, SemanticClass::Vegetation, style, view)?;
-        let color = style.ordinary.canopy[(index + usize::from(object.id().variation(2))) % 2];
+        let color = style.ordinary.canopy
+            [(index + usize::from(object.id().variation(4))) % style.ordinary.canopy.len()];
         push_triangle(
             output,
             [low_left, low_right, high_right],
@@ -868,7 +1146,7 @@ fn append_tree_crown(
         push_triangle(
             output,
             [high_left, high_right, apex],
-            style.ordinary.canopy[index % 2],
+            style.ordinary.canopy[index % style.ordinary.canopy.len()],
             object.id(),
             PASS_CROWN,
             ordinal,
@@ -1015,10 +1293,19 @@ fn shifted_scene_rings(
 
 fn composite_shadows(image: &mut IndexedImage, shadows: &IndexedImage, style: &StylePack) {
     for (target, &shadow) in image.pixels_mut().iter_mut().zip(shadows.pixels()) {
-        if shadow == style.ordinary.shadow && matches!(*target, 0 | 1 | 4 | 8 | 9 | 12 | 13 | 14) {
+        if shadow == style.ordinary.shadow && shadow_eligible(*target, style) {
             *target = style.ordinary.shadow;
         }
     }
+}
+
+fn shadow_eligible(index: u8, style: &StylePack) -> bool {
+    style.ordinary.terrain.contains(&index)
+        || style.ordinary.athletic.contains(&index)
+        || style.ordinary.parking.contains(&index)
+        || index == style.ordinary.road
+        || index == style.ordinary.path
+        || matches!(index, 4 | 14)
 }
 
 fn apply_world_patterns(
@@ -1043,6 +1330,12 @@ fn apply_world_patterns(
             && pattern.is_multiple_of(u64::from(style.ordinary.athletic_dither_period))
         {
             *pixel = style.ordinary.athletic[1];
+        } else if *pixel == style.ordinary.parking[0]
+            && (absolute_x.div_euclid(scale) + absolute_y.div_euclid(scale))
+                .rem_euclid(i64::from(style.ordinary.parking_line_period))
+                == 0
+        {
+            *pixel = style.ordinary.parking[1];
         }
     }
     Ok(())
@@ -1071,7 +1364,11 @@ fn apply_outlines(image: &mut IndexedImage, style: &StylePack) {
 }
 
 fn outline_family(index: u8, style: &StylePack) -> u8 {
-    if style.ordinary.building.contains(&index) {
+    if style.ordinary.building.contains(&index)
+        || (style.ordinary.roof_details && style.ordinary.roof_faces.contains(&index))
+        || (style.ordinary.facade_details
+            && (style.ordinary.windows.contains(&index) || index == style.ordinary.door))
+    {
         1
     } else if style.ordinary.canopy.contains(&index) {
         2
@@ -1279,8 +1576,9 @@ fn ground_color(class: SemanticClass, style: &StylePack) -> u8 {
     match class {
         SemanticClass::Terrain => style.ordinary.terrain[0],
         SemanticClass::Water => 4,
-        SemanticClass::Road | SemanticClass::Parking => 9,
-        SemanticClass::Path => 8,
+        SemanticClass::Road => style.ordinary.road,
+        SemanticClass::Parking => style.ordinary.parking[0],
+        SemanticClass::Path => style.ordinary.path,
         SemanticClass::AthleticSurface => style.ordinary.athletic[0],
         SemanticClass::Building => style.ordinary.building[1],
         SemanticClass::Vegetation => style.ordinary.canopy[0],
@@ -1329,45 +1627,113 @@ mod tests {
     #[test]
     fn guarded_tiles_reassemble_to_the_exact_full_scene() {
         let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
-        let style = StylePack::stanford_v1();
-        let layout = render_layout(&compiled.world, &style).expect("layout");
-        let full = render_world(&compiled.world, &style).expect("full render");
-        let guard = required_tile_guard(&style).expect("guard");
-        let tile_size = 512;
-        let columns = layout.width().div_ceil(tile_size);
-        let rows = layout.height().div_ceil(tile_size);
-        let mut assembled = IndexedImage::new(layout.width(), layout.height(), 0).expect("image");
-        let mut saw_spatial_filter = false;
+        for style in [
+            StylePack::stanford_v1(),
+            StylePack::stanford_v1_candidate_b(),
+        ] {
+            let layout = render_layout(&compiled.world, &style).expect("layout");
+            let full = render_world(&compiled.world, &style).expect("full render");
+            let guard = required_tile_guard(&style).expect("guard");
+            let tile_size = 512;
+            let columns = layout.width().div_ceil(tile_size);
+            let rows = layout.height().div_ceil(tile_size);
+            let mut assembled =
+                IndexedImage::new(layout.width(), layout.height(), 0).expect("image");
+            let mut saw_spatial_filter = false;
 
-        for row in 0..rows {
-            for column in 0..columns {
-                let request = TileRequest {
-                    column,
-                    row,
-                    tile_size,
-                    guard,
-                };
-                let tile = render_tile(&compiled.world, &style, layout, request).expect("tile");
-                saw_spatial_filter |= tile.stats.candidate_objects < compiled.world.objects().len();
-                assert!(tile.stats.surface_width <= tile_size + guard * 2);
-                assert!(tile.stats.surface_height <= tile_size + guard * 2);
-                assert_eq!(
-                    tile.stats.peak_pixel_buffer_bytes,
-                    usize::try_from(tile.stats.surface_width).expect("width")
-                        * usize::try_from(tile.stats.surface_height).expect("height")
-                        * 6
-                );
-                copy_tile(
-                    &mut assembled,
-                    &tile.image,
-                    column * tile_size,
-                    row * tile_size,
-                );
+            for row in 0..rows {
+                for column in 0..columns {
+                    let request = TileRequest {
+                        column,
+                        row,
+                        tile_size,
+                        guard,
+                    };
+                    let tile = render_tile(&compiled.world, &style, layout, request).expect("tile");
+                    saw_spatial_filter |=
+                        tile.stats.candidate_objects < compiled.world.objects().len();
+                    assert!(tile.stats.surface_width <= tile_size + guard * 2);
+                    assert!(tile.stats.surface_height <= tile_size + guard * 2);
+                    assert_eq!(
+                        tile.stats.peak_pixel_buffer_bytes,
+                        usize::try_from(tile.stats.surface_width).expect("width")
+                            * usize::try_from(tile.stats.surface_height).expect("height")
+                            * 6
+                    );
+                    copy_tile(
+                        &mut assembled,
+                        &tile.image,
+                        column * tile_size,
+                        row * tile_size,
+                    );
+                }
             }
-        }
 
-        assert!(saw_spatial_filter);
-        assert_eq!(assembled, full);
+            assert!(saw_spatial_filter);
+            assert_eq!(assembled, full);
+        }
+    }
+
+    #[test]
+    fn candidate_b_adds_deterministic_ordinary_detail() {
+        let compiled = isometric_world::compile_hero(OSM, OVERTURE).expect("world compiles");
+        let style = StylePack::stanford_v1_candidate_b();
+        let first = render_world(&compiled.world, &style).expect("Candidate B renders");
+        let second = render_world(&compiled.world, &style).expect("Candidate B rerenders");
+        assert_eq!(first, second);
+        assert!(
+            style
+                .ordinary
+                .windows
+                .iter()
+                .any(|color| first.pixels().contains(color))
+        );
+        assert!(first.pixels().contains(&style.ordinary.door));
+        assert!(
+            style
+                .ordinary
+                .roof_faces
+                .iter()
+                .all(|color| first.pixels().contains(color))
+        );
+        assert!(first.pixels().contains(&style.ordinary.parking[1]));
+        assert!(
+            style
+                .ordinary
+                .canopy
+                .iter()
+                .all(|color| first.pixels().contains(color))
+        );
+    }
+
+    #[test]
+    fn ordinary_detail_geometry_is_bounded_and_classified() {
+        let square = [
+            WorldPoint::new(0, 0, 0),
+            WorldPoint::new(10, 0, 0),
+            WorldPoint::new(10, 10, 0),
+            WorldPoint::new(0, 10, 0),
+            WorldPoint::new(0, 0, 0),
+        ];
+        let concave = [
+            WorldPoint::new(0, 0, 0),
+            WorldPoint::new(10, 0, 0),
+            WorldPoint::new(5, 5, 0),
+            WorldPoint::new(10, 10, 0),
+            WorldPoint::new(0, 10, 0),
+            WorldPoint::new(0, 0, 0),
+        ];
+        assert!(hip_roof_ring_supported(&square));
+        assert!(!hip_roof_ring_supported(&concave));
+        assert!(!hip_roof_ring_supported(&vec![
+            WorldPoint::new(0, 0, 0);
+            MAX_HIP_ROOF_PLANES + 2
+        ]));
+        assert_eq!(
+            point_between(square[0], square[2], 1, 2).expect("midpoint"),
+            WorldPoint::new(5, 5, 0)
+        );
+        assert_eq!(MAX_FACADE_QUADS_PER_OBJECT, 512);
     }
 
     #[test]

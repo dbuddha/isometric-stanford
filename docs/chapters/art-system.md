@@ -46,3 +46,12 @@ variation, and parking legibility remain visibly incomplete. The versioned
 recommends using
 Candidate B to correct those art-system deficiencies without changing the
 world, renderer, DZI, or viewer boundaries.
+
+Candidate B implements that bounded correction. Its ordinary grammar adds
+stable facade bays, doors, convex hip roofs, four-tone canopy faces, distinct
+parking, and independently authored material ramps. Unsupported complex roof
+footprints retain the safe flat fallback. Per-object facade and roof caps bound
+pathological source complexity. Candidate A remains byte-identical,
+which makes the [Candidate B review
+record](https://github.com/dbuddha/isometric-stanford/blob/main/research/2026-08-17-style-candidate-b.md)
+a controlled comparison rather than a moving baseline.

@@ -55,6 +55,13 @@ jobs:
       - run: cargo run --quiet --release --locked -- world compile artifacts/world
       - run: cargo run --quiet --release --locked -- render region artifacts/render/hero.ppm
       - run: cargo run --quiet --release --locked -- style candidate-a artifacts/style/candidate-a
+      - run: cargo run --quiet --release --locked -- style candidate-b artifacts/style/candidate-b
+      - name: Verify frozen style-candidate hashes
+        run: |
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-a/metrics.json)" = 215b8da3d2197672
+          test "$(jq -r '.contact_sheet.indexed_hash' artifacts/style/candidate-b/metrics.json)" = 1613892db6f12493
+          test "$(sha256sum artifacts/style/candidate-a/contact-sheet.webp | cut -d' ' -f1)" = 3c6f880e282778588bace57e48a3a91cbc7ad154569d8ec2933e87808bb58970
+          test "$(sha256sum artifacts/style/candidate-b/contact-sheet.webp | cut -d' ' -f1)" = 1fb51fa2ed7af9d99da386d75e195414b4e748337c8b411ddaa40fa2cfac8dc6
       - name: Verify canonical hero preview hash
         run: test "$(sha256sum artifacts/render/hero.ppm | cut -d' ' -f1)" = "$(jq -r '.outputs[0].sha256' render.manifest.json)"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -64,6 +71,7 @@ jobs:
             artifacts/reference.ppm
             artifacts/render/hero.ppm
             artifacts/style/candidate-a
+            artifacts/style/candidate-b
             artifacts/world/world.manifest.json
           if-no-files-found: error
 

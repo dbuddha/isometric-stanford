@@ -82,7 +82,7 @@ art style remain unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, `validate release`, `render region`,
-`publish dzi`, and `style candidate-a`. Source
+`publish dzi`, `style candidate-a`, and `style candidate-b`. Source
 synchronization rejects unapproved, mis-hashed, insecure, or Google-derived
 records before use. Hero compilation projects WGS84 vector geometry into
 EPSG:26910, subtracts the fixed origin, rounds to local integer millimeters,
@@ -97,6 +97,16 @@ staging directory. The review assembly holds one 25 MB indexed master for
 contact-sheet work; canonical tile workers remain bounded independently of map
 area. All other documented command names fail with an explicit not-implemented
 error.
+
+Candidate B extends the ordinary grammar without changing the raster boundary.
+Eligible walls receive repeated depth-safe window and door quads. Convex simple
+footprints receive bounded hip-roof planes, while complex footprints fail back
+to the deterministic flat fill. Each object is capped at 512 facade quads and
+32 hip-roof planes before fallback. Parking markings and material variation are
+anchored in absolute projected coordinates. Four-tone tree crowns remain
+seeded by stable object IDs. Conservative roof bounds participate in spatial
+tile selection, and Candidate B guarded tiles must reconstruct the monolithic
+scene exactly.
 
 The vector world currently contains 2,820 objects in 72 partitions. Its
 387,096 ppm unknown-cell result is expected because NAIP land cover and LiDAR
@@ -163,7 +173,7 @@ unknown schemas, and a release marked published before qualification.
 - Perception model execution and correction workflow
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
-- Detailed roof grammar
+- Detailed ridge, tile, and complex-footprint roof grammar
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render
 

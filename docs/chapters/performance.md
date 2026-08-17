@@ -43,3 +43,10 @@ local artifact about 35 MiB. Two clean publications were byte-identical with
 tile-set SHA-256
 `cee6b78366a6b1fed5b49ee663f2e524a82c4a5209f9e67d3b5dd74ea142e9e6`.
 These are local regression measurements, not fixed-device qualification.
+
+Candidate B increases ordinary-scene primitive density with facade openings,
+convex roof planes, and closer tree spacing. A complete four-scene review pack
+still completed in 1.14 seconds with 86,917,120 bytes maximum RSS on the local
+development probe. Candidate B guarded tiles reconstruct the monolithic scene
+exactly. Review assembly holds one approximately 25 MB indexed hero master;
+canonical render workers remain bounded to one guarded tile.

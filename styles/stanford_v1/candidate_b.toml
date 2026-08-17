@@ -1,0 +1,160 @@
+schema = "isometric-style/v1"
+id = "stanford_v1.candidate_b.1"
+status = "candidate"
+license = "CC-BY-4.0"
+author = "Deepak Buddha"
+logical_pixel_scale = 1
+projection = "orthographic-2-to-1"
+subpixels_per_pixel = 256
+world_mm_per_half_step = 1000
+elevation_mm_per_pixel = 1000
+anti_aliasing = false
+max_palette_colors = 128
+shadow_direction = "south-east"
+world_anchored_patterns = true
+
+[ordinary]
+terrain = [1, 0]
+canopy = [24, 2, 25, 3]
+athletic = [12, 13]
+building = [16, 7, 18]
+roof_faces = [16, 17]
+windows = [19, 20]
+door = 21
+road = 9
+path = 8
+parking = [22, 23]
+shadow = 10
+outline = 11
+shadow_x_mm = 12000
+shadow_y_mm = -4000
+tree_spacing_mm = 13000
+tree_radius_mm = 5800
+tree_height_mm = 13000
+terrain_dither_period = 8
+athletic_dither_period = 8
+parking_line_period = 24
+facade_details = true
+roof_details = true
+facade_bay_spacing_mm = 6000
+facade_floor_spacing_mm = 4000
+window_mm = [2200, 1800]
+door_mm = [2600, 3200]
+roof_rise_mm = 5000
+
+[landmarks]
+campus_u = [970, -242]
+campus_v = [242, 970]
+hoover_heights_mm = [10000, 62000, 70000, 82000, 87000]
+hoover_widths_mm = [16000, 26000, 18000]
+church_mm = [17000, 14000, 18000, 29000]
+main_quad_wall_height_mm = 12000
+arcade_mm = [6000, 2800, 4500, 6500]
+
+[[palette]]
+name = "sand-light"
+rgb = "#efe1be"
+
+[[palette]]
+name = "ground-neutral"
+rgb = "#b9b88b"
+
+[[palette]]
+name = "canopy-light-a"
+rgb = "#6f8458"
+
+[[palette]]
+name = "canopy-dark-a"
+rgb = "#466042"
+
+[[palette]]
+name = "water"
+rgb = "#518597"
+
+[[palette]]
+name = "tile-red-a"
+rgb = "#ab5c45"
+
+[[palette]]
+name = "tile-shadow-a"
+rgb = "#793c31"
+
+[[palette]]
+name = "stucco-light"
+rgb = "#e7ca9d"
+
+[[palette]]
+name = "path"
+rgb = "#cab896"
+
+[[palette]]
+name = "asphalt"
+rgb = "#807e73"
+
+[[palette]]
+name = "asphalt-shadow"
+rgb = "#54534e"
+
+[[palette]]
+name = "outline"
+rgb = "#363230"
+
+[[palette]]
+name = "field-light"
+rgb = "#d3b762"
+
+[[palette]]
+name = "field-dark"
+rgb = "#9d935b"
+
+[[palette]]
+name = "highlight"
+rgb = "#f5eed3"
+
+[[palette]]
+name = "unknown"
+rgb = "#232525"
+
+[[palette]]
+name = "tile-red-light"
+rgb = "#c8704f"
+
+[[palette]]
+name = "tile-red-dark"
+rgb = "#8f4334"
+
+[[palette]]
+name = "stucco-shadow"
+rgb = "#be976c"
+
+[[palette]]
+name = "window-dark"
+rgb = "#37494e"
+
+[[palette]]
+name = "window-light"
+rgb = "#708789"
+
+[[palette]]
+name = "door-dark"
+rgb = "#654237"
+
+[[palette]]
+name = "parking"
+rgb = "#979485"
+
+[[palette]]
+name = "parking-line"
+rgb = "#ddd3b5"
+
+[[palette]]
+name = "canopy-highlight"
+rgb = "#8fa269"
+
+[[palette]]
+name = "canopy-mid"
+rgb = "#567447"
+
+[[palette]]
+name = "path-highlight"
+rgb = "#dacaA9"
