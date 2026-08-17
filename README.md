@@ -97,9 +97,10 @@ cargo run --release --locked -- render region artifacts/render/hero.ppm
 The current 1,950 by 873 preview contains real campus footprints, paths,
 roads, empty parking, ground surfaces, flat roofs, directional facades,
 faceted tree groves, hard shadows, crisp outlines, and world-anchored material
-patterns. It is deterministic and recognizably Stanford, but it is not style
-candidate A. Detailed roof grammar and landmark-specific forms remain
-unfinished.
+patterns. Parameterized procedural grammar now gives Hoover Tower a stepped
+crown, Memorial Church a gabled roof and facade, and the Main Quad low arcade
+walls with repeated openings. It is deterministic and recognizably Stanford,
+but it is not yet an approved style candidate.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the

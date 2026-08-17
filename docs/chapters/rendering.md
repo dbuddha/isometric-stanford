@@ -6,8 +6,7 @@ checked arithmetic, an indexed palette, and no anti-aliasing at native art
 resolution.
 
 The pass order is terrain, water, hardscape, buildings, vegetation, hard
-shadows, world-anchored dithering, and outlines. Landmarks will add a dedicated
-pass in P-014. Stable object
+shadows, world-anchored dithering, outlines, and landmark detail. Stable object
 IDs select approved procedural variations. A guarded supertile renders beyond
 every saved tile boundary, then crops to the canonical tile. Patterns, shadows,
 and random-looking detail are anchored in world coordinates so they do not
@@ -50,12 +49,12 @@ one logical pixel wide. Neither operation introduces alpha blending,
 anti-aliasing, source pixels, or colors outside the style palette.
 
 The resulting vector-only hero preview is 1,950 by 873 pixels with indexed hash
-`3fa06d391073b5b6` and lossless PPM SHA-256
-`ca2b341e3421e6e86613fad77e9a170e406ff721a4ed2e84553d2e466c3808c7`.
+`72f585ae65f06d01` and lossless PPM SHA-256
+`0214e4526d86a3bbece685869361dbdd6e4f4b5a243ceca577ae0ed8225d1213`.
 On the measured development machine, release rendering completed in about 0.3
 seconds of renderer CPU time at roughly 25 MB peak RSS. This is engineering
-evidence, not artistic approval. Guarded supertiles, detailed roof grammar,
-landmarks, and the seam oracle remain tracked work.
+evidence, not artistic approval. Guarded supertiles, general detailed roof
+grammar, and the seam oracle remain tracked work.
 
 `wgpu` is not a style engine and is not a v1 dependency. It becomes a research
 candidate only after profiling shows the CPU renderer misses the accepted

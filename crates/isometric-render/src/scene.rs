@@ -8,6 +8,8 @@ use isometric_world::{Geometry, Polygon, SemanticClass, World, WorldObject};
 
 use crate::{IndexedImage, RasterSurface, RasterVertex, RenderError, Triangle, project};
 
+mod landmarks;
+
 const VIEW_MARGIN_PIXELS: i64 = 32;
 const PASS_GROUND: u8 = 1;
 const PASS_WALL: u8 = 2;
@@ -170,6 +172,9 @@ fn append_object(
             PASS_SHADOW,
             &mut shadow_ordinal,
         )?;
+        if landmarks::append_hero_landmark(output, polygon, object, style, view, &mut ordinal)? {
+            continue;
+        }
         append_walls(output, polygon, object, style, view, &mut ordinal)?;
         let roof_rings = scene_rings(
             polygon,
@@ -779,7 +784,7 @@ mod tests {
         assert!(first.width() > 1_000);
         assert!(first.height() > 500);
         assert_eq!((first.width(), first.height()), (1_950, 873));
-        assert_eq!(crate::stable_hash(first.pixels()), 0x3fa0_6d39_1073_b5b6);
+        assert_eq!(crate::stable_hash(first.pixels()), 0x72f5_85ae_65f0_6d01);
         assert!(first.pixels().contains(&5));
         assert!(first.pixels().contains(&9));
         assert!(first.pixels().contains(&style.ordinary.shadow));
