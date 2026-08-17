@@ -60,9 +60,12 @@ places stable, jittered, faceted tree crowns only inside mapped vegetation.
 Buildings and crowns cast a separate hard-shadow mask that is composited onto
 eligible surfaces. A bounded post-process adds sparse world-anchored material
 patterns and one-pixel building and canopy outlines. Flat roof faces and two
-directional facade ramps complete the 1,950 by 873 ordinary-scene preview.
-Guarded supertiles, detailed roof grammar, landmarks, and the qualified art
-style remain separate unfinished layers.
+directional facade ramps complete the ordinary-scene layer. A separate
+landmark module replaces three source extrusions with original parameterized
+geometry: a stepped Hoover Tower, a gabled Memorial Church, and a reviewed low
+Main Quad mass with repeated courtyard arcade openings. Guarded supertiles,
+general detailed roof grammar, and the qualified art style remain separate
+unfinished layers.
 
 The CLI currently implements `source sync`, `world compile`, `world inspect`,
 `validate semantic`, `validate render`, and `render region`. Source
@@ -134,7 +137,6 @@ unknown schemas, and a release marked published before qualification.
 - Raster evidence fusion, dirty-region propagation, and qualification-level
   unknown resolution
 - Detailed roof grammar, guarded supertiles, and seam oracle
-- Landmark grammar
 - DZI/WebP publication
 - Review dashboard, full visual metrics, and fixed-device qualification
 - H100 perception benchmark and full vertical-slice render

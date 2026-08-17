@@ -73,6 +73,12 @@ evidence = ["cargo test -p isometric-style", "cargo test -p isometric-render sce
 status = "implemented"
 
 [[claim]]
+id = "PROTO-LANDMARK-001"
+statement = "Original parameterized geometry gives Hoover Tower, Memorial Church, and the Main Quad distinct deterministic silhouettes without copied textures or manually painted pixels."
+evidence = ["cargo test -p isometric-render all_three_landmark_grammars_emit_distinct_details", "cargo test -p isometric-render hero_world_produces_deterministic_non_abstract_art", "styles/stanford_v1/style.toml", "docs/chapters/art-system.md", "CI artifact deterministic-render-evidence"]
+status = "implemented-not-approved"
+
+[[claim]]
 id = "PROTO-QUAL-001"
 statement = "The complete Stanford hero prototype satisfies all accepted qualification gates."
 evidence = []

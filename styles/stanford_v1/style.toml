@@ -1,5 +1,5 @@
 schema = "isometric-style/v1"
-id = "stanford_v1.ordinary.1"
+id = "stanford_v1.landmarks.1"
 status = "candidate"
 license = "CC-BY-4.0"
 author = "Deepak Buddha"
@@ -27,6 +27,15 @@ tree_radius_mm = 6500
 tree_height_mm = 12000
 terrain_dither_period = 16
 athletic_dither_period = 8
+
+[landmarks]
+campus_u = [970, -242]
+campus_v = [242, 970]
+hoover_heights_mm = [10000, 62000, 70000, 82000, 87000]
+hoover_widths_mm = [16000, 26000, 18000]
+church_mm = [17000, 14000, 18000, 29000]
+main_quad_wall_height_mm = 12000
+arcade_mm = [6000, 2800, 4500, 6500]
 
 [[palette]]
 name = "sand-light"

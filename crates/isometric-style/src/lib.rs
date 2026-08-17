@@ -44,6 +44,25 @@ pub struct OrdinaryGrammar {
     pub athletic_dither_period: u8,
 }
 
+/// Original parameterized grammar for the three prototype landmarks.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct LandmarkGrammar {
+    /// Fixed-point campus east axis in thousandths.
+    pub campus_u: [i64; 2],
+    /// Fixed-point campus north axis in thousandths.
+    pub campus_v: [i64; 2],
+    /// Hoover base, shaft, crown, lantern, and total heights in millimeters.
+    pub hoover_heights_mm: [i64; 5],
+    /// Hoover shaft, crown, and lantern widths in millimeters.
+    pub hoover_widths_mm: [i64; 3],
+    /// Church wall height, roof rise, half-width, and half-length in millimeters.
+    pub church_mm: [i64; 4],
+    /// Reviewed Main Quad wall height in millimeters.
+    pub main_quad_wall_height_mm: i64,
+    /// Arcade opening spacing, width, shoulder height, and apex height.
+    pub arcade_mm: [i64; 4],
+}
+
 /// The immutable subset of a style pack needed by the bootstrap renderer.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StylePack {
@@ -59,6 +78,8 @@ pub struct StylePack {
     pub palette: Vec<Rgb8>,
     /// Ordinary Stanford scene grammar.
     pub ordinary: OrdinaryGrammar,
+    /// Prototype landmark grammar.
+    pub landmarks: LandmarkGrammar,
 }
 
 impl StylePack {
@@ -66,7 +87,7 @@ impl StylePack {
     #[must_use]
     pub fn stanford_v1() -> Self {
         Self {
-            id: "stanford_v1.ordinary.1",
+            id: "stanford_v1.landmarks.1",
             subpixels_per_pixel: 256,
             world_mm_per_half_step: 1_000,
             elevation_mm_per_pixel: 1_000,
@@ -102,6 +123,15 @@ impl StylePack {
                 tree_height_mm: 12_000,
                 terrain_dither_period: 16,
                 athletic_dither_period: 8,
+            },
+            landmarks: LandmarkGrammar {
+                campus_u: [970, -242],
+                campus_v: [242, 970],
+                hoover_heights_mm: [10_000, 62_000, 70_000, 82_000, 87_000],
+                hoover_widths_mm: [16_000, 26_000, 18_000],
+                church_mm: [17_000, 14_000, 18_000, 29_000],
+                main_quad_wall_height_mm: 12_000,
+                arcade_mm: [6_000, 2_800, 4_500, 6_500],
             },
         }
     }
@@ -149,6 +179,25 @@ impl StylePack {
         {
             return Err(StyleError::InvalidGrammar);
         }
+        let landmark_values = self
+            .landmarks
+            .hoover_heights_mm
+            .into_iter()
+            .chain(self.landmarks.hoover_widths_mm)
+            .chain(self.landmarks.church_mm)
+            .chain(self.landmarks.arcade_mm);
+        if landmark_values.into_iter().any(|value| value <= 0)
+            || self.landmarks.campus_u == [0, 0]
+            || self.landmarks.campus_v == [0, 0]
+            || self.landmarks.main_quad_wall_height_mm <= 0
+            || !self
+                .landmarks
+                .hoover_heights_mm
+                .windows(2)
+                .all(|pair| pair[0] < pair[1])
+        {
+            return Err(StyleError::InvalidLandmarkGrammar);
+        }
         Ok(())
     }
 }
@@ -168,6 +217,8 @@ pub enum StyleError {
     PaletteIndex,
     /// An ordinary-scene grammar measurement or period is invalid.
     InvalidGrammar,
+    /// Landmark axes, dimensions, or ordered heights are invalid.
+    InvalidLandmarkGrammar,
 }
 
 impl fmt::Display for StyleError {
@@ -177,6 +228,9 @@ impl fmt::Display for StyleError {
             Self::NonPositiveScale => formatter.write_str("style scales must be positive"),
             Self::PaletteIndex => formatter.write_str("style grammar palette index is invalid"),
             Self::InvalidGrammar => formatter.write_str("style grammar values must be positive"),
+            Self::InvalidLandmarkGrammar => {
+                formatter.write_str("landmark grammar axes and dimensions are invalid")
+            }
         }
     }
 }
@@ -203,5 +257,9 @@ mod tests {
         let mut style = StylePack::stanford_v1();
         style.ordinary.tree_spacing_mm = 0;
         assert_eq!(style.validate(), Err(StyleError::InvalidGrammar));
+
+        let mut style = StylePack::stanford_v1();
+        style.landmarks.hoover_heights_mm[2] = style.landmarks.hoover_heights_mm[1];
+        assert_eq!(style.validate(), Err(StyleError::InvalidLandmarkGrammar));
     }
 }
