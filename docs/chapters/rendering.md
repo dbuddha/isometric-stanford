@@ -25,8 +25,20 @@ keys, palette indexes, coordinates, depths, degenerate triangles, duplicate
 submission, and checked-arithmetic failures stop rendering. The original
 diamond-and-column reference renderer remains only as a regression fixture.
 
-World-to-triangle pass composition, guarded supertiles, and the seam oracle
-remain tracked work.
+The ordinary-scene compiler projects canonical rings into the camera, slices
+each polygon at its vertex rows, pairs crossings using even-odd fill, and emits
+trapezoids as shared-edge triangles. This deterministic decomposition supports
+concave polygons and holes without a floating-point tessellation dependency.
+Ground classes receive explicit palette and depth layers. Buildings receive a
+flat roof and directional wall faces at their compiled heights.
+
+The resulting vector-only hero preview is 1,950 by 873 pixels with indexed hash
+`26132f9895f0cd70` and lossless PPM SHA-256
+`7af31aecd72149fe3cc3618c8bbf310c358b126f37176c5727645742e4363e59`.
+On the measured development machine, release rendering completed in 0.31
+seconds at roughly 20 MB peak RSS. This is engineering evidence, not artistic
+approval. Guarded supertiles, vegetation crowns, detailed roof grammar,
+shadows, outlines, dithering, and the seam oracle remain tracked work.
 
 `wgpu` is not a style engine and is not a v1 dependency. It becomes a research
 candidate only after profiling shows the CPU renderer misses the accepted

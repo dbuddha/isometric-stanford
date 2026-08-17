@@ -40,9 +40,9 @@ Repository foundation and the prototype-first delivery model are established.
 The Rust compiler now turns the locked OSM and Overture vectors into a
 deterministic, inspectable hero world. The current artifact contains 2,820
 objects across 72 spatial partitions, including measured Hoover Tower geometry
-and OSM geometry for Memorial Church. NAIP and LiDAR evidence, production
-rendering, and publication remain unfinished. The prototype is not qualified,
-and no map release has been published.
+and OSM geometry for Memorial Church. NAIP and LiDAR evidence, the remaining
+procedural art passes, and publication remain unfinished. The prototype is not
+qualified, and no map release has been published.
 
 ## Development
 
@@ -61,10 +61,10 @@ Run the complete local acceptance gate:
 scripts/check.sh
 ```
 
-Generate the original deterministic bootstrap preview:
+Generate the original synthetic regression preview:
 
 ```sh
-cargo run --locked -- render region artifacts/reference.ppm
+cargo run --locked -- render fixture artifacts/reference.ppm
 ```
 
 Synchronize the pinned prototype source bundle, an approximately 450 MB
@@ -81,11 +81,24 @@ cargo run --release --locked -- world compile
 cargo run --locked -- world inspect
 ```
 
-Compilation verifies every locked source before use and writes ignored
-artifacts under `artifacts/world/`. The committed `world.manifest.json` freezes
+Compilation validates the complete source lock, verifies the two consumed
+vector artifacts, and writes ignored artifacts under `artifacts/world/`. The
+committed `world.manifest.json` freezes
 the expected vector-world hash and reports 387,096 ppm unknown coverage. That
 large unknown fraction is deliberate evidence that NAIP and LiDAR compilation
 must happen before qualification.
+
+Render the vector-only Stanford preview:
+
+```sh
+cargo run --release --locked -- render region artifacts/render/hero.ppm
+```
+
+The current 1,950 by 873 preview contains real campus footprints, paths,
+roads, empty parking, ground surfaces, flat roofs, and directional facades. It
+is deterministic and recognizably Stanford, but it is not style candidate A:
+vegetation crowns, roof grammar, shadows, outlines, patterns, and landmark
+detail remain unfinished.
 
 Other remaining CLI command names are reserved and fail closed until their
 tracked implementation tasks merge. See the
