@@ -110,6 +110,19 @@ least 99.5 percent valid core coverage.
 The configured Hoover capture command and its credential isolation, readiness,
 and failure contracts are documented in [`capture/README.md`](capture/README.md).
 
+Review any accepted local bundle without copying its source artifacts into the
+web application or a deployable build:
+
+```sh
+REFERENCE_BUNDLE_DIRECTORY="$PWD/artifacts/reference/hoover" npm --prefix web run dev
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review`. The workbench verifies
+all six lengths, hashes, encodings, and registered dimensions before showing
+anything. It decodes only the selected comparison pair, keeps pan and zoom in
+shared source-pixel coordinates, supports a wipe view and 1:1 inspection, and
+displays the immutable camera, source, attribution, coverage, and hash evidence.
+
 Generate the original synthetic regression preview:
 
 ```sh

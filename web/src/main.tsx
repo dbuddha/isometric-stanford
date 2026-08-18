@@ -1,16 +1,28 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "./App";
-import "./styles.css";
-
 const root = document.getElementById("root");
 if (!root) {
   throw new Error("root element is missing");
 }
 
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const application = createRoot(root);
+const reviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review");
+
+if (reviewRoute) {
+  void import("./ReviewApp").then(({ ReviewApp }) =>
+    application.render(
+      <StrictMode>
+        <ReviewApp />
+      </StrictMode>,
+    ),
+  );
+} else {
+  void Promise.all([import("./App"), import("./styles.css")]).then(([{ App }]) =>
+    application.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    ),
+  );
+}

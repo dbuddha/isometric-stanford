@@ -15,6 +15,17 @@ camera changes, and the final qualification. Three deliberate style iterations
 are allowed. A failed third review triggers a continue, pivot, or stop decision.
 Manual painting of individual saved tiles is disqualifying.
 
+Reference acquisition is reviewed before semantic or art work begins. The
+`/review` workbench must accept the complete registered manifest and all six
+hashed layers before it displays a viewport. Reviewers can compare color,
+whitebox, linear depth, normals, fixed shadow, and source coverage in split or
+wipe mode. Both panels use the same source-pixel pan and zoom state, including
+native 1:1 inspection. The evidence panel identifies the bundle, camera,
+lighting, coverage, attribution, byte size, and every content digest. Missing,
+redirected, corrupt, or misregistered inputs produce a blocking error instead
+of a partial visual. This stage permits inspection only. It does not permit
+mask correction or final-pixel painting.
+
 Candidate A is the first implementation of this contract. CI regenerates its
 four scenes, contact sheet, landmark masks, metrics, and deviations from locked
 inputs and uploads them as review evidence. Its engineering evidence is
