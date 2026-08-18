@@ -52,6 +52,26 @@ Reference-derived art may retain accepted material hue and structural detail,
 but cannot copy an unmodified photographic region into the saved palette
 output.
 
+The implemented capture boundary precedes canonical Rust rendering. A pinned
+Three.js and 3d-tiles-renderer page positions one orthographic camera over the
+registered world grid and renders all six reference passes without changing
+camera or canvas dimensions. Playwright waits for a root tileset, an empty
+load queue, a minimum visible set, and a stable signature before reading any
+pixels. Raw layers travel over a tokenized loopback endpoint, not command-line
+arguments or base64 logs. The writer emits deterministic PNG containers and a
+millimeter depth payload, hashes every artifact, asks `isometric-reference` to
+validate the staged bundle, then atomically promotes it. A failed or partial
+capture leaves no usable bundle.
+
+The manifest freezes camera distance as well as target, azimuth, elevation,
+near plane, far plane, and orthographic spans. This makes both visible geometry
+and linear depth reproducible from the registered request.
+
+The browser GPU render is a reference acquisition step, not the canonical art
+renderer. Live upstream sessions are not expected to be byte-identical. Once
+accepted, the six-layer bundle is immutable and its hashes become the fixed
+input to mask fusion, obstruction repair, and Rust stylization.
+
 The renderer derives one immutable full-scene coordinate layout without
 allocating its framebuffer. A tile request renders only objects whose
 conservative projected bounds intersect its guard, applies all scene passes in

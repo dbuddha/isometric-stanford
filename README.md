@@ -50,6 +50,14 @@ approval, fixed-device qualification, and release publication remain
 unfinished. The prototype is not qualified, and no map release has been
 published.
 
+The registered reference contract and browser capture runtime are now
+implemented. The pinned Three.js path holds one orthographic camera across six
+Google 3D Tiles passes, waits for a stable complete visible set, transfers raw
+layers through a tokenized loopback endpoint, and atomically promotes only a
+bundle accepted by the Rust validator. Ordinary CI proves this path with a
+synthetic 3D scene and never requests Google content. No live Hoover bundle has
+yet been accepted.
+
 Candidate A can now be generated as a complete visual-review pack. It proves
 the deterministic review boundary, but its recorded evidence shows that the
 art remains materially sparser and more diagrammatic than the intended
@@ -79,6 +87,7 @@ Prerequisites are Rust 1.94.0, Python 3.12, Node.js 24, mdBook 0.5.4, and
 python3.12 -m venv perception/.venv
 perception/.venv/bin/python -m pip install -r perception/requirements-dev.lock pip-audit==2.10.1
 npm --prefix web install
+npm --prefix capture install
 ```
 
 Run the complete local acceptance gate:
@@ -97,6 +106,9 @@ cargo run --locked -- reference inspect artifacts/reference/hoover
 The inspector requires registered color, whitebox, linear-depth, view-normal,
 fixed-shadow, and coverage layers with one camera, complete hashes, and at
 least 99.5 percent valid core coverage.
+
+The configured Hoover capture command and its credential isolation, readiness,
+and failure contracts are documented in [`capture/README.md`](capture/README.md).
 
 Generate the original synthetic regression preview:
 

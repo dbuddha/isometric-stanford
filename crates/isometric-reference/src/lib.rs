@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// Portable reference-manifest schema.
-pub const MANIFEST_SCHEMA: &str = "isometric-reference-manifest/v1";
+pub const MANIFEST_SCHEMA: &str = "isometric-reference-manifest/v2";
 /// Canonical manifest filename inside a reference bundle.
 pub const MANIFEST_FILENAME: &str = "reference.manifest.json";
 /// Minimum accepted valid-pixel coverage for a pilot core.
@@ -83,6 +83,8 @@ pub struct CameraSpec {
     pub orthographic_width_mm: u64,
     /// Exact vertical orthographic span.
     pub orthographic_height_mm: u64,
+    /// Camera distance from the geographic target along the view direction.
+    pub camera_distance_mm: u64,
 }
 
 /// Fixed project lighting used for the registered shadow pass.
@@ -107,6 +109,8 @@ pub struct CaptureSpec {
     pub source_epoch: String,
     /// Whether the capture reached the strict readiness contract.
     pub complete: bool,
+    /// Provider attribution records visible during reference capture.
+    pub attributions: Vec<String>,
 }
 
 /// Registered layer type.
@@ -377,6 +381,8 @@ fn validate_tile_and_camera(
         || !(1_000..90_000).contains(&manifest.camera.elevation_millidegrees)
         || manifest.camera.near_mm == 0
         || manifest.camera.far_mm <= manifest.camera.near_mm
+        || manifest.camera.camera_distance_mm <= manifest.camera.near_mm
+        || manifest.camera.camera_distance_mm >= manifest.camera.far_mm
     {
         return Err(ReferenceError::Invalid(
             "reference camera contract is invalid".into(),
@@ -411,6 +417,13 @@ fn validate_capture(manifest: &ReferenceManifest) -> Result<(), ReferenceError> 
         || manifest.capture.provider != "google-photorealistic-3d-tiles"
         || manifest.capture.source_epoch.is_empty()
         || !manifest.capture.complete
+        || manifest.capture.attributions.is_empty()
+        || manifest.capture.attributions.len() > 64
+        || manifest.capture.attributions.iter().any(|attribution| {
+            attribution.is_empty()
+                || attribution.len() > 2_048
+                || attribution.chars().any(char::is_control)
+        })
     {
         return Err(ReferenceError::Invalid(
             "reference capture is incomplete or lacks identity".into(),
@@ -645,6 +658,7 @@ mod tests {
                 far_mm: 5_000_000,
                 orthographic_width_mm: u64::from(width) * 250,
                 orthographic_height_mm: u64::from(height) * 250,
+                camera_distance_mm: 2_000_000,
             },
             lighting: LightingSpec {
                 sun_azimuth_millidegrees: 315_000,
@@ -656,6 +670,7 @@ mod tests {
                 provider: "google-photorealistic-3d-tiles".into(),
                 source_epoch: "2026-08-18T00:00:00Z".into(),
                 complete: true,
+                attributions: vec!["copyright:fixture-provider".into()],
             },
             core_coverage_basis_points: 10_000,
             tile,
@@ -690,7 +705,15 @@ mod tests {
         assert!(canonical_manifest_json(&invalid).is_err());
 
         invalid = manifest.clone();
+        invalid.capture.attributions.clear();
+        assert!(canonical_manifest_json(&invalid).is_err());
+
+        invalid = manifest.clone();
         invalid.camera.orthographic_width_mm += 1;
+        assert!(canonical_manifest_json(&invalid).is_err());
+
+        invalid = manifest.clone();
+        invalid.camera.camera_distance_mm = invalid.camera.far_mm;
         assert!(canonical_manifest_json(&invalid).is_err());
 
         invalid = manifest.clone();

@@ -34,6 +34,15 @@ shared dimensions, camera identity, encoding, depth payload length, coverage,
 safe paths, and exact hashes. From a frozen bundle and accepted mask onward,
 the Rust stylizer and guarded seam oracle must be byte-identical.
 
+Ordinary CI never requests Google content and never holds an API credential.
+Its Chromium job renders a synthetic three-dimensional scene through the same
+six-pass framebuffer path, sends each layer through the same bounded loopback
+upload protocol, checks registered ordering and camera identity, and proves
+that only a complete staged bundle can be atomically promoted. Unit tests also
+exercise readiness reset, timeout prerequisites, credential redaction, PNG
+color types, depth headers, and immutable-output behavior. A configured live
+Hoover run is separate evidence and must still pass the Rust bundle validator.
+
 The hero compiler runs twice in the Rust test suite and compares complete JSON
 bytes. The second comparison checks the generated manifest against the
 committed `world.manifest.json`, which pins the world SHA-256, all seven source

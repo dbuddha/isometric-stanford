@@ -167,3 +167,9 @@ id = "REF-CONTRACT-001"
 statement = "Registered reference bundles fail closed unless color, whitebox, linear depth, view normals, fixed shadows, and coverage share one bounded orthographic grid, pass the pilot coverage floor, and match their exact content hashes."
 evidence = ["cargo test -p isometric-reference", "cargo test -p isometric-cli reference_inspection_fails_closed_without_a_manifest", "docs/adr/0006-registered-reference-stylization.md"]
 status = "implemented"
+
+[[claim]]
+id = "REF-CAPTURE-001"
+statement = "The registered capture workspace holds one orthographic camera across six passes, fails closed on unstable or failed tile loading, keeps credentials out of artifacts and diagnostics, and atomically promotes only a Rust-validated complete bundle."
+evidence = ["npm --prefix capture run check", "npm --prefix capture test", "npm --prefix capture run test:e2e", "capture/specs/hoover-pilot.json", ".github/workflows/ci.yml"]
+status = "implemented"

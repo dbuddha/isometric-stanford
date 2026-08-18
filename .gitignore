@@ -19,6 +19,10 @@
 /data/
 /web/playwright-report/
 /web/test-results/
+/capture/node_modules/
+/capture/dist/
+/capture/dist-node/
+/capture/test-results/
 *.pyc
 *.egg-info/
 **/__pycache__/
