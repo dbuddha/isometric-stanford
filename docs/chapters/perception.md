@@ -24,6 +24,24 @@ instances, and SAM refines accepted boxes into masks. Models do not determine
 final pixels. Rust fuses their frozen outputs with depth, normals, projected
 vectors, deterministic edges, and reviewed corrections.
 
+Boundary extraction does not depend on one object detector. Integer Scharr
+responses locate depth discontinuities, and squared encoded-normal differences
+locate orientation changes without trigonometry. Stable Canny-style
+hysteresis retains weak edges connected to strong seeds. Geographic priors and
+model interiors provide watershed markers, while morphology removes bounded
+noise and connected components assign stable row-major identities. Chamfer
+distance supplies deterministic proximity evidence. Quantized horizontal,
+vertical, and 45-degree line runs provide evidence for road markings and thin
+architectural divisions. These kernels propose structural evidence; later
+fusion still decides the semantic class and records its confidence and source
+flags.
+
+Local kernels declare a finite pixel radius. They may run on a guarded cell
+only when the guard is at least the complete composed radius. Hysteresis,
+connected components, and watershed can propagate across an arbitrary number
+of pixels, so they run once on the complete registered supertile before mask
+cells are cut. This is the semantic equivalent of the render seam contract.
+
 The implemented `isometric-mask` boundary defines 24 stable classes, including
 persistent surfaces, scale-gated infrastructure, removable obstructions,
 unknown regions, and broken-source evidence. Each eight-byte pixel record
@@ -45,6 +63,12 @@ Model floating-point output does not need byte identity. Once accepted model
 output is encoded as a frozen mask artifact, its bytes and manifest are hashed.
 All later Rust fusion, repair, styling, and stitching stages consume that exact
 immutable input.
+
+OpenCV 5.0 is a pinned research oracle for small Scharr, square-morphology, and
+connected-component fixtures. It is not a production dependency. Ordinary CI
+compares the safe-Rust output with the committed oracle bytes and lints the
+generator. Updating the oracle requires an explicit review of its inputs,
+versions, and the Rust contract.
 
 A future 150-patch Stanford benchmark covers buildings, roads, paths, water,
 canopy,

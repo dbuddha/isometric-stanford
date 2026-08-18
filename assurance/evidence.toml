@@ -185,3 +185,9 @@ id = "MASK-CONTRACT-001"
 statement = "Registered semantic mask artifacts use a stable 24-class ontology, exact reference hash chain, fixed-width confidence and instance records, bounded streaming validation, deterministic bytes, and structural rejection of transient or source-artifact pixels in persistent output."
 evidence = ["cargo test -p isometric-mask", "cargo test -p isometric-cli mask_inspection_validates_an_immutable_synthetic_artifact", "docs/chapters/perception.md", "docs/chapters/no-transients.md"]
 status = "implemented"
+
+[[claim]]
+id = "MASK-GEOMETRY-001"
+statement = "Safe bounded Rust kernels extract deterministic depth and normal boundaries, morphology, components, distance, watershed partitions, and quantized line evidence while preserving the whole-supertile connectivity boundary and finite-radius guarded-crop equality."
+evidence = ["cargo test -p isometric-mask geometry::tests", "fixtures/masks/geometry/opencv-oracle.json", "research/geometry/generate_opencv_oracle.py", "docs/chapters/perception.md"]
+status = "implemented"

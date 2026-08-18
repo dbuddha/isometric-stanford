@@ -19,6 +19,8 @@ mdbook test
 
 perception/.venv/bin/ruff format --check perception
 perception/.venv/bin/ruff check perception
+perception/.venv/bin/ruff format --check research/geometry/generate_opencv_oracle.py
+perception/.venv/bin/ruff check research/geometry/generate_opencv_oracle.py
 perception/.venv/bin/mypy --config-file perception/pyproject.toml
 perception/.venv/bin/pytest -c perception/pyproject.toml perception/tests
 perception/.venv/bin/pip-audit --local --skip-editable

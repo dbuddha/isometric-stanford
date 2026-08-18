@@ -26,6 +26,17 @@ master-frame allocation. Conservative projected bounds prevent off-tile objects
 from producing primitives, and viewport bounds limit each selected triangle's
 pixel loop to the region it can touch.
 
+Geometry-kernel rasters are capped at 4,096 pixels per side and use 32-bit
+stable row-major pixel identities. The pilot supertile is 2,560 by 2,560
+including its guard. A retained Scharr field uses five logical bytes per pixel:
+one 32-bit magnitude and one one-byte direction. Hysteresis adds one state byte
+and a worst-case 32-bit queue identity per pixel, for a conservative 65.6 MB of
+logical raster storage at the pilot size. Morphology uses one input, one
+horizontal scratch raster, and one output byte per pixel. Pipeline stages drop
+scratch storage before the next whole-supertile operation. Actual process RSS,
+allocator overhead, and concurrency remain release-measurement evidence rather
+than assumptions in this design accounting.
+
 The dependency-free 250 millimeter scale probe produces a 7,623 by 3,325 pixel
 layout as 105 independently rendered 512-pixel tiles with an 80-pixel derived
 guard. The fused semantic-world probe selected at most 325 of 2,820 world

@@ -16,6 +16,15 @@ use std::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+mod geometry;
+
+pub use geometry::{
+    Component, Connectivity, GradientDirection, GradientField, KernelError, LineOrientation,
+    LineSegment, Raster, chamfer_distance, close_binary, connected_components,
+    extract_line_evidence, hysteresis_edges, morphology_dilate, morphology_erode,
+    normal_discontinuity, open_binary, scharr_depth, watershed,
+};
+
 /// Portable semantic-mask manifest schema.
 pub const MANIFEST_SCHEMA: &str = "isometric-mask-manifest/v1";
 /// Stable semantic ontology identifier.
