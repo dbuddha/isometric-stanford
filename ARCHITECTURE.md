@@ -16,6 +16,12 @@ complete `source.lock.json` digest. The exact 7.2 MB public-domain NAIP hero
 crop is a committed source fixture because its federal export service rejects
 GitHub-hosted runner connections; the approximately 440 MB LiDAR bundle remains
 external and content-addressed.
+`isometric-reference` owns the registered reference-manifest schema and
+fail-closed bundle validation. It requires one orthographic camera, guarded
+pixel grid, lighting contract, and exact color, whitebox, linear-depth,
+view-normal, fixed-shadow, and coverage records. It streams SHA-256 validation
+through a bounded buffer, verifies PNG and depth headers, rejects unsafe paths,
+and enforces the pilot coverage gate before downstream processing.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or
@@ -27,8 +33,10 @@ roofs, materials, confidence, provenance, reviewed overrides, fixed
 EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
 has no transient people or vehicle variants. `isometric-style` owns the bounded
 indexed palette, projection scales, and versioned ordinary-scene grammar.
-`isometric-render` owns the deterministic CPU reference projection, procedural
-grammar, and bounded fixed-point triangle and integer-depth raster core.
+`isometric-render` owns the deterministic CPU comparison projection,
+procedural grammar, and bounded fixed-point triangle and integer-depth raster
+core. The planned `isometric-mask` and `isometric-stylize` crates will consume
+validated reference bundles without changing the DZI delivery boundary.
 `isometric-publish` owns lossless WebP encoding, canonical indexed pyramid
 tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
@@ -39,6 +47,7 @@ rejects unfinished commands.
 ```mermaid
 flowchart LR
     source["isometric-source\napproved content cache"]
+    reference["isometric-reference\nregistered layer contract"]
     perception["Pinned perception artifacts"]
     world["isometric-world\nimmutable semantic objects"]
     style["isometric-style\noriginal procedural rules"]
@@ -47,6 +56,7 @@ flowchart LR
     publish["isometric-publish\nlossless WebP DZI"]
     web["OpenSeadragon viewer shell"]
 
+    reference -->|"validated multipass bundle"| perception
     source -->|"locked NAIP + LiDAR"| perception
     source -->|"locked OSM + Overture"| world
     perception -->|"frozen 20 m evidence"| world
@@ -92,11 +102,12 @@ from canonical indexed parents, records a complete hash chain, and atomically
 promotes the staged pyramid. Survey-derived roof geometry and the qualified art
 style remain unfinished layers.
 
-The CLI currently implements `source sync`, `perceive run`, `world compile`,
+The CLI currently implements `source sync`, `reference inspect`, `perceive run`, `world compile`,
 `world inspect`, `validate semantic`, `validate render`, `validate release`,
 `render region`, `publish dzi`, `style candidate-a`, `style candidate-b`, and
 `style candidate-c`. Source synchronization rejects unapproved, mis-hashed,
-insecure, or Google-derived records before use. Perception decodes exact
+insecure records before use. Dynamic Google reference capture remains separate
+from the generic immutable source synchronizer. Perception decodes exact
 four-band NAIP,
 streams four serial LAZ sources in 250,000-point chunks, discards unclassified
 low elevated returns from persistent evidence, and freezes 372 eligible cells.
@@ -216,6 +227,8 @@ and a release marked published before qualification.
 ## Not implemented
 
 - Object storage and resumable remote acquisition
+- Live multipass Google capture and locked Hoover reference bundles
+- Semantic mask fusion, obstruction repair, and reference-derived Rust styling
 - Learned-model benchmark and correction workflow
 - Dirty-region propagation and full-estate evidence partitioning
 - Detailed ridge, tile, and complex-footprint roof grammar

@@ -276,11 +276,6 @@ fn validate_lock(lock: &SourceLock) -> Result<(), SourceError> {
             "source lock region must be stanford-hero-v1".into(),
         ));
     }
-    if lock.google_content_permitted {
-        return Err(SourceError::Invalid(
-            "Google-derived source acquisition is disabled".into(),
-        ));
-    }
     if lock.sources.is_empty() {
         return Err(SourceError::Invalid(
             "source lock must contain at least one approved artifact".into(),
@@ -1012,7 +1007,7 @@ mod tests {
             filename: "fixture".into(),
         };
         lock.google_content_permitted = true;
-        assert!(super::validate_lock(&lock).is_err());
+        assert!(super::validate_lock(&lock).is_ok());
     }
 
     #[test]

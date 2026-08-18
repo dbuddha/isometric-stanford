@@ -6,8 +6,12 @@ buses, cranes, temporary equipment, and construction clutter are absent.
 This is enforced structurally:
 
 - The final semantic enum cannot represent transient classes.
+- Intermediate reference masks may identify transient classes only so the
+  obstruction-repair stage can remove them. They cannot become a material,
+  procedural asset, or final semantic object.
 - Style validation rejects transient sprite or asset names.
-- Perception masks every vector-owned cell before raster material inference.
+- Reference perception computes obstruction masks on complete supertiles
+  before art-cell slicing so an object crossing a boundary receives one mask.
 - Unclassified LiDAR returns 0.5 to 4 meters above cell ground are discarded
   from persistent-class evidence and retained only as an aggregate QA counter.
 - Parking and road surfaces render as intentional empty hardscape.

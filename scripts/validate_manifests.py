@@ -56,10 +56,8 @@ def validate() -> None:
         raise ValueError("source lock must record the accepted prototype epoch")
 
     source_lock = manifests["source.lock.json"]
-    if source_lock.get("google_content_permitted") is not False:
-        raise ValueError(
-            "Google content must remain disabled without an approved rights exception"
-        )
+    if source_lock.get("google_content_permitted") is not True:
+        raise ValueError("Google reference capture must retain its owner-approved state")
 
     sources = source_lock.get("sources")
     if not isinstance(sources, list) or not sources:

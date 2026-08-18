@@ -1,11 +1,13 @@
 # Procedural art system
 
-The software tool that converts the world into art is the combination of
-`isometric-style` and `isometric-render`. The style pack specifies the camera,
-logical pixel scale, indexed palette, face ramps, shadow direction, outline
-rules, material patterns, window grammar, tree and terrain grammar, landmark
-assets, and stable variation rules. The renderer executes those rules against
-semantic geometry.
+The production software that converts the registered world view into art is
+the planned `isometric-stylize` crate combined with `isometric-style`, accepted
+masks, and bounded procedural overlays from `isometric-render`. The style pack
+specifies the logical pixel scale, indexed palette, material ramps, fixed
+lighting, outline rules, patterns, detail thresholds, and stable variation
+rules. The stylizer simplifies registered color through depth, normal,
+semantic, obstruction, and shadow evidence rather than recreating every
+building from a coarse footprint.
 
 For a building, the compiler supplies a reviewed footprint, height, roof class,
 material evidence, stable ID, and confidence. The style chooses a simplified
@@ -15,10 +17,11 @@ clips them, resolves depth, paints indexed faces, adds hard world-space shadows,
 and applies world-anchored patterns. The saved tile contains only approved
 palette indexes before WebP encoding.
 
-Ordinary structures use reusable grammar. Hoover Tower, Main Quad, Memorial
-Church, Green Library, Stanford Stadium, and other hero landmarks require
-original silhouette and component definitions. They are code or vector-like
-pixel primitives, not copied textures and not manually painted output tiles.
+Ordinary structures use reusable material grammar. Named landmarks receive a
+higher detail budget while retaining their registered silhouettes. Procedural
+components may correct unreadable details, markings, or masked regions, but
+they do not replace the reference geometry or permit manually painted output
+tiles.
 
 The prototype implements the first three as independently authored parameters
 inside `stanford_v1`. Hoover Tower uses a footprint base, narrow shaft, stable

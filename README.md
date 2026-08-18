@@ -1,11 +1,11 @@
 # Isometric Stanford
 
 Isometric Stanford is an evidence-driven project to build an original,
-deterministic isometric artwork and web map of Stanford campus. Licensed
-geospatial sources compile into a versioned semantic world. A procedural Rust
-renderer turns that world into crisp, late-1990s city-builder-style pixel art,
-then a static OpenSeadragon viewer serves a DZI/WebP pyramid efficiently on
-desktop and mobile.
+deterministic isometric artwork and web map of Stanford campus. Registered
+orthographic Google 3D reference layers, geographic evidence, and reviewed
+masks feed a safe-Rust stylizer that produces crisp, late-1990s
+city-builder-style pixel art. A static OpenSeadragon viewer serves the accepted
+DZI/WebP pyramid efficiently on desktop and mobile.
 
 The project now begins with a prototype hero area bounded by:
 
@@ -23,12 +23,13 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 
 ## Non-negotiable boundaries
 
-- Final artwork is procedural and does not contain captured source pixels.
+- Final artwork is a deterministic palette transform of registered source
+  layers and accepted masks. Raw reference tiles and unmodified photographic
+  regions are never publication artifacts.
 - People, cars, buses, cranes, and temporary equipment are excluded from the
   final world and renderer assets.
-- Open data is the production baseline.
-- Google-derived content is prohibited unless written permission explicitly
-  permits the intended derivative production and publication workflow.
+- Google Photorealistic 3D Tiles are the primary registered visual reference.
+  Open vectors, imagery, and LiDAR supply semantic and geographic evidence.
 - Qwen does not produce final artwork.
 - A deterministic fixed-point CPU renderer is the v1 rendering boundary.
 - OpenSeadragon and static DZI/WebP are the v1 browser boundary.
@@ -61,11 +62,13 @@ denser varied canopy, and distinct parking grammar. It raises fixed-scene edge
 density by 15 to 50 percent while preserving Candidate A byte for byte. It is a
 preserved, rejected review candidate, not an approved or published style.
 
-Candidate C is the final bounded procedural iteration. It adds world-anchored
+Candidate C is the final bounded procedural-only iteration. It adds world-anchored
 roof-tile cadence to simple and complex roofs, object-stable facade variation,
 clearer landmark openings, and restrained semantic circulation treatment. It
 preserves Candidates A and B byte for byte. Its engineering evidence is
-implemented, while the final visual decision remains pending.
+implemented and preserved as the reference-driven pilot baseline. The active
+pilot now qualifies registered multipass capture, masks, obstruction repair,
+Rust stylization, and guarded stitching before any campus expansion.
 
 ## Development
 
@@ -83,6 +86,17 @@ Run the complete local acceptance gate:
 ```sh
 scripts/check.sh
 ```
+
+Validate a captured multipass reference bundle before masks or stylization can
+consume it:
+
+```sh
+cargo run --locked -- reference inspect artifacts/reference/hoover
+```
+
+The inspector requires registered color, whitebox, linear-depth, view-normal,
+fixed-shadow, and coverage layers with one camera, complete hashes, and at
+least 99.5 percent valid core coverage.
 
 Generate the original synthetic regression preview:
 

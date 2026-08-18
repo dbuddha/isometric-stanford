@@ -5,6 +5,7 @@ members = [
     "crates/isometric-core",
     "crates/isometric-perception",
     "crates/isometric-publish",
+    "crates/isometric-reference",
     "crates/isometric-render",
     "crates/isometric-source",
     "crates/isometric-style",

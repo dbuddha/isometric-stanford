@@ -1,9 +1,10 @@
 # Rendering pipeline
 
-The canonical renderer is safe Rust on a pinned Linux CPU. It uses a fixed 2:1
-orthographic camera, integer world coordinates, fixed-point screen coordinates,
-checked arithmetic, an indexed palette, and no anti-aliasing at native art
-resolution.
+The canonical final-art boundary is safe Rust on a pinned Linux CPU. Registered
+reference layers share one orthographic camera and pixel grid. The stylizer
+uses checked integer or fixed-point kernels, an indexed palette, and no
+anti-aliasing at native art resolution. The existing geometric renderer
+remains the deterministic comparison baseline and procedural-overlay engine.
 
 The pass order is terrain, water, hardscape, buildings, vegetation, hard
 shadows, world-anchored dithering, outlines, and landmark detail. Stable object
@@ -46,7 +47,10 @@ Terrain and athletic patterns hash absolute projected coordinates rather than
 tile-local coordinates. Cropping or moving a guarded tile does not restart the
 pattern. Outlines operate only on building and canopy color families and remain
 one logical pixel wide. Neither operation introduces alpha blending,
-anti-aliasing, source pixels, or colors outside the style palette.
+anti-aliasing, tile-local phase, or colors outside the style palette.
+Reference-derived art may retain accepted material hue and structural detail,
+but cannot copy an unmodified photographic region into the saved palette
+output.
 
 The renderer derives one immutable full-scene coordinate layout without
 allocating its framebuffer. A tile request renders only objects whose

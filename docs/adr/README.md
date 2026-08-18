@@ -9,3 +9,4 @@ accepted and implemented.
 - [ADR 0003: Open-data production baseline](./0003-open-data-baseline.md)
 - [ADR 0004: Stanford hero prototype boundary](./0004-hero-prototype-boundary.md)
 - [ADR 0005: Observable style analogue contract](./0005-observable-style-analogue.md)
+- [ADR 0006: Registered reference-derived stylization](./0006-registered-reference-stylization.md)
