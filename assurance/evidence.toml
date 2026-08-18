@@ -173,3 +173,9 @@ id = "REF-CAPTURE-001"
 statement = "The registered capture workspace holds one orthographic camera across six passes, fails closed on unstable or failed tile loading, keeps credentials out of artifacts and diagnostics, and atomically promotes only a Rust-validated complete bundle."
 evidence = ["npm --prefix capture run check", "npm --prefix capture test", "npm --prefix capture run test:e2e", "capture/specs/hoover-pilot.json", ".github/workflows/ci.yml"]
 status = "implemented"
+
+[[claim]]
+id = "REF-REVIEW-001"
+statement = "The routed reference workbench verifies the complete six-layer hash and registration chain before display, decodes only the selected comparison pair, synchronizes source-pixel navigation, and fails closed on corrupt or missing artifacts on desktop and mobile."
+evidence = ["npm --prefix web test -- --run", "npm --prefix web run test:e2e", "web/src/reference-bundle.test.ts", "web/e2e/review.spec.ts", "docs/chapters/visual-qualification.md"]
+status = "implemented"

@@ -21,6 +21,9 @@ export default defineConfig({
         env: {
           VITE_DZI_URL:
             process.env.E2E_DZI_URL ?? "/isometric-stanford/fixture/hero.dzi",
+          VITE_REFERENCE_URL:
+            process.env.E2E_REFERENCE_URL ??
+            "/isometric-stanford/fixture/reference/reference.manifest.json",
           VITE_RELEASE_URL:
             process.env.E2E_RELEASE_URL ?? "/isometric-stanford/fixture/release.json",
         },

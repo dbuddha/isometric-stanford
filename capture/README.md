@@ -54,6 +54,18 @@ GOOGLE_MAP_TILES_API_KEY='<local credential>' npm --prefix capture run capture -
   --output artifacts/reference/hoover
 ```
 
+After Rust validation accepts the immutable bundle, inspect its six registered
+layers through the local-only review route:
+
+```bash
+REFERENCE_BUNDLE_DIRECTORY="$PWD/artifacts/reference/hoover" npm --prefix web run dev
+```
+
+Then open `http://127.0.0.1:5173/isometric-stanford/review`. The development
+server exposes only the seven allowlisted bundle files, with no caching, from
+the configured directory. It does not copy them into `web/public`, `dist`, or
+any release artifact.
+
 The credential is injected into the isolated Playwright page, never written to
 the request, manifest, artifacts, command output, or validator subprocess. The
 live command is deliberately absent from ordinary CI. A capture timeout, tile

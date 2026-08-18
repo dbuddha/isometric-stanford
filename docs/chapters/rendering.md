@@ -72,6 +72,14 @@ renderer. Live upstream sessions are not expected to be byte-identical. Once
 accepted, the six-layer bundle is immutable and its hashes become the fixed
 input to mask fusion, obstruction repair, and Rust stylization.
 
+The local reference workbench reads these immutable bytes sequentially under
+fixed limits and verifies the complete hash chain before visual review. It
+retains compressed bytes for the six inputs but decodes only the selected pair.
+All comparison transforms are expressed in source pixels, so color, geometry,
+depth, normal, shadow, and coverage views remain registered during pan, zoom,
+and wipe inspection. The depth grayscale is a dashboard visualization and is
+never an input to canonical masking or art.
+
 The renderer derives one immutable full-scene coordinate layout without
 allocating its framebuffer. A tile request renders only objects whose
 conservative projected bounds intersect its guard, applies all scene passes in

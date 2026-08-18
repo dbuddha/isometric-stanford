@@ -198,6 +198,19 @@ mobile sizes against the real pyramid. A locally generated candidate has been
 exercised in the assembled viewer, but no DZI release is committed or
 published.
 
+The separately routed `/review` workbench consumes one immutable registered
+reference manifest. Its bounded reader fetches the manifest and six layers in
+canonical order, enforces per-file and aggregate byte ceilings, rejects
+redirects, verifies SHA-256 and portable headers, and exposes no viewport until
+the complete bundle passes. Only the two selected layers receive browser image
+decodes. Linear integer depth is converted to a deterministic inspection-only
+grayscale preview. Split and wipe views share one source-pixel pan and zoom
+state, include keyboard and 1:1 controls, and expose bundle identity, camera,
+lighting, attribution, coverage, and hashes. A development-only Vite endpoint
+serves exactly seven allowlisted files from `REFERENCE_BUNDLE_DIRECTORY`; it is
+absent from production builds and never stages raw reference content for
+publication.
+
 Hosted browser checks use the Chrome channel maintained on the GitHub runner
 image, avoiding a network browser installation inside ordinary pull-request
 jobs. Local checks continue to use Playwright's installed Chromium. Browser
