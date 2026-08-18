@@ -27,3 +27,9 @@ npm --prefix web run check
 npm --prefix web run build
 npm --prefix web test -- --run
 npm --prefix web audit --omit=dev --audit-level=high
+
+npm --prefix capture run check
+npm --prefix capture run build
+npm --prefix capture test
+npm --prefix capture run test:e2e
+npm --prefix capture audit --omit=dev --audit-level=high

@@ -1,0 +1,26 @@
+{
+  "name": "isometric-stanford-capture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "capture": "node dist-node/src/node/capture-cli.js",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "dev": "vite",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "3d-tiles-renderer": "0.5.0",
+    "three": "0.185.1",
+    "vite": "8.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.2.0",
+    "@types/three": "0.185.0",
+    "typescript": "6.0.2",
+    "vitest": "4.1.0"
+  }
+}

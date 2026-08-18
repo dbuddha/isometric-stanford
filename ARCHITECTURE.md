@@ -22,6 +22,18 @@ pixel grid, lighting contract, and exact color, whitebox, linear-depth,
 view-normal, fixed-shadow, and coverage records. It streams SHA-256 validation
 through a bounded buffer, verifies PNG and depth headers, rejects unsafe paths,
 and enforces the pilot coverage gate before downstream processing.
+The `capture/` TypeScript workspace owns the noncanonical browser boundary. It
+uses pinned Three.js, 3d-tiles-renderer, and Playwright versions to hold one
+orthographic camera while producing color, neutral whitebox, linear depth,
+view-normal, fixed-shadow, and coverage passes. A stable-readiness state
+machine requires a loaded root tileset, no active load, no load error, a
+minimum visible-tile count, and an unchanged content signature for both a
+frame count and wall duration. Each raw pass is uploaded to a tokenized
+loopback endpoint, encoded in a fixed portable format, and written to a private
+staging directory. The Rust reference validator must accept the complete
+version-two bundle before an atomic rename makes it visible to later stages. Credentials
+are injected only into the isolated browser context and are removed from
+validator subprocesses and sanitized diagnostics.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or
@@ -107,7 +119,10 @@ The CLI currently implements `source sync`, `reference inspect`, `perceive run`,
 `render region`, `publish dzi`, `style candidate-a`, `style candidate-b`, and
 `style candidate-c`. Source synchronization rejects unapproved, mis-hashed,
 insecure records before use. Dynamic Google reference capture remains separate
-from the generic immutable source synchronizer. Perception decodes exact
+from the generic immutable source synchronizer. The capture workspace contains
+a pinned Hoover request at `capture/specs/hoover-pilot.json`; running it
+requires an explicit local credential and never occurs in ordinary CI.
+Perception decodes exact
 four-band NAIP,
 streams four serial LAZ sources in 250,000-point chunks, discards unclassified
 low elevated returns from persistent evidence, and freezes 372 eligible cells.
@@ -227,7 +242,7 @@ and a release marked published before qualification.
 ## Not implemented
 
 - Object storage and resumable remote acquisition
-- Live multipass Google capture and locked Hoover reference bundles
+- A live locked Hoover reference bundle and capture-quality visual approval
 - Semantic mask fusion, obstruction repair, and reference-derived Rust styling
 - Learned-model benchmark and correction workflow
 - Dirty-region propagation and full-estate evidence partitioning
