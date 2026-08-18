@@ -9,6 +9,7 @@ export default defineConfig({
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: externalBaseUrl ?? "http://127.0.0.1:4173/isometric-stanford/",
+    channel: process.env.CI ? "chrome" : undefined,
     trace: "retain-on-failure",
   },
   webServer: externalBaseUrl

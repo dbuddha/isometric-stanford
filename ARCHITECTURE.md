@@ -198,6 +198,12 @@ mobile sizes against the real pyramid. A locally generated candidate has been
 exercised in the assembled viewer, but no DZI release is committed or
 published.
 
+Hosted browser checks use the Chrome channel maintained on the GitHub runner
+image, avoiding a network browser installation inside ordinary pull-request
+jobs. Local checks continue to use Playwright's installed Chromium. Browser
+pixels are regression evidence rather than canonical render artifacts, so this
+boundary does not enter the exact artwork hash chain.
+
 ## Binding invariants
 
 1. World coordinates are signed integer millimeters relative to a versioned

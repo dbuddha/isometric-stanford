@@ -5,6 +5,7 @@ export default defineConfig({
   timeout: 30_000,
   use: {
     browserName: "chromium",
+    channel: process.env.CI ? "chrome" : undefined,
     headless: true,
   },
   webServer: {
