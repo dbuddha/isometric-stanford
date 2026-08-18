@@ -51,7 +51,14 @@ bounded streaming validator. Evidence and repair-input artifacts may retain
 transient and source-artifact classes. Persistent artifacts reject those
 classes structurally. Its production registration constructor derives both
 the parent-manifest and grid-camera digests from the canonical reference
-manifest. `isometric-render` owns the deterministic CPU comparison
+manifest. The same crate owns bounded integer geometry kernels for Scharr
+depth gradients, encoded-normal discontinuity, stable hysteresis, square
+morphology, row-major connected components, 3-4 chamfer distance,
+marker-controlled watershed, and quantized line evidence. Finite-radius
+kernels may operate on guarded cells whose guard covers their complete
+dependency radius. Connectivity and flood kernels operate once on the full
+registered supertile before any 512-pixel cell is sliced. `isometric-render`
+owns the deterministic CPU comparison
 projection, procedural grammar, and bounded fixed-point triangle and
 integer-depth raster core. The planned `isometric-stylize` crate will consume
 validated reference and mask bundles without changing the DZI delivery
@@ -254,6 +261,8 @@ boundary does not enter the exact artwork hash chain.
 12. Every semantic mask is registered to one exact reference-manifest digest.
     Evidence artifacts may describe obstructions; persistent artifacts cannot
     contain a transient or source-artifact class.
+13. Connectivity and watershed decisions are supertile artifacts. They may not
+    be recomputed independently per publication cell.
 
 ## Durable artifact chain
 

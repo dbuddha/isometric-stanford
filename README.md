@@ -121,6 +121,10 @@ The mask inspector verifies reference registration, the complete 24-class
 ontology, confidence and evidence encoding, instance-class consistency,
 summary counts, byte length, and SHA-256. A persistent artifact containing a
 person, vehicle, construction object, or broken-source pixel fails closed.
+Safe-Rust geometry kernels now provide deterministic depth and normal edges,
+morphology, connected components, chamfer distance, watershed, and line
+evidence. Finite-radius operations have guarded-crop equivalence tests, while
+connectivity and watershed remain whole-supertile stages before cell slicing.
 
 The configured Hoover capture command and its credential isolation, readiness,
 and failure contracts are documented in [`capture/README.md`](capture/README.md).
