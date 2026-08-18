@@ -27,6 +27,13 @@ review metadata always produces fresh authoritative evidence.
 CI must not rerun a failed job until the cause is understood, weaken a threshold
 to obtain green status, or treat hosted timing as fixed-device qualification.
 
+Registered reference capture is not assumed byte-stable across live upstream
+sessions. A capture becomes canonical only after its six layers and manifest
+are frozen and hashed. Ordinary CI validates synthetic or locked bundles for
+shared dimensions, camera identity, encoding, depth payload length, coverage,
+safe paths, and exact hashes. From a frozen bundle and accepted mask onward,
+the Rust stylizer and guarded seam oracle must be byte-identical.
+
 The hero compiler runs twice in the Rust test suite and compares complete JSON
 bytes. The second comparison checks the generated manifest against the
 committed `world.manifest.json`, which pins the world SHA-256, all seven source

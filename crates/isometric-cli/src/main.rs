@@ -17,6 +17,7 @@ mod candidate;
 
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
+  isometric-stanford reference inspect [bundle-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
   isometric-stanford world inspect [world.json]
@@ -35,6 +36,8 @@ Implemented commands:
   render fixture writes the original synthetic regression PPM.
   validate semantic, validate render, and validate release are executable.
   source sync verifies approved artifacts in a content-addressed cache.
+  reference inspect validates a registered multipass reference bundle and its
+  complete layer hash chain without decoding source imagery into final art.
   perceive run compiles locked NAIP and streamed LiDAR into a transient-safe
   semantic evidence artifact; source pixels and point records are not retained.
   world compile verifies the complete source lock, compiles the locked vectors,
@@ -68,6 +71,12 @@ fn run(arguments: &[String]) -> Result<String, String> {
         }
         [group, command, cache] if group == "source" && command == "sync" => {
             sync_sources(&PathBuf::from(cache))
+        }
+        [group, command] if group == "reference" && command == "inspect" => {
+            inspect_reference(Path::new("artifacts/reference/hoover"))
+        }
+        [group, command, input] if group == "reference" && command == "inspect" => {
+            inspect_reference(Path::new(input))
         }
         [group, command] if group == "perceive" && command == "run" => {
             compile_perception(Path::new("artifacts/perception"))
@@ -161,6 +170,21 @@ fn sync_sources(cache: &Path) -> Result<String, String> {
     let artifacts = isometric_source::sync(Path::new("source.lock.json"), cache)
         .map_err(|error| error.to_string())?;
     Ok(sync_report(cache, &artifacts))
+}
+
+fn inspect_reference(root: &Path) -> Result<String, String> {
+    let manifest_path = root.join(isometric_reference::MANIFEST_FILENAME);
+    let manifest =
+        isometric_reference::read_manifest(&manifest_path).map_err(|error| error.to_string())?;
+    let report =
+        isometric_reference::validate_bundle(root, &manifest).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "reference bundle {} passed: {} layers, {} bytes, manifest {}",
+        manifest.bundle_id,
+        report.layer_sha256.len(),
+        report.total_layer_bytes,
+        report.manifest_sha256
+    ))
 }
 
 fn sync_report(cache: &Path, artifacts: &[isometric_source::SyncedArtifact]) -> String {
@@ -541,7 +565,7 @@ fn write_ppm(
 
 #[cfg(test)]
 mod tests {
-    use super::{publication_style, run, style_by_id, sync_report};
+    use super::{inspect_reference, publication_style, run, style_by_id, sync_report};
     use isometric_source::SyncedArtifact;
     use std::path::{Path, PathBuf};
 
@@ -560,6 +584,15 @@ mod tests {
         let arguments = vec!["render".into(), "slice".into()];
         let result = run(&arguments);
         assert!(result.expect_err("must fail").contains("not implemented"));
+    }
+
+    #[test]
+    fn reference_inspection_fails_closed_without_a_manifest() {
+        let missing = std::env::temp_dir().join(format!(
+            "isometric-reference-missing-{}",
+            std::process::id()
+        ));
+        assert!(inspect_reference(&missing).is_err());
     }
 
     #[test]

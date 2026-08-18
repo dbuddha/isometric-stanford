@@ -285,6 +285,7 @@ dependencies = [
  "isometric-core",
  "isometric-perception",
  "isometric-publish",
+ "isometric-reference",
  "isometric-render",
  "isometric-source",
  "isometric-style",
@@ -317,6 +318,15 @@ dependencies = [
  "isometric-render",
  "isometric-style",
  "isometric-world",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
+name = "isometric-reference"
+version = "0.1.0"
+dependencies = [
  "serde",
  "serde_json",
  "sha2",

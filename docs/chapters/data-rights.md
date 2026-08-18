@@ -1,6 +1,7 @@
 # Data rights and provenance
 
-The production baseline is open data. The prototype source families are 2024
+The semantic and geographic baseline is open data. The prototype source
+families are 2024
 USDA NAIP imagery, approved 2020 Santa Clara County or USGS LiDAR,
 OpenStreetMap, Overture 2026-06-17.0 Buildings, and original owner-approved
 Stanford overrides. Each exact artifact requires a source-lock record before
@@ -16,11 +17,13 @@ Source precedence is:
 5. Deterministic heuristics
 6. Explicit unknown
 
-Google content is not approved. Written permission must explicitly authorize
-retrieval, derivative production, storage, and public redistribution before a
-Google-derived record can be enabled. General API access is insufficient.
+Google Photorealistic 3D Tiles are the owner-authorized registered visual
+reference. Dynamic capture is isolated from the generic source synchronizer.
+Every retained reference bundle records provider, epoch, camera, renderer,
+layer hashes, coverage, and downstream experiment identity.
 
-`source.lock.json` records URLs, bounds, dates, licenses, hashes, permissions,
-and required notices. Derived manifests retain input hashes. Publication fails
-closed if any released output cannot trace to approved sources and original
-style assets.
+`source.lock.json` records immutable semantic-source URLs, bounds, dates,
+licenses, hashes, decisions, and required notices. Reference manifests own
+dynamic capture identity. Derived manifests retain both chains. Publication
+fails closed if any released output cannot trace to accepted sources, masks,
+and original style assets.

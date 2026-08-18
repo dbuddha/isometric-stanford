@@ -33,12 +33,17 @@ must have a GitHub task with observable acceptance evidence before coding.
 
 ## Hard boundaries
 
-- Final art is produced by the deterministic procedural renderer.
-- Source imagery may inform compilation but never enters final pixels.
+- Final art is produced by the deterministic Rust reference-derived stylizer.
+  The procedural renderer remains a comparison baseline and supplies bounded
+  material, marking, and small-feature grammar.
+- Source imagery may enter final artwork only through a validated registered
+  reference bundle, accepted masks, and the deterministic palette transform.
+  Raw reference tiles and unmodified photographic regions cannot be published.
 - The final-world schema and style assets cannot represent people, vehicles,
   buses, cranes, or temporary equipment.
-- Google-derived content is blocked unless written permission explicitly covers
-  retrieval, derivative production, storage, and public redistribution.
+- Google Photorealistic 3D Tiles are the owner-authorized reference provider.
+  They use the separate registered capture path and never enter the generic
+  content-addressed source synchronizer.
 - Open data and third-party assets require an approved source record, immutable
   hash, license, attribution, and downstream dependency record.
 - Never copy Isometric NYC imagery, weights, datasets, code, or unlicensed

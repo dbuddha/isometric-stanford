@@ -31,38 +31,3 @@ body:
     attributes:
       label: Requirement sub-issues
       description: Add native sub-issues after creation. Do not estimate this parent.
-*** Add File: /Users/deepak/dev/personal/isometric-stanford/.github/ISSUE_TEMPLATE/requirement.yml
-name: Requirement
-description: Approved behavior or quality contract under one Capability
-title: "[Requirement] "
-labels: ["kind:requirement"]
-body:
-  - type: input
-    id: capability
-    attributes:
-      label: Parent Capability
-      placeholder: "#123"
-    validations:
-      required: true
-  - type: textarea
-    id: contract
-    attributes:
-      label: Observable contract
-    validations:
-      required: true
-  - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance evidence
-      description: Include exact metrics, tests, artifacts, and reviewers.
-    validations:
-      required: true
-  - type: textarea
-    id: exclusions
-    attributes:
-      label: Explicit exclusions and risks
-    validations:
-      required: true
-  - type: markdown
-    attributes:
-      value: Add Tasks, Research, Decisions, or Defects as native sub-issues. Do not estimate this parent.

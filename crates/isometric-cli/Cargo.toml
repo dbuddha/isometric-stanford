@@ -15,6 +15,7 @@ path = "src/main.rs"
 isometric-core = { path = "../isometric-core", version = "0.1.0" }
 isometric-perception = { path = "../isometric-perception", version = "0.1.0" }
 isometric-publish = { path = "../isometric-publish", version = "0.1.0" }
+isometric-reference = { path = "../isometric-reference", version = "0.1.0" }
 isometric-render = { path = "../isometric-render", version = "0.1.0" }
 isometric-source = { path = "../isometric-source", version = "0.1.0" }
 isometric-style = { path = "../isometric-style", version = "0.1.0" }
