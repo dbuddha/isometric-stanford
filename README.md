@@ -56,7 +56,11 @@ Google 3D Tiles passes, waits for a stable complete visible set, transfers raw
 layers through a tokenized loopback endpoint, and atomically promotes only a
 bundle accepted by the Rust validator. Ordinary CI proves this path with a
 synthetic 3D scene and never requests Google content. No live Hoover bundle has
-yet been accepted.
+yet been accepted. The safe-Rust mask artifact contract is also implemented.
+It registers every mask to an exact reference manifest, preserves transient
+classes only in evidence and repair inputs, streams validation without loading
+the raster, and makes transient or source-artifact pixels invalid in persistent
+output.
 
 Candidate A can now be generated as a complete visual-review pack. It proves
 the deterministic review boundary, but its recorded evidence shows that the
@@ -106,6 +110,17 @@ cargo run --locked -- reference inspect artifacts/reference/hoover
 The inspector requires registered color, whitebox, linear-depth, view-normal,
 fixed-shadow, and coverage layers with one camera, complete hashes, and at
 least 99.5 percent valid core coverage.
+
+Inspect a frozen semantic mask without loading the complete raster into memory:
+
+```sh
+cargo run --locked -- mask inspect artifacts/masks/hoover
+```
+
+The mask inspector verifies reference registration, the complete 24-class
+ontology, confidence and evidence encoding, instance-class consistency,
+summary counts, byte length, and SHA-256. A persistent artifact containing a
+person, vehicle, construction object, or broken-source pixel fails closed.
 
 The configured Hoover capture command and its credential isolation, readiness,
 and failure contracts are documented in [`capture/README.md`](capture/README.md).

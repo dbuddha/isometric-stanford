@@ -9,6 +9,11 @@ This is enforced structurally:
 - Intermediate reference masks may identify transient classes only so the
   obstruction-repair stage can remove them. They cannot become a material,
   procedural asset, or final semantic object.
+- The mask codec distinguishes `evidence`, `repair-input`, and `persistent`
+  roles. Its writer and streaming validator both reject every transient or
+  broken-source pixel in a persistent artifact.
+- Nonzero instance identities are bounded and class-consistent. A car instance
+  cannot silently change into road pixels inside the same accepted artifact.
 - Style validation rejects transient sprite or asset names.
 - Reference perception computes obstruction masks on complete supertiles
   before art-cell slicing so an object crossing a boundary receives one mask.

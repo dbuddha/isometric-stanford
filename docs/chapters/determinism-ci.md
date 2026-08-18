@@ -34,6 +34,14 @@ shared dimensions, camera identity, encoding, depth payload length, coverage,
 safe paths, and exact hashes. From a frozen bundle and accepted mask onward,
 the Rust stylizer and guarded seam oracle must be byte-identical.
 
+Mask CI writes two independent synthetic evidence artifacts and requires exact
+manifest and payload bytes. It adversarially checks corrupt headers, lengths,
+hashes, unknown class IDs, reserved evidence bits, class-count ordering,
+registration mismatch, instance bounds, mixed-class instances, unsafe
+persistent classes, and symlinked manifests. The CLI inspection test consumes
+the immutable artifact through the same bounded streaming validator used by
+later pilot stages.
+
 Ordinary CI never requests Google content and never holds an API credential.
 Its Chromium job renders a synthetic three-dimensional scene through the same
 six-pass framebuffer path, sends each layer through the same bounded loopback

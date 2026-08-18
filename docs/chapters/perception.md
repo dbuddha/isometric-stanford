@@ -24,6 +24,28 @@ instances, and SAM refines accepted boxes into masks. Models do not determine
 final pixels. Rust fuses their frozen outputs with depth, normals, projected
 vectors, deterministic edges, and reviewed corrections.
 
+The implemented `isometric-mask` boundary defines 24 stable classes, including
+persistent surfaces, scale-gated infrastructure, removable obstructions,
+unknown regions, and broken-source evidence. Each eight-byte pixel record
+contains a class, quantized confidence, evidence flags, and an optional positive
+instance identity. Every artifact pins the exact registered reference-manifest
+digest and grid digest. Its manifest records all class counts, unresolved and
+transient totals, instance bounds, producer identity, encoding, byte length,
+and content hash.
+
+There are three explicit artifact roles. `evidence` and `repair-input` may
+contain cars, people, bicycles, buses, trucks, construction equipment, and
+source artifacts because downstream repair must know where they are.
+`persistent` output rejects all of those classes. Unknown pixels remain
+representable so later qualification can fail honestly rather than inventing a
+surface. The validator streams records through a 64 KiB reader and uses a
+fixed-size instance table, so memory does not scale with mask raster bytes.
+
+Model floating-point output does not need byte identity. Once accepted model
+output is encoded as a frozen mask artifact, its bytes and manifest are hashed.
+All later Rust fusion, repair, styling, and stitching stages consume that exact
+immutable input.
+
 A future 150-patch Stanford benchmark covers buildings, roads, paths, water,
 canopy,
 fields, parking, dry terrain, construction, and transient objects. Model and

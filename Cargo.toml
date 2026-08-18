@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/isometric-cli",
     "crates/isometric-core",
+    "crates/isometric-mask",
     "crates/isometric-perception",
     "crates/isometric-publish",
     "crates/isometric-reference",

@@ -179,3 +179,9 @@ id = "REF-REVIEW-001"
 statement = "The routed reference workbench verifies the complete six-layer hash and registration chain before display, decodes only the selected comparison pair, synchronizes source-pixel navigation, and fails closed on corrupt or missing artifacts on desktop and mobile."
 evidence = ["npm --prefix web test -- --run", "npm --prefix web run test:e2e", "web/src/reference-bundle.test.ts", "web/e2e/review.spec.ts", "docs/chapters/visual-qualification.md"]
 status = "implemented"
+
+[[claim]]
+id = "MASK-CONTRACT-001"
+statement = "Registered semantic mask artifacts use a stable 24-class ontology, exact reference hash chain, fixed-width confidence and instance records, bounded streaming validation, deterministic bytes, and structural rejection of transient or source-artifact pixels in persistent output."
+evidence = ["cargo test -p isometric-mask", "cargo test -p isometric-cli mask_inspection_validates_an_immutable_synthetic_artifact", "docs/chapters/perception.md", "docs/chapters/no-transients.md"]
+status = "implemented"

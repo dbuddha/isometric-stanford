@@ -5,7 +5,7 @@ GitHub issues and mdBook design chapters until code makes it current.
 
 ## Implemented bootstrap
 
-The Rust workspace contains nine safe-Rust crates with a one-way dependency
+The Rust workspace contains eleven safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
 content-addressed artifacts through a bounded-memory cache. HTTPS acquisition
 uses three bounded attempts for classified transient failures. It continues
@@ -45,14 +45,22 @@ roofs, materials, confidence, provenance, reviewed overrides, fixed
 EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
 has no transient people or vehicle variants. `isometric-style` owns the bounded
 indexed palette, projection scales, and versioned ordinary-scene grammar.
-`isometric-render` owns the deterministic CPU comparison projection,
-procedural grammar, and bounded fixed-point triangle and integer-depth raster
-core. The planned `isometric-mask` and `isometric-stylize` crates will consume
-validated reference bundles without changing the DZI delivery boundary.
+`isometric-mask` owns the 24-class registered pixel ontology, fixed-width mask
+encoding, reference hash chain, evidence flags, instance consistency, and
+bounded streaming validator. Evidence and repair-input artifacts may retain
+transient and source-artifact classes. Persistent artifacts reject those
+classes structurally. Its production registration constructor derives both
+the parent-manifest and grid-camera digests from the canonical reference
+manifest. `isometric-render` owns the deterministic CPU comparison
+projection, procedural grammar, and bounded fixed-point triangle and
+integer-depth raster core. The planned `isometric-stylize` crate will consume
+validated reference and mask bundles without changing the DZI delivery
+boundary.
 `isometric-publish` owns lossless WebP encoding, canonical indexed pyramid
 tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
-`isometric-cli` exposes the complete planned command names, verifies and
+`isometric-cli` exposes the complete planned command names, verifies reference
+and mask artifacts, and
 compiles the fused hero world, executes reference rendering and validation, and
 rejects unfinished commands.
 
@@ -114,7 +122,7 @@ from canonical indexed parents, records a complete hash chain, and atomically
 promotes the staged pyramid. Survey-derived roof geometry and the qualified art
 style remain unfinished layers.
 
-The CLI currently implements `source sync`, `reference inspect`, `perceive run`, `world compile`,
+The CLI currently implements `source sync`, `reference inspect`, `mask inspect`, `perceive run`, `world compile`,
 `world inspect`, `validate semantic`, `validate render`, `validate release`,
 `render region`, `publish dzi`, `style candidate-a`, `style candidate-b`, and
 `style candidate-c`. Source synchronization rejects unapproved, mis-hashed,
@@ -122,6 +130,10 @@ insecure records before use. Dynamic Google reference capture remains separate
 from the generic immutable source synchronizer. The capture workspace contains
 a pinned Hoover request at `capture/specs/hoover-pilot.json`; running it
 requires an explicit local credential and never occurs in ordinary CI.
+Mask inspection reads a manifest capped at 1 MiB, streams one fixed-width
+eight-byte record per pixel through a 64 KiB buffer, and retains only 24 class
+counts plus a bounded 262,145-entry instance-class table. A mask may be at most
+4,096 pixels per side, and validation memory does not grow with its byte size.
 Perception decodes exact
 four-band NAIP,
 streams four serial LAZ sources in 250,000-point chunks, discards unclassified
@@ -239,6 +251,9 @@ boundary does not enter the exact artwork hash chain.
    use semantic IDs and approved palette-index tolerances.
 11. Release promotion is unavailable until source, perception, world, style,
     render, and release manifests form a complete verified chain.
+12. Every semantic mask is registered to one exact reference-manifest digest.
+    Evidence artifacts may describe obstructions; persistent artifacts cannot
+    contain a transient or source-artifact class.
 
 ## Durable artifact chain
 
@@ -262,7 +277,8 @@ and a release marked published before qualification.
 
 - Object storage and resumable remote acquisition
 - A live locked Hoover reference bundle and capture-quality visual approval
-- Semantic mask fusion, obstruction repair, and reference-derived Rust styling
+- Geometry kernels, semantic mask fusion, obstruction repair, and
+  reference-derived Rust styling
 - Learned-model benchmark and correction workflow
 - Dirty-region propagation and full-estate evidence partitioning
 - Detailed ridge, tile, and complex-footprint roof grammar

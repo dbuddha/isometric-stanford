@@ -283,6 +283,7 @@ name = "isometric-cli"
 version = "0.1.0"
 dependencies = [
  "isometric-core",
+ "isometric-mask",
  "isometric-perception",
  "isometric-publish",
  "isometric-reference",
@@ -297,6 +298,16 @@ dependencies = [
 [[package]]
 name = "isometric-core"
 version = "0.1.0"
+
+[[package]]
+name = "isometric-mask"
+version = "0.1.0"
+dependencies = [
+ "isometric-reference",
+ "serde",
+ "serde_json",
+ "sha2",
+]
 
 [[package]]
 name = "isometric-perception"
