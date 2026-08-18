@@ -13,6 +13,7 @@ path = "src/main.rs"
 
 [dependencies]
 isometric-core = { path = "../isometric-core", version = "0.1.0" }
+isometric-mask = { path = "../isometric-mask", version = "0.1.0" }
 isometric-perception = { path = "../isometric-perception", version = "0.1.0" }
 isometric-publish = { path = "../isometric-publish", version = "0.1.0" }
 isometric-reference = { path = "../isometric-reference", version = "0.1.0" }

@@ -18,6 +18,7 @@ mod candidate;
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
   isometric-stanford reference inspect [bundle-directory]
+  isometric-stanford mask inspect [artifact-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
   isometric-stanford world inspect [world.json]
@@ -38,6 +39,8 @@ Implemented commands:
   source sync verifies approved artifacts in a content-addressed cache.
   reference inspect validates a registered multipass reference bundle and its
   complete layer hash chain without decoding source imagery into final art.
+  mask inspect streams and validates an immutable registered semantic mask,
+  its ontology summaries, transient policy, instances, and complete hash chain.
   perceive run compiles locked NAIP and streamed LiDAR into a transient-safe
   semantic evidence artifact; source pixels and point records are not retained.
   world compile verifies the complete source lock, compiles the locked vectors,
@@ -72,11 +75,15 @@ fn run(arguments: &[String]) -> Result<String, String> {
         [group, command, cache] if group == "source" && command == "sync" => {
             sync_sources(&PathBuf::from(cache))
         }
-        [group, command] if group == "reference" && command == "inspect" => {
-            inspect_reference(Path::new("artifacts/reference/hoover"))
+        [group, command]
+            if command == "inspect" && matches!(group.as_str(), "reference" | "mask") =>
+        {
+            inspect_artifact(group, None)
         }
-        [group, command, input] if group == "reference" && command == "inspect" => {
-            inspect_reference(Path::new(input))
+        [group, command, input]
+            if command == "inspect" && matches!(group.as_str(), "reference" | "mask") =>
+        {
+            inspect_artifact(group, Some(input))
         }
         [group, command] if group == "perceive" && command == "run" => {
             compile_perception(Path::new("artifacts/perception"))
@@ -139,30 +146,39 @@ fn run(arguments: &[String]) -> Result<String, String> {
         [group, command, output, style] if group == "publish" && command == "dzi" => {
             publish_dzi_artifact_with_style(Path::new(output), style)
         }
-        [group, command] if group == "style" && command == "candidate-a" => {
-            write_style_candidate(Path::new("artifacts/style/candidate-a"))
-        }
-        [group, command, output] if group == "style" && command == "candidate-a" => {
-            write_style_candidate(Path::new(output))
-        }
-        [group, command] if group == "style" && command == "candidate-b" => {
-            write_style_candidate_b(Path::new("artifacts/style/candidate-b"))
-        }
-        [group, command, output] if group == "style" && command == "candidate-b" => {
-            write_style_candidate_b(Path::new(output))
-        }
-        [group, command] if group == "style" && command == "candidate-c" => {
-            write_style_candidate_c(Path::new("artifacts/style/candidate-c"))
-        }
-        [group, command, output] if group == "style" && command == "candidate-c" => {
-            write_style_candidate_c(Path::new(output))
-        }
+        [group, command] if group == "style" => write_style(command, None),
+        [group, command, output] if group == "style" => write_style(command, Some(output)),
         [] => Ok(USAGE.into()),
         [single] if single == "--help" || single == "-h" => Ok(USAGE.into()),
         [group, command] => Err(format!(
             "{group} {command} is specified but not implemented yet"
         )),
         _ => Err("unrecognized command".into()),
+    }
+}
+
+fn inspect_artifact(group: &str, input: Option<&String>) -> Result<String, String> {
+    match group {
+        "reference" => inspect_reference(Path::new(
+            input.map_or("artifacts/reference/hoover", String::as_str),
+        )),
+        "mask" => inspect_mask(Path::new(
+            input.map_or("artifacts/masks/hoover", String::as_str),
+        )),
+        _ => Err(format!("unknown inspectable artifact {group}")),
+    }
+}
+
+fn write_style(command: &str, output: Option<&String>) -> Result<String, String> {
+    let default = format!("artifacts/style/{command}");
+    let output = Path::new(output.map_or(default.as_str(), String::as_str));
+    match command {
+        "candidate-a" => write_style_candidate(output),
+        "candidate-b" => write_style_candidate_b(output),
+        "candidate-c" => write_style_candidate_c(output),
+        _ => Err(format!(
+            "style {command} is specified but not implemented yet"
+        )),
     }
 }
 
@@ -183,6 +199,24 @@ fn inspect_reference(root: &Path) -> Result<String, String> {
         manifest.bundle_id,
         report.layer_sha256.len(),
         report.total_layer_bytes,
+        report.manifest_sha256
+    ))
+}
+
+fn inspect_mask(root: &Path) -> Result<String, String> {
+    let manifest_path = root.join(isometric_mask::MANIFEST_FILENAME);
+    let manifest =
+        isometric_mask::read_manifest(&manifest_path).map_err(|error| error.to_string())?;
+    let report =
+        isometric_mask::validate_artifact(root, &manifest).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "mask artifact {} ({}) passed: {} pixels, {} instances, {} unknown, {} transient, manifest {}",
+        manifest.artifact_id,
+        manifest.role.as_str(),
+        report.pixel_count,
+        report.instance_count,
+        report.unknown_pixels,
+        report.transient_pixels,
         report.manifest_sha256
     ))
 }
@@ -565,7 +599,13 @@ fn write_ppm(
 
 #[cfg(test)]
 mod tests {
-    use super::{inspect_reference, publication_style, run, style_by_id, sync_report};
+    use super::{
+        inspect_mask, inspect_reference, publication_style, run, style_by_id, sync_report,
+    };
+    use isometric_mask::{
+        ArtifactDescriptor, ArtifactRole, EvidenceFlags, MaskPixel, ProducerIdentity,
+        ReferenceRegistration, SemanticClass, write_artifact,
+    };
     use isometric_source::SyncedArtifact;
     use std::path::{Path, PathBuf};
 
@@ -593,6 +633,70 @@ mod tests {
             std::process::id()
         ));
         assert!(inspect_reference(&missing).is_err());
+    }
+
+    #[test]
+    fn mask_inspection_validates_an_immutable_synthetic_artifact() {
+        let root = std::env::temp_dir().join(format!(
+            "isometric-cli-mask-{}-{}",
+            std::process::id(),
+            std::thread::current().name().unwrap_or("unnamed")
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+        let descriptor = ArtifactDescriptor {
+            artifact_id: "cli-synthetic-mask".into(),
+            role: ArtifactRole::Evidence,
+            reference: ReferenceRegistration {
+                bundle_id: "cli-synthetic-reference".into(),
+                manifest_sha256: "1".repeat(64),
+                region_id: "cli-synthetic-region".into(),
+                width_px: 2,
+                height_px: 2,
+                grid_sha256: "2".repeat(64),
+            },
+            producer: ProducerIdentity {
+                name: "isometric-cli-test".into(),
+                version: "fixture-v1".into(),
+            },
+        };
+        let pixels = vec![
+            MaskPixel {
+                class: SemanticClass::BuildingRoof,
+                confidence: 250,
+                instance_id: 1,
+                evidence: EvidenceFlags::GEOMETRY,
+            },
+            MaskPixel {
+                class: SemanticClass::Road,
+                confidence: 245,
+                instance_id: 2,
+                evidence: EvidenceFlags::GEOGRAPHIC_PRIOR,
+            },
+            MaskPixel {
+                class: SemanticClass::Car,
+                confidence: 230,
+                instance_id: 3,
+                evidence: EvidenceFlags::DETECTOR,
+            },
+            MaskPixel {
+                class: SemanticClass::Unknown,
+                confidence: 0,
+                instance_id: 0,
+                evidence: EvidenceFlags::NONE,
+            },
+        ];
+        write_artifact(&root, descriptor, pixels).expect("write CLI mask fixture");
+
+        let report = inspect_mask(&root).expect("inspect CLI mask fixture");
+        assert!(report.contains("cli-synthetic-mask (evidence) passed"));
+        assert!(report.contains("4 pixels, 3 instances, 1 unknown, 1 transient"));
+    }
+
+    #[test]
+    fn mask_inspection_fails_closed_without_a_manifest() {
+        let missing =
+            std::env::temp_dir().join(format!("isometric-mask-missing-{}", std::process::id()));
+        assert!(inspect_mask(&missing).is_err());
     }
 
     #[test]
