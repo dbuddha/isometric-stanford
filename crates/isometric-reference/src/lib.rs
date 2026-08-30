@@ -8,8 +8,8 @@ use std::{
     collections::BTreeMap,
     error::Error,
     fmt::{Display, Formatter, Write as _},
-    fs::File,
-    io::{BufReader, Read},
+    fs::{File, OpenOptions, remove_file},
+    io::{BufReader, BufWriter, Read, Seek, SeekFrom, Write as IoWrite},
     path::Path,
 };
 
@@ -26,6 +26,284 @@ pub const MIN_CORE_COVERAGE_BASIS_POINTS: u16 = 9_950;
 const HASH_BUFFER_BYTES: usize = 64 * 1024;
 const MAX_CAPTURE_DIMENSION: u32 = 4_096;
 const DEPTH_MAGIC: &[u8; 8] = b"ISOD32V1";
+const PNG_SIGNATURE: &[u8; 8] = b"\x89PNG\r\n\x1a\n";
+const STORED_DEFLATE_BLOCK_BYTES: usize = 65_535;
+
+/// Portable PNG color layouts accepted by the reference encoder.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PngColorType {
+    /// One 8-bit grayscale channel.
+    Grayscale,
+    /// Four 8-bit red, green, blue, and alpha channels.
+    Rgba,
+}
+
+impl PngColorType {
+    const fn channels(self) -> u64 {
+        match self {
+            Self::Grayscale => 1,
+            Self::Rgba => 4,
+        }
+    }
+
+    const fn png_value(self) -> u8 {
+        match self {
+            Self::Grayscale => 0,
+            Self::Rgba => 6,
+        }
+    }
+}
+
+fn crc32(bytes: &[u8]) -> u32 {
+    let mut crc = u32::MAX;
+    for byte in bytes {
+        crc ^= u32::from(*byte);
+        for _ in 0..8 {
+            crc = if crc & 1 == 1 {
+                0xedb8_8320 ^ (crc >> 1)
+            } else {
+                crc >> 1
+            };
+        }
+    }
+    !crc
+}
+
+fn write_png_chunk(
+    writer: &mut BufWriter<File>,
+    kind: [u8; 4],
+    data: &[u8],
+) -> Result<(), ReferenceError> {
+    let length = u32::try_from(data.len())
+        .map_err(|_| ReferenceError::Invalid("PNG chunk exceeds u32 length".into()))?;
+    writer.write_all(&length.to_be_bytes())?;
+    writer.write_all(&kind)?;
+    writer.write_all(data)?;
+    let mut crc_input = Vec::with_capacity(kind.len() + data.len());
+    crc_input.extend_from_slice(&kind);
+    crc_input.extend_from_slice(data);
+    writer.write_all(&crc32(&crc_input).to_be_bytes())?;
+    Ok(())
+}
+
+fn update_adler32(s1: &mut u32, s2: &mut u32, bytes: &[u8]) {
+    const MODULUS: u32 = 65_521;
+    for byte in bytes {
+        *s1 = (*s1 + u32::from(*byte)) % MODULUS;
+        *s2 = (*s2 + *s1) % MODULUS;
+    }
+}
+
+/// Encode a tightly packed raw image as a deterministic, bounded-memory PNG.
+///
+/// The encoder uses filter zero and stored DEFLATE blocks. Reference bundles
+/// prioritize exactness, bounded memory, and reproducibility over compression;
+/// release DZI tiles are encoded later by the publication pipeline.
+///
+/// # Errors
+///
+/// Returns an error when dimensions are invalid, the raw file length does not
+/// match the declared layout, the destination exists, or local I/O fails.
+pub fn encode_raw_png(
+    raw_path: &Path,
+    output_path: &Path,
+    width: u32,
+    height: u32,
+    color_type: PngColorType,
+) -> Result<u64, ReferenceError> {
+    encode_raw_png_crop(
+        raw_path,
+        output_path,
+        width,
+        height,
+        0,
+        0,
+        width,
+        height,
+        color_type,
+    )
+}
+
+struct PngCropLayout {
+    crop_stride: u64,
+    expected_raw_length: u64,
+    source_stride: u64,
+}
+
+struct PartialPng<'a> {
+    keep: bool,
+    path: &'a Path,
+}
+
+impl Drop for PartialPng<'_> {
+    fn drop(&mut self) {
+        if !self.keep {
+            let _ = remove_file(self.path);
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn png_crop_layout(
+    source_width: u32,
+    source_height: u32,
+    crop_x: u32,
+    crop_y: u32,
+    crop_width: u32,
+    crop_height: u32,
+    color_type: PngColorType,
+) -> Result<PngCropLayout, ReferenceError> {
+    if source_width == 0
+        || source_height == 0
+        || crop_width == 0
+        || crop_height == 0
+        || source_width > MAX_CAPTURE_DIMENSION
+        || source_height > MAX_CAPTURE_DIMENSION
+        || crop_x
+            .checked_add(crop_width)
+            .is_none_or(|right| right > source_width)
+        || crop_y
+            .checked_add(crop_height)
+            .is_none_or(|bottom| bottom > source_height)
+    {
+        return Err(ReferenceError::Invalid(
+            "PNG source or crop dimensions violate the reference capture bound".into(),
+        ));
+    }
+    let source_stride = u64::from(source_width)
+        .checked_mul(color_type.channels())
+        .ok_or_else(|| ReferenceError::Invalid("PNG source row length overflowed".into()))?;
+    let crop_stride = u64::from(crop_width)
+        .checked_mul(color_type.channels())
+        .ok_or_else(|| ReferenceError::Invalid("PNG crop row length overflowed".into()))?;
+    let expected_raw_length = source_stride
+        .checked_mul(u64::from(source_height))
+        .ok_or_else(|| ReferenceError::Invalid("PNG image length overflowed".into()))?;
+    Ok(PngCropLayout {
+        crop_stride,
+        expected_raw_length,
+        source_stride,
+    })
+}
+
+/// Crop a tightly packed raw image while encoding it as deterministic PNG.
+///
+/// # Errors
+///
+/// Returns an error when the source or crop geometry is invalid, the raw file
+/// length is inconsistent, the destination exists, or local I/O fails.
+#[allow(clippy::too_many_arguments)]
+pub fn encode_raw_png_crop(
+    raw_path: &Path,
+    output_path: &Path,
+    source_width: u32,
+    source_height: u32,
+    crop_x: u32,
+    crop_y: u32,
+    crop_width: u32,
+    crop_height: u32,
+    color_type: PngColorType,
+) -> Result<u64, ReferenceError> {
+    let layout = png_crop_layout(
+        source_width,
+        source_height,
+        crop_x,
+        crop_y,
+        crop_width,
+        crop_height,
+        color_type,
+    )?;
+    if raw_path.metadata()?.len() != layout.expected_raw_length {
+        return Err(ReferenceError::Invalid(
+            "raw PNG source length contradicts its dimensions".into(),
+        ));
+    }
+
+    let mut input = BufReader::with_capacity(64 * 1024, File::open(raw_path)?);
+    let output = OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(output_path)?;
+    let mut partial = PartialPng {
+        keep: false,
+        path: output_path,
+    };
+    let mut writer = BufWriter::with_capacity(64 * 1024, output);
+    writer.write_all(PNG_SIGNATURE)?;
+    let mut header = [0_u8; 13];
+    header[0..4].copy_from_slice(&crop_width.to_be_bytes());
+    header[4..8].copy_from_slice(&crop_height.to_be_bytes());
+    header[8] = 8;
+    header[9] = color_type.png_value();
+    write_png_chunk(&mut writer, *b"IHDR", &header)?;
+
+    let filtered_length = (layout.crop_stride + 1)
+        .checked_mul(u64::from(crop_height))
+        .ok_or_else(|| ReferenceError::Invalid("filtered PNG length overflowed".into()))?;
+    let mut remaining = filtered_length;
+    let mut row_remaining = 0_u64;
+    let mut row_index = 0_u32;
+    let mut first_block = true;
+    let mut adler_s1 = 1_u32;
+    let mut adler_s2 = 0_u32;
+    while remaining > 0 {
+        let block_length = usize::try_from(remaining.min(STORED_DEFLATE_BLOCK_BYTES as u64))
+            .map_err(|_| ReferenceError::Invalid("PNG block length overflowed".into()))?;
+        let mut block = Vec::with_capacity(block_length);
+        while block.len() < block_length {
+            if row_remaining == 0 {
+                let source_row = crop_y
+                    .checked_add(row_index)
+                    .ok_or_else(|| ReferenceError::Invalid("PNG crop row overflowed".into()))?;
+                let source_offset = u64::from(source_row)
+                    .checked_mul(layout.source_stride)
+                    .and_then(|offset| {
+                        u64::from(crop_x)
+                            .checked_mul(color_type.channels())
+                            .and_then(|column| offset.checked_add(column))
+                    })
+                    .ok_or_else(|| ReferenceError::Invalid("PNG crop offset overflowed".into()))?;
+                input.seek(SeekFrom::Start(source_offset))?;
+                block.push(0);
+                row_remaining = layout.crop_stride;
+                row_index += 1;
+                continue;
+            }
+            let available = block_length - block.len();
+            let count = usize::try_from(row_remaining.min(available as u64))
+                .map_err(|_| ReferenceError::Invalid("PNG row segment overflowed".into()))?;
+            let start = block.len();
+            block.resize(start + count, 0);
+            input.read_exact(&mut block[start..])?;
+            row_remaining -= count as u64;
+        }
+        update_adler32(&mut adler_s1, &mut adler_s2, &block);
+        remaining -= block_length as u64;
+        let final_block = remaining == 0;
+        let length = u16::try_from(block_length)
+            .map_err(|_| ReferenceError::Invalid("stored PNG block exceeds u16".into()))?;
+        let mut idat = Vec::with_capacity(block.len() + 11);
+        if first_block {
+            idat.extend_from_slice(&[0x78, 0x01]);
+            first_block = false;
+        }
+        idat.push(u8::from(final_block));
+        idat.extend_from_slice(&length.to_le_bytes());
+        idat.extend_from_slice(&(!length).to_le_bytes());
+        idat.extend_from_slice(&block);
+        if final_block {
+            idat.extend_from_slice(&((adler_s2 << 16) | adler_s1).to_be_bytes());
+        }
+        write_png_chunk(&mut writer, *b"IDAT", &idat)?;
+    }
+    write_png_chunk(&mut writer, *b"IEND", &[])?;
+    writer.flush()?;
+    writer.get_ref().sync_all()?;
+    drop(writer);
+    let length = output_path.metadata()?.len();
+    partial.keep = true;
+    Ok(length)
+}
 
 /// One guarded capture region in a stable world grid.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -692,6 +970,32 @@ mod tests {
             canonical_manifest_json(&manifest).expect("canonical manifest"),
             canonical_manifest_json(&manifest).expect("repeat canonical manifest")
         );
+        fs::remove_dir_all(root).expect("remove fixture root");
+    }
+
+    #[test]
+    fn raw_png_encoder_is_deterministic_bounded_and_fail_closed() {
+        let root = fixture_root("raw-png");
+        let raw = root.join("pixels.raw");
+        let first = root.join("first.png");
+        let second = root.join("second.png");
+        let pixels = (0_u8..24).collect::<Vec<_>>();
+        fs::write(&raw, &pixels).expect("write raw pixels");
+        let first_length =
+            encode_raw_png(&raw, &first, 3, 2, PngColorType::Rgba).expect("encode first PNG");
+        let second_length =
+            encode_raw_png(&raw, &second, 3, 2, PngColorType::Rgba).expect("encode second PNG");
+        let first_bytes = fs::read(&first).expect("read first PNG");
+        let second_bytes = fs::read(&second).expect("read second PNG");
+        assert_eq!(first_bytes, second_bytes);
+        assert_eq!(first_length, second_length);
+        assert_eq!(&first_bytes[..8], PNG_SIGNATURE);
+        assert_eq!(&first_bytes[16..20], &3_u32.to_be_bytes());
+        assert_eq!(&first_bytes[20..24], &2_u32.to_be_bytes());
+        assert!(encode_raw_png(&raw, &first, 3, 2, PngColorType::Rgba).is_err());
+
+        fs::write(&raw, [0_u8; 3]).expect("truncate raw pixels");
+        assert!(encode_raw_png(&raw, &root.join("invalid.png"), 3, 2, PngColorType::Rgba).is_err());
         fs::remove_dir_all(root).expect("remove fixture root");
     }
 

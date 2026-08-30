@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json && vite build",
-    "capture": "node dist-node/src/node/capture-cli.js",
-    "probe": "node dist-node/src/node/probe-cli.js",
+    "capture": "node --expose-gc dist-node/src/node/capture-cli.js",
+    "probe": "node --expose-gc dist-node/src/node/probe-cli.js",
     "check": "tsc -p tsconfig.json --noEmit",
     "dev": "vite",
     "test": "vitest run",

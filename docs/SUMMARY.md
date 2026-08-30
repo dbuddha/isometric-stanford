@@ -23,3 +23,4 @@
   - [ADR 0004: Stanford hero prototype boundary](./adr/0004-hero-prototype-boundary.md)
   - [ADR 0005: Observable style analogue contract](./adr/0005-observable-style-analogue.md)
   - [ADR 0006: Registered reference-derived stylization](./adr/0006-registered-reference-stylization.md)
+  - [ADR 0007: Bounded reference capture processes](./adr/0007-bounded-reference-capture.md)

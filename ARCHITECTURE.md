@@ -23,25 +23,35 @@ view-normal, fixed-shadow, and coverage records. It streams SHA-256 validation
 through a bounded buffer, verifies PNG and depth headers, rejects unsafe paths,
 and enforces the pilot coverage gate before downstream processing.
 The `capture/` TypeScript workspace owns the noncanonical browser boundary. It
-uses pinned Three.js, 3d-tiles-renderer, and Playwright versions to hold one
-orthographic camera while producing color, neutral whitebox, linear depth,
-view-normal, fixed-shadow, and coverage passes. A stable-readiness state
+uses pinned Three.js, 3d-tiles-renderer, and a direct Chromium headless shell to
+hold one orthographic camera while producing color, neutral whitebox, linear
+depth, view-normal, fixed-shadow, and coverage passes. A stable-readiness state
 machine requires a loaded root tileset, no active load, no load error, a
 minimum visible-tile count, and an unchanged content signature for both a
-frame count and wall duration. Each raw pass is uploaded to a tokenized
-loopback endpoint, encoded in a fixed portable format, and written to a private
-staging directory. The Rust reference validator must accept the complete
-version-two bundle before an atomic rename makes it visible to later stages. Credentials
-are injected only into the isolated browser context and are removed from
-validator subprocesses and sanitized diagnostics.
+frame count and wall duration. A small raw Chrome DevTools Protocol connection
+creates and navigates the page without retaining a Playwright browser session.
+
+A one-time tokenized loopback coordinator injects credentials into page memory
+after navigation. The browser installs its Google request ceiling before scene
+creation. Each raw pass streams to a separate credential-free ingest worker,
+which stages it privately, invokes the bounded safe-Rust PNG encoder, generates
+exact crops, and writes the manifest. The Rust reference validator must accept
+the complete version-two bundle before an atomic rename makes it visible to
+later stages. Credentials are absent from child environments, commands,
+artifacts, manifests, URLs, validator subprocesses, and sanitized diagnostics.
 The built browser client is served by an allowlisted loopback static server,
 not a development server. The bounded Hoover probe installs its request ceiling
 before navigation, reuses one Google root tileset while reframing three camera
-orientations, records URL-free network and renderer telemetry, and writes
-private visual and exact crop-join evidence. The pinned baseline camera is 330
-degrees azimuth, 42 degrees elevation, and 250 millimeters per source pixel.
-The current crop join proves cells inside one guarded supertile; independent
-supertile overlap remains a separate unimplemented gate.
+orientations, records URL-free network, renderer, and process-separated memory
+telemetry, and writes private visual and exact crop-join evidence. The pinned
+baseline camera is 330 degrees azimuth, 42 degrees elevation, and 250
+millimeters per source pixel. Google geometry caching uses a 64 MiB retention
+target and a 96 MiB ceiling. The measured worker envelopes are 1 GiB for
+1,280-pixel grids and 1.25 GiB for 2,560-pixel grids. Host-memory policy
+reserves at least 2 GiB and 25 percent, caps acquisition at four workers, and
+returns zero when no worker fits. The current crop join proves cells inside one
+guarded supertile; independent supertile overlap remains a separate
+unimplemented gate.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or

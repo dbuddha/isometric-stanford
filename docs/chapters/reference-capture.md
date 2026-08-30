@@ -17,12 +17,14 @@ it validates immutable bundles and will own masks, repair, stylization,
 stitching, and publication.
 
 The browser client is built once and served by a local allowlisted static
-server. The credential enters only an isolated Playwright browser context.
-The request interceptor applies a configured ceiling before navigation and
-records counts, response status, payload format, and transfer bytes without
-retaining URLs, keys, or session values. One probe reuses one Google root
-session while changing only the camera orientation. Ordinary CI uses the
-synthetic provider and never contacts Google.
+server. A direct pinned Chromium headless-shell process receives a one-time
+loopback coordinator URL in its fragment. The page immediately removes that
+fragment, authenticates to the coordinator, receives the credential in memory,
+and installs the request ceiling before its first Google request. The key never
+enters a browser command line, artifact, manifest, child environment, or
+diagnostic. One probe reuses one Google root session while changing only the
+camera orientation. Ordinary CI uses synthetic and local protocol fixtures and
+never contacts Google.
 
 ## Hoover camera probe
 
@@ -61,6 +63,35 @@ the camera safely outside the terrain while remaining inside the 1 to 5,000
 meter clipping interval. The 250-millimeter source scale should remain fixed
 for the masking pilot. Later pixel-art reduction may combine source samples,
 but it must not change the registered capture grid.
+
+## Bounded capture execution
+
+The production path does not retain a Playwright protocol session. It uses a
+small Chrome DevTools Protocol connection only to create and navigate the page.
+The browser uploads each raw pass directly to a separate credential-free Node
+ingest worker. That worker stages raw files, invokes the bounded safe-Rust PNG
+encoder, generates exact crops, validates the completed reference bundle, and
+promotes it atomically. Neither Node process retains a full encoded image or a
+campus-scale raster.
+
+The final 1,280-pixel three-camera measurement used a 96 MiB Google tile-cache
+ceiling and Metal-backed ANGLE. Node reached 79 MiB, the ingest worker reached
+85 MiB, Chromium reached 675 MiB summed RSS, and the complete tree reached 849
+MiB. The one-camera 2,560-pixel pilot reached 79 MiB Node, 90 MiB ingest-worker,
+810 MiB Chromium, and 1,014 MiB complete-tree peaks. Both runs retained 99.99
+percent core coverage, exact internal joins, and Rust-valid bundles.
+
+The measured worker envelopes are 1 GiB for a 1,280-pixel grid and 1.25 GiB for
+a 2,560-pixel grid. Capture concurrency is derived from host memory after
+reserving at least 2 GiB and 25 percent for the operating system and other
+work, with a hard limit of four workers. A host that cannot fit one envelope
+must not schedule capture.
+
+The direct browser can observe response status and any CORS-visible declared
+content length, but it does not read response bodies solely for telemetry.
+`responseBodyBytes` in direct reports is therefore a declared lower bound, not
+an exact transfer total. Request counts, formats, statuses, memory, layer
+hashes, coverage, and bundle validity remain exact evidence.
 
 ## Formats and evidence
 
@@ -102,12 +133,12 @@ stylization of adjacent cells must equal a monolithic stylization oracle.
   of color pixels. The browser GPU and live upstream are therefore reference
   acquisition, not a byte-deterministic renderer. Accepted layer hashes freeze
   the input from which Rust becomes deterministic.
-- Repeated live static-server probes reached 740 to 865 MiB Node peak RSS.
-  Browser JavaScript used about 97 MiB and each final three-bundle evidence set
-  occupied about 61 MiB.
-  The high Node peak is not acceptable as the projected campus acquisition
-  baseline. Buffering and PNG encoding require a dedicated memory profile and
-  streaming correction before parallel capture.
+- Repeated Playwright-controlled probes reached 740 to 865 MiB Node peak RSS.
+  Direct Chromium, process-isolated ingest, raw streaming, and Rust PNG encoding
+  reduced Node to 79 MiB. The original 768 MiB complete-tree estimate was still
+  below the measured 849 MiB quality-preserving process tree, so ADR 0007
+  replaced it with a 1 GiB envelope rather than reducing reference level of
+  detail or process isolation.
 - Google geometry preserves the tower and ordinary buildings strongly, but
   tree crowns, construction, thin objects, and some terrain edges are visibly
   rough. These pixels are evidence for masks and structure. They are not a

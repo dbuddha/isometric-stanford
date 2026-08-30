@@ -5,7 +5,8 @@ import {
   validateCaptureRequest,
 } from "../contracts.js";
 import type { CaptureEvidence, CaptureRequest, UploadTarget } from "../contracts.js";
-import type { ProbeCandidate, ProbeCandidateEvidence } from "../contracts.js";
+import type { ProbeBrowserResult, ProbeCandidate, ProbeCandidateEvidence } from "../contracts.js";
+import { BrowserGoogleRequestBudget } from "./google-network-budget.js";
 import { createGoogleScene } from "./google-scene.js";
 import type { LayerUpload, RegisteredScene } from "./pass-renderer.js";
 import { renderRegisteredLayers } from "./pass-renderer.js";
@@ -13,7 +14,7 @@ import { createSyntheticScene } from "./synthetic-scene.js";
 
 export interface BrowserCaptureApi {
   capture(request: unknown, upload: UploadTarget): Promise<CaptureEvidence>;
-  probe(candidates: unknown): Promise<ProbeCandidateEvidence[]>;
+  probe(candidates: unknown, requestLimit: unknown): Promise<ProbeBrowserResult>;
   ready: true;
 }
 
@@ -81,7 +82,7 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
         registered?.dispose();
       }
     },
-    async probe(value: unknown): Promise<ProbeCandidateEvidence[]> {
+    async probe(value: unknown, requestLimit: unknown): Promise<ProbeBrowserResult> {
       if (!Array.isArray(value) || value.length < 1 || value.length > 8) {
         throw new Error("capture probe requires between one and eight camera candidates");
       }
@@ -99,6 +100,11 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
         }
       }
       const apiKey = window.__CAPTURE_SECRETS__?.googleApiKey ?? "";
+      if (!Number.isSafeInteger(requestLimit) || Number(requestLimit) < 1 || Number(requestLimit) > 1_000) {
+        throw new Error("capture probe browser request limit is invalid");
+      }
+      const network = new BrowserGoogleRequestBudget(Number(requestLimit));
+      const restoreFetch = network.install();
       let registered: RegisteredScene | undefined;
       try {
         const first = candidates[0];
@@ -151,13 +157,19 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
             visibleTiles: ready.visibleTiles,
           });
         }
-        return results;
+        return { candidates: results, network: network.snapshot() };
       } catch (error) {
         const tokens = candidates.map((candidate) => candidate.upload.token);
         const message = error instanceof Error ? error.message : String(error);
-        throw new Error(redactSecrets(message, [apiKey, ...tokens]));
+        throw new Error(
+          redactSecrets(
+            `${message}; Google request telemetry: ${JSON.stringify(network.snapshot())}`,
+            [apiKey, ...tokens],
+          ),
+        );
       } finally {
         registered?.dispose();
+        restoreFetch();
       }
     },
     ready: true,

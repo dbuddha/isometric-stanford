@@ -1,0 +1,50 @@
+{
+  "schema": "isometric-reference-probe/v1",
+  "requestLimit": 500,
+  "capture": {
+    "schema": "isometric-reference-capture/v1",
+    "bundleId": "hoover-pilot-supertile",
+    "provider": "google-photorealistic-3d-tiles",
+    "sourceEpoch": "live-google-session",
+    "tile": {
+      "regionId": "hoover-pilot-supertile",
+      "column": 0,
+      "row": 0,
+      "coreWidthPx": 2048,
+      "coreHeightPx": 2048,
+      "guardPx": 256,
+      "millimetersPerPixel": 250,
+      "centerLongitudeE7": -1221670000,
+      "centerLatitudeE7": 374276111
+    },
+    "camera": {
+      "projection": "orthographic",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "targetAltitudeMm": 20000,
+      "nearMm": 1000,
+      "farMm": 5000000,
+      "orthographicWidthMm": 640000,
+      "orthographicHeightMm": 640000,
+      "cameraDistanceMm": 2000000
+    },
+    "lighting": {
+      "sunAzimuthMillidegrees": 315000,
+      "sunElevationMillidegrees": 42000
+    },
+    "readiness": {
+      "timeoutMs": 120000,
+      "stableFrames": 45,
+      "stableDurationMs": 1500,
+      "minimumVisibleTiles": 4
+    }
+  },
+  "candidates": [
+    {
+      "id": "stanford-330-42",
+      "label": "Stanford pilot supertile",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000
+    }
+  ]
+}

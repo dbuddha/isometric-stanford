@@ -1,7 +1,10 @@
 import { randomBytes } from "node:crypto";
+import { mkdtemp, open, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import { once } from "node:events";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
 import { REQUIRED_LAYER_NAMES } from "../contracts.js";
 import type { LayerName } from "../contracts.js";
 import type { PixelFormat } from "./bundle-writer.js";
@@ -16,9 +19,10 @@ export interface UploadServer {
 }
 
 export interface LayerSink {
-  accept(
+  acceptFile(
     name: LayerName,
-    pixels: Uint8Array,
+    path: string,
+    byteLength: number,
     width: number,
     height: number,
     pixelFormat: PixelFormat,
@@ -33,18 +37,30 @@ function respond(response: ServerResponse, status: number, message: string): voi
   response.end(message);
 }
 
-async function readBody(request: IncomingMessage): Promise<Uint8Array> {
-  const chunks: Buffer[] = [];
+async function streamBody(request: IncomingMessage, path: string): Promise<number> {
+  const handle = await open(path, "wx", 0o600);
   let length = 0;
-  for await (const chunk of request) {
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-    length += buffer.length;
-    if (length > MAX_UPLOAD_BYTES) {
-      throw new Error("capture upload exceeds the bounded layer size");
+  try {
+    for await (const chunk of request) {
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      length += buffer.length;
+      if (length > MAX_UPLOAD_BYTES) {
+        throw new Error("capture upload exceeds the bounded layer size");
+      }
+      let offset = 0;
+      while (offset < buffer.length) {
+        const { bytesWritten } = await handle.write(buffer, offset, buffer.length - offset, null);
+        if (bytesWritten === 0) {
+          throw new Error("capture upload stopped before all bytes were written");
+        }
+        offset += bytesWritten;
+      }
     }
-    chunks.push(buffer);
+    await handle.sync();
+  } finally {
+    await handle.close();
   }
-  return Buffer.concat(chunks, length);
+  return length;
 }
 
 function parseIntegerHeader(request: IncomingMessage, name: string): number {
@@ -60,10 +76,21 @@ function isLayerName(value: string): value is LayerName {
   return (REQUIRED_LAYER_NAMES as readonly string[]).includes(value);
 }
 
+function expectedByteLength(width: number, height: number, pixelFormat: PixelFormat): number {
+  if (pixelFormat === "gray8") {
+    return width * height;
+  }
+  if (pixelFormat === "rgba8") {
+    return width * height * 4;
+  }
+  return 16 + width * height * 4;
+}
+
 export async function startUploadServer(writer: LayerSink): Promise<UploadServer> {
   const token = randomBytes(32).toString("hex");
+  const temporaryDirectory = await mkdtemp(resolve(tmpdir(), "isometric-upload-"));
   let closed = false;
-  let chain = Promise.resolve();
+  let active: Promise<void> | undefined;
   const server: Server = createServer((request, response) => {
     if (request.method === "OPTIONS") {
       response.writeHead(204, {
@@ -75,7 +102,11 @@ export async function startUploadServer(writer: LayerSink): Promise<UploadServer
       response.end();
       return;
     }
-    chain = chain.then(async () => {
+    if (closed || active !== undefined) {
+      respond(response, 409, "capture upload is already processing a layer");
+      return;
+    }
+    const operation = (async () => {
       try {
         if (request.method !== "POST" || request.headers["x-capture-token"] !== token) {
           respond(response, 403, "capture upload rejected");
@@ -90,12 +121,34 @@ export async function startUploadServer(writer: LayerSink): Promise<UploadServer
         }
         const width = parseIntegerHeader(request, "x-capture-width");
         const height = parseIntegerHeader(request, "x-capture-height");
-        const bytes = await readBody(request);
-        await writer.accept(name, bytes, width, height, pixelFormat as PixelFormat);
+        const temporaryPath = resolve(temporaryDirectory, `${name}-${randomBytes(8).toString("hex")}.raw`);
+        try {
+          const byteLength = await streamBody(request, temporaryPath);
+          if (byteLength !== expectedByteLength(width, height, pixelFormat as PixelFormat)) {
+            throw new Error("capture upload byte length does not match its registered dimensions");
+          }
+          await writer.acceptFile(
+            name,
+            temporaryPath,
+            byteLength,
+            width,
+            height,
+            pixelFormat as PixelFormat,
+          );
+        } finally {
+          await rm(temporaryPath, { force: true });
+        }
         respond(response, 204, "");
       } catch {
         respond(response, 400, "capture upload could not be accepted");
       }
+    })();
+    active = operation;
+    void operation.then(() => {
+      if (active === operation) {
+        active = undefined;
+      }
+      setImmediate(() => globalThis.gc?.());
     });
   });
   server.listen(0, "127.0.0.1");
@@ -111,7 +164,7 @@ export async function startUploadServer(writer: LayerSink): Promise<UploadServer
         return;
       }
       closed = true;
-      await chain;
+      await active;
       await new Promise<void>((resolve, reject) => {
         server.close((error) => {
           if (error === undefined) {
@@ -121,6 +174,7 @@ export async function startUploadServer(writer: LayerSink): Promise<UploadServer
           }
         });
       });
+      await rm(temporaryDirectory, { force: true, recursive: true });
     },
     token,
     url: `http://127.0.0.1:${address.port}`,

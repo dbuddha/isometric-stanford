@@ -2,24 +2,30 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "@playwright/test";
-import type { Browser, BrowserContext, Page } from "@playwright/test";
+import { totalmem } from "node:os";
 import type {
+  BrowserMemoryMetrics,
   CaptureRequest,
+  GoogleNetworkTelemetry,
+  ProbeBrowserResult,
   ProbeCandidate,
   ProbeCandidateEvidence,
 } from "../contracts.js";
 import { redactSecrets, validateCaptureRequest } from "../contracts.js";
-import { BundleWriter } from "./bundle-writer.js";
-import { validateRustBundle } from "./capture-runner.js";
-import { ProbeArtifactWriter } from "./probe-artifacts.js";
 import type { ProbeJoinEvidence } from "./probe-artifacts.js";
-import { GoogleRequestBudget, installGoogleRequestBudget } from "./request-budget.js";
-import type { GoogleNetworkTelemetry } from "./request-budget.js";
+import { startProbeIngest } from "./probe-ingest-client.js";
+import type { ProbeIngestClient } from "./probe-ingest-client.js";
+import { ProcessMemorySampler } from "./process-memory.js";
+import type { ProcessMemoryReport } from "./process-memory.js";
+import { runDirectChromiumProbe } from "./headless-probe.js";
+import { startProbeCoordinator } from "./probe-coordinator.js";
+import type { ProbeCoordinator } from "./probe-coordinator.js";
 import { startStaticRendererServer } from "./static-renderer-server.js";
 import type { StaticRendererServer } from "./static-renderer-server.js";
-import { startUploadServer } from "./upload-server.js";
-import type { LayerSink, UploadServer } from "./upload-server.js";
+import {
+  captureWorkerEnvelopeBytes,
+  deriveCaptureWorkerCount,
+} from "./capture-memory-policy.js";
 
 const PROBE_SCHEMA = "isometric-reference-probe/v1";
 const CAPTURE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -38,11 +44,20 @@ interface ProbeSpec {
   schema: typeof PROBE_SCHEMA;
 }
 
-interface RuntimeMetrics {
+interface RuntimeMetrics extends BrowserMemoryMetrics {
+  hostTotalMemoryBytes: number;
+  nodeArrayBuffersBytes: number;
+  nodeExternalBytes: number;
+  nodeHeapTotalBytes: number;
+  nodeHeapUsedBytes: number;
+  ingestWorkerMaxRssBytes: number;
   jsHeapSizeLimitBytes: number | null;
   jsHeapTotalBytes: number | null;
   jsHeapUsedBytes: number | null;
   nodeMaxRssBytes: number;
+  processTree: ProcessMemoryReport;
+  recommendedParallelWorkers: number;
+  workerEnvelopeBytes: number;
 }
 
 interface CandidateReport {
@@ -84,12 +99,18 @@ export async function readProbeSpec(path: string): Promise<ProbeSpec> {
     throw new Error("capture probe identity, budget, or candidate count is invalid");
   }
   validateCaptureRequest(value.capture);
+  const registeredGrid =
+    (value.capture.tile.coreWidthPx === 1_024 &&
+      value.capture.tile.coreHeightPx === 1_024 &&
+      value.capture.tile.guardPx === 128) ||
+    (value.capture.tile.coreWidthPx === 2_048 &&
+      value.capture.tile.coreHeightPx === 2_048 &&
+      value.capture.tile.guardPx === 256);
   if (
     value.capture.provider !== "google-photorealistic-3d-tiles" ||
-    value.capture.tile.coreWidthPx !== 1_024 ||
-    value.capture.tile.coreHeightPx !== 1_024
+    !registeredGrid
   ) {
-    throw new Error("capture probe requires one Google 1024 by 1024 registered core");
+    throw new Error("capture probe requires an approved Google registered grid");
   }
   const ids = new Set<string>();
   for (const candidate of value.candidates) {
@@ -163,21 +184,6 @@ async function assertAbsent(path: string): Promise<void> {
   }
 }
 
-async function pageMemory(page: Page): Promise<Omit<RuntimeMetrics, "nodeMaxRssBytes">> {
-  return await page.evaluate(() => {
-    const memory = (
-      performance as Performance & {
-        memory?: { jsHeapSizeLimit: number; totalJSHeapSize: number; usedJSHeapSize: number };
-      }
-    ).memory;
-    return {
-      jsHeapSizeLimitBytes: memory?.jsHeapSizeLimit ?? null,
-      jsHeapTotalBytes: memory?.totalJSHeapSize ?? null,
-      jsHeapUsedBytes: memory?.usedJSHeapSize ?? null,
-    };
-  });
-}
-
 export async function runProbe(
   spec: ProbeSpec,
   outputDirectory: string,
@@ -191,94 +197,75 @@ export async function runProbe(
   await assertAbsent(output);
   const staging = resolve(dirname(output), `.probe-${randomBytes(8).toString("hex")}`);
   await mkdir(staging, { mode: 0o700, recursive: false });
-  const budget = new GoogleRequestBudget(spec.requestLimit);
-  const writers: BundleWriter[] = [];
-  const artifactWriters: ProbeArtifactWriter[] = [];
-  const uploads: UploadServer[] = [];
   const requests: CaptureRequest[] = [];
-  let browser: Browser | undefined;
-  let context: BrowserContext | undefined;
-  let page: Page | undefined;
+  const uploadSecrets: string[] = [];
+  const memorySampler = new ProcessMemorySampler();
+  let ingest: ProbeIngestClient | undefined;
+  let coordinator: ProbeCoordinator | undefined;
   let rendererServer: StaticRendererServer | undefined;
+  memorySampler.start();
   try {
-    const browserCandidates: ProbeCandidate[] = [];
     for (const candidate of spec.candidates) {
       const request = requestForCandidate(spec.capture, candidate);
       requests.push(request);
-      const writer = new BundleWriter(resolve(staging, "bundles", candidate.id), request);
-      const artifactWriter = new ProbeArtifactWriter(
-        resolve(staging, "candidates", candidate.id),
-        request,
-      );
-      await writer.start();
-      const sink: LayerSink = {
-        async accept(name, pixels, width, height, pixelFormat): Promise<void> {
-          await artifactWriter.accept(name, pixels, width, height, pixelFormat);
-          await writer.accept(name, pixels, width, height, pixelFormat);
-        },
-      };
-      const upload = await startUploadServer(sink);
-      writers.push(writer);
-      artifactWriters.push(artifactWriter);
-      uploads.push(upload);
-      browserCandidates.push({
-        candidateId: candidate.id,
-        request,
-        upload: { token: upload.token, url: upload.url },
-      });
     }
-    rendererServer = await startStaticRendererServer(resolve(CAPTURE_ROOT, "dist"));
-    browser = await chromium.launch({
-      args: ["--disable-dev-shm-usage", "--enable-webgl", "--ignore-gpu-blocklist", "--use-gl=angle"],
-      headless: true,
-    });
-    context = await browser.newContext({ deviceScaleFactor: 1 });
-    const observations = await installGoogleRequestBudget(context, budget);
-    await context.addInitScript((googleApiKey: string) => {
-      window.__CAPTURE_SECRETS__ = { googleApiKey };
-    }, apiKey);
-    page = await context.newPage();
-    await page.goto(rendererServer.url, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => window.ISOMETRIC_CAPTURE?.ready === true);
-    const evidence = await page.evaluate(
-      async (candidates): Promise<ProbeCandidateEvidence[]> => {
-        if (window.ISOMETRIC_CAPTURE === undefined) {
-          throw new Error("capture probe runtime was not installed");
-        }
-        return await window.ISOMETRIC_CAPTURE.probe(candidates);
-      },
-      browserCandidates,
+    ingest = await startProbeIngest(
+      staging,
+      spec.candidates.map((candidate, index) => ({
+        candidateId: candidate.id,
+        request: requests[index] as CaptureRequest,
+      })),
     );
-    const browserMemory = await pageMemory(page);
-    await page.close();
-    page = undefined;
-    await context.close();
-    context = undefined;
-    await Promise.all(observations);
-    await Promise.all(uploads.map(async (upload) => upload.close()));
-    if (budget.snapshot().blocked !== 0) {
+    uploadSecrets.push(...ingest.targets.map((target) => target.upload.token));
+    const targets = new Map(ingest.targets.map((target) => [target.candidateId, target.upload]));
+    const browserCandidates: ProbeCandidate[] = spec.candidates.map((candidate, index) => {
+      const request = requests[index];
+      const upload = targets.get(candidate.id);
+      if (request === undefined || upload === undefined) {
+        throw new Error("probe ingest worker returned incomplete upload targets");
+      }
+      return { candidateId: candidate.id, request, upload };
+    });
+    rendererServer = await startStaticRendererServer(resolve(CAPTURE_ROOT, "dist"));
+    coordinator = await startProbeCoordinator({
+      apiKey,
+      candidates: browserCandidates,
+      requestLimit: spec.requestLimit,
+    });
+    uploadSecrets.push(coordinator.token);
+    memorySampler.setStage("capture-and-encode");
+    const execution = await runDirectChromiumProbe(
+      rendererServer.url,
+      coordinator,
+      spec.capture.readiness.timeoutMs * spec.candidates.length + 60_000,
+    );
+    const browserResult: ProbeBrowserResult = execution.probe;
+    const evidence = browserResult.candidates;
+    if (browserResult.network.blocked !== 0) {
       throw new Error("capture probe exhausted its Google request budget");
     }
+    memorySampler.setStage("validate-bundles");
+    const ingested = await ingest.finalize(evidence);
+    const resultByCandidate = new Map(
+      ingested.results.map((result) => [result.candidateId, result.artifacts]),
+    );
     const reports: CandidateReport[] = [];
     for (let index = 0; index < spec.candidates.length; index += 1) {
       const candidate = spec.candidates[index];
-      const writer = writers[index];
-      const artifactWriter = artifactWriters[index];
       const candidateEvidence = evidence[index];
       const request = requests[index];
+      const artifacts = candidate === undefined ? undefined : resultByCandidate.get(candidate.id);
       if (
         candidate === undefined ||
-        writer === undefined ||
-        artifactWriter === undefined ||
+        artifacts === undefined ||
         candidateEvidence === undefined ||
         request === undefined ||
         candidateEvidence.candidateId !== candidate.id
       ) {
         throw new Error("capture probe evidence ordering is incomplete");
       }
-      await writer.finalize(candidateEvidence, validateRustBundle);
       reports.push({
-        artifacts: artifactWriter.finalize(),
+        artifacts,
         bundle: relative(staging, resolve(staging, "bundles", candidate.id)),
         candidateId: candidate.id,
         evidence: candidateEvidence,
@@ -286,12 +273,29 @@ export async function runProbe(
         request,
       });
     }
+    const nodeMemory = process.memoryUsage();
+    memorySampler.setStage("write-report");
+    const processTree = memorySampler.stop();
     const report: ProbeReport = {
       candidates: reports,
-      network: budget.snapshot(),
+      network: browserResult.network,
       runtime: {
-        ...browserMemory,
+        ...execution.browserMemory,
+        hostTotalMemoryBytes: totalmem(),
+        ingestWorkerMaxRssBytes: ingested.workerMaxRssBytes,
+        nodeArrayBuffersBytes: nodeMemory.arrayBuffers,
+        nodeExternalBytes: nodeMemory.external,
+        nodeHeapTotalBytes: nodeMemory.heapTotal,
+        nodeHeapUsedBytes: nodeMemory.heapUsed,
         nodeMaxRssBytes: process.resourceUsage().maxRSS * 1_024,
+        processTree,
+        recommendedParallelWorkers: deriveCaptureWorkerCount(
+          totalmem(),
+          spec.capture.tile.coreWidthPx + spec.capture.tile.guardPx * 2,
+        ),
+        workerEnvelopeBytes: captureWorkerEnvelopeBytes(
+          spec.capture.tile.coreWidthPx + spec.capture.tile.guardPx * 2,
+        ),
       },
       schema: "isometric-reference-probe-report/v1",
     };
@@ -306,20 +310,14 @@ export async function runProbe(
     await rename(staging, output);
     return output;
   } catch (error) {
-    await Promise.all(writers.map(async (writer) => writer.abort().catch(() => undefined)));
     const message = error instanceof Error ? error.message : String(error);
-    const network = budget.snapshot();
     throw new Error(
-      redactSecrets(
-        `${message}; Google request telemetry: ${JSON.stringify(network)}`,
-        [apiKey, ...uploads.map((upload) => upload.token)],
-      ),
+      redactSecrets(message, [apiKey, ...uploadSecrets]),
     );
   } finally {
-    await Promise.all(uploads.map(async (upload) => upload.close().catch(() => undefined)));
-    await page?.close().catch(() => undefined);
-    await context?.close().catch(() => undefined);
-    await browser?.close().catch(() => undefined);
+    memorySampler.stop();
+    await ingest?.abort().catch(() => undefined);
+    await coordinator?.close().catch(() => undefined);
     await rendererServer?.close().catch(() => undefined);
     await rm(staging, { force: true, recursive: true });
   }
