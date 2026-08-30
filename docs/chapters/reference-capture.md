@@ -60,9 +60,62 @@ less balanced around the tower.
 Orthographic camera distance does not control apparent scale. The
 orthographic span does. The fixed 2,000-meter distance is retained only to keep
 the camera safely outside the terrain while remaining inside the 1 to 5,000
-meter clipping interval. The 250-millimeter source scale should remain fixed
-for the masking pilot. Later pixel-art reduction may combine source samples,
-but it must not change the registered capture grid.
+meter clipping interval. The 250-millimeter source scale remains the efficient
+baseline. The camera remains fixed for the masking pilot. The maximum-detail
+review master uses the separately qualified 125-millimeter output grid
+described below.
+
+## Maximum-detail source probe
+
+The quality probe held the 330 degree azimuth, 42 degree elevation camera and
+320 by 320 meter guarded footprint fixed. It varied two independent controls:
+
+- Screen-space error, or SSE, controls which levels of Google's 3D hierarchy
+  the renderer requests. A smaller number asks for finer source geometry and
+  textures.
+- Millimeters per pixel controls only output framebuffer sampling on the fixed
+  physical footprint. A smaller number produces more output pixels.
+
+The pinned `3d-tiles-renderer` Google plugin normally applies SSE 20 through
+its recommended settings. Isometric NYC's pinned source also accepts that
+plugin default. This project disables the opaque preset and pins every quality
+control in the reference manifest.
+
+The private 2026-08-30 run measured five candidates in one Google session:
+
+| Candidate | Scale | SSE | Requests added | Visible tiles | Triangles | Deepest tile | Cache |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 250 mm/px | 20 | 266 | 73 | 237,150 | 23 | 147.1 MiB |
+| Finer source LOD | 250 mm/px | 8 | 518 | 224 | 1,370,554 | 25 | 389.1 MiB |
+| Aggressive source LOD | 250 mm/px | 4 | 0 | 224 | 1,370,554 | 25 | 389.1 MiB |
+| Two-times raster sampling | 125 mm/px | 8 | 0 | 224 | 1,370,554 | 25 | 389.1 MiB |
+| Maximum bounded detail | 125 mm/px | 4 | 0 | 224 | 1,370,554 | 25 | 389.1 MiB |
+
+SSE 8 materially improves roofs, the Hoover shaft and crown, tree texture, and
+ordinary building detail compared with SSE 20. SSE 4 adds no requests and
+produces byte-identical PNG output at both framebuffer scales. This proves an
+available source LOD ceiling for this Stanford view, not a permanent guarantee
+about every Google session or campus location.
+
+The 125-millimeter grid doubles each saved image dimension from 1,024 to 2,048
+pixels and is visibly cleaner at native inspection. It does not add source
+mesh or texture hierarchy. Faceted tree crowns, construction, melted thin
+objects, and photogrammetry holes that remain at SSE 8 are source defects.
+They must be classified, masked, omitted, or reconstructed by later semantic
+and deterministic art stages. Generic edge smoothing would also blur valid
+architectural boundaries.
+
+The selected maximum-detail profile is therefore 330 degrees azimuth, 42
+degrees elevation, 125 millimeters per output pixel, and SSE 8. The efficient
+profile is the same camera at 250 millimeters per pixel and SSE 8. Camera
+distance remains 2,000 meters for clipping only.
+
+The Photorealistic 3D Tiles root API documents no capture date or historical
+imagery parameter. Google updates the dataset and returns attribution per
+visible tile, but the client cannot request a pre-construction epoch. Street
+View's separate metadata date is not a 3D Tiles selector. Construction must be
+masked or replaced using licensed non-Google semantic evidence unless Google
+adds a documented historical 3D product.
 
 ## Bounded capture execution
 
@@ -86,6 +139,12 @@ a 2,560-pixel grid. Capture concurrency is derived from host memory after
 reserving at least 2 GiB and 25 percent for the operating system and other
 work, with a hard limit of four workers. A host that cannot fit one envelope
 must not schedule capture.
+
+The high-LOD quality session completed 784 of 784 requests, retained
+408,005,115 bytes in the renderer cache, and reached a 1,819,934,720-byte
+complete-tree peak. The quality spec pins a 2 GiB worker envelope. Scheduling
+uses the largest candidate grid plus any larger measured minimum, so a cheap
+baseline candidate cannot understate the memory required by later refinement.
 
 The direct browser can observe response status and any CORS-visible declared
 content length, but it does not read response bodies solely for telemetry.
@@ -136,6 +195,18 @@ OVERLAP_EVIDENCE_DIRECTORY=/absolute/private/experiment \
 ```
 
 Open `http://127.0.0.1:5173/isometric-stanford/review/overlap`.
+
+The `/review/quality` workbench verifies the one-session quality report and all
+five candidate image hashes. It compares candidates on the same physical
+footprint, provides native-pixel and named problem-area views, and reports LOD,
+sampling, requests, selected geometry, coverage, timing, and memory.
+
+```bash
+QUALITY_EVIDENCE_DIRECTORY=/absolute/private/quality-experiment \
+  npm --prefix web run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review/quality`.
 
 ## Stitching boundary
 
@@ -197,6 +268,12 @@ changes its complete oracle contract.
   tree crowns, construction, thin objects, and some terrain edges are visibly
   rough. These pixels are evidence for masks and structure. They are not a
   finished art layer and should not be repaired by a generic smoothing filter.
+- SSE 20 was a renderer recommendation, not a Stanford quality ceiling. SSE 8
+  increased selected triangles by 5.78 times. SSE 4 then plateaued exactly.
+- Doubling framebuffer sampling makes the selected source easier to inspect
+  but cannot recover geometry or texture detail Google did not serve.
+- The current 3D Tiles API has no documented historical imagery selector, so
+  it cannot remove construction by choosing an older epoch.
 - The source capture intentionally disables browser antialiasing so depth,
   normal, and coverage edges remain unambiguous. A later review-only
   supersampled color preview may improve human inspection, but canonical masks

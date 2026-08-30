@@ -57,10 +57,14 @@ layers through a tokenized loopback endpoint, and atomically promotes only a
 bundle accepted by the Rust validator. Ordinary CI proves this path with a
 synthetic 3D scene and never requests Google content. A private bounded Hoover
 probe has now produced three Rust-validated registered bundles and a working
-layer-review report. The selected engineering baseline is 330 degrees azimuth,
-42 degrees elevation, and 250 millimeters per source pixel. This is capture
-evidence only, not accepted art or a public Google artifact. The safe-Rust mask
-artifact contract is also implemented.
+layer-review report. A controlled maximum-detail experiment now holds that
+camera and 320-meter footprint fixed while varying Google screen-space error
+and output sampling. It shows that SSE 8, rather than the renderer plugin's SSE
+20 recommendation, reaches Google's available Stanford source LOD. The
+maximum-detail review master uses 125 millimeters per output pixel at SSE 8.
+SSE 4 adds no requests, geometry, or pixels. This is capture evidence only,
+not accepted art or a public Google artifact. The safe-Rust mask artifact
+contract is also implemented.
 
 A second bounded experiment now derives geographic neighbors, keeps one camera
 world matrix fixed, shifts only orthographic frusta, and compares two
@@ -167,6 +171,19 @@ shows joined versus monolithic cores, independent guards, mismatch heatmaps,
 source and lighting gates, response formats, camera registration, grid error,
 coverage, and process memory. It rejects a corrupt report or image before
 displaying a viewport.
+
+Compare the five frozen source-quality candidates on the same physical
+footprint:
+
+```sh
+QUALITY_EVIDENCE_DIRECTORY="$PWD/artifacts/google-quality/hoover-quality-2026-08-30" \
+  npm --prefix web run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review/quality`. The lab verifies
+every image hash before exposing synchronized split, wipe, 1:1, Hoover, tree,
+roof, and construction inspection. Its measurements separate source LOD from
+output raster sampling and state the remaining source defects explicitly.
 
 Generate the original synthetic regression preview:
 

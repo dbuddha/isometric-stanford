@@ -45,6 +45,7 @@ button[aria-pressed="true"] {
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
+.overlap-metrics__scroll:focus-visible,
 .review-viewport:focus-visible,
 a:focus-visible {
   outline: 3px solid #73bed3;
@@ -203,6 +204,15 @@ a:focus-visible {
 .review-zoom {
   display: flex;
   gap: 0.25rem;
+}
+
+.quality-crops {
+  flex-wrap: wrap;
+}
+
+.quality-crops button {
+  min-height: 2rem;
+  padding-block: 0.35rem;
 }
 
 .review-wipe-control {

@@ -16,6 +16,13 @@
 | F-012 | Isometric NYC performs infill after Google capture, as part of Qwen generation using neighboring finished art and raw Google regions. It does not use infill to repair or stitch the Google source raster. | Fact, E2 | S-005 and S-006 | Stanford source registration must be solved before art. Qwen's ordered neighbor dependency is unnecessary for deterministic source capture. | High |
 | F-013 | This experiment consumed two root sessions, 0.02 percent of the official 10,000/day default and 0.2 percent of the current 1,000-event monthly free cap. | Result over official limits, E2 | S-003, S-004, E-001, E-002 | Stop live experimentation after two sessions and preserve remaining quota. Account-wide usage may be higher. | High |
 | F-014 | Direct-browser `responseBodyBytes` only sums CORS-visible `Content-Length` headers. The fixed report's 27,988 bytes are a lower bound, not transfer volume. | Fact and result, E3 | Browser instrumentation plus E-002 | Do not use it for bandwidth or cost conclusions. Use request counts, cache residency, and process memory until streamed byte accounting exists. | High |
+| F-015 | The Google plugin's recommended settings apply SSE 20, and Isometric NYC's pinned renderer accepts that default. SSE 20 is a compatibility recommendation rather than a Stanford detail ceiling. | Source fact plus reproduced configuration, E2 | S-006, S-007, E-004 | Disable the opaque preset and pin source quality in each request and manifest. | High |
+| F-016 | Lowering SSE from 20 to 8 raised visible tiles from 73 to 224 and selected triangles from 237,150 to 1,370,554, with visibly cleaner Hoover, roof, and tree detail. | Result, E3 | E-004 | Use SSE 8 for Stanford reference acquisition. | High for this scene |
+| F-017 | Lowering SSE from 8 to 4 added no requests, selected geometry, or cache data and produced byte-identical PNGs at both sampling scales. | Result, E3 | E-004 | Reject SSE 4 for this view. The available source hierarchy plateaus at SSE 8. | High for this scene |
+| F-018 | Moving from 250 to 125 millimeters per pixel doubled output dimensions but added no source request or selected geometry. The native image is cleaner while source defects remain. | Result, E3 | E-004 | Use 125 mm/px for maximum-detail review and 250 mm/px for the efficient reference. Do not call output supersampling recovered source detail. | High |
+| F-019 | The current Photorealistic 3D Tiles endpoint documents no capture-date or historical-imagery parameter. Google's overview says the dataset is updated regularly. | Absence bounded by official API documentation, E1 | S-001, S-002, S-012 | Construction cannot be removed by requesting an earlier 3D Tiles epoch. Mask it or use licensed non-Google evidence. | Medium-high |
+| F-020 | The high-LOD session reached a 1,819,934,720-byte complete-tree peak and retained 408,005,115 bytes of renderer data. The former dimension-only report calculation understated its envelope. | Result plus implementation defect, E3 | E-004 | Pin a 2 GiB quality worker envelope and calculate probe admission from the largest candidate plus measured minimum. | High |
+| F-021 | Default Map Tiles policy prohibits unauthorized caching, offline image analysis, machine interpretation, object detection, and derived geodata, subject to the customer's Google agreement. | Policy fact, E1 | S-013 | Keep experiments private and block campus CV or publication until written permission covers the exact workflow. | High |
 
 ## Threats to validity
 
@@ -30,5 +37,8 @@
 - Browser RSS is sampled every 250 milliseconds and can miss shorter peaks.
 - The camera choice is an engineering baseline from three samples, not final
   art-style approval.
+- The quality ceiling is measured at one Stanford location in one live session.
+  Another location or later Google source revision can have a different
+  hierarchy.
 - Visual inspection found no chopped tower, but the full issue contract still
   requires the monolithic and lighting relations that failed.

@@ -11,7 +11,12 @@ import type {
   ProbeCandidate,
   ProbeCandidateEvidence,
 } from "../contracts.js";
-import { redactSecrets, validateCaptureRequest } from "../contracts.js";
+import {
+  redactSecrets,
+  totalHeight,
+  totalWidth,
+  validateCaptureRequest,
+} from "../contracts.js";
 import type { ProbeJoinEvidence } from "./probe-artifacts.js";
 import { startProbeIngest } from "./probe-ingest-client.js";
 import type { ProbeIngestClient } from "./probe-ingest-client.js";
@@ -32,9 +37,14 @@ const CAPTURE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../.."
 
 interface CameraCandidateSpec {
   azimuthMillidegrees: number;
+  coreHeightPx?: number;
+  coreWidthPx?: number;
   elevationMillidegrees: number;
+  guardPx?: number;
   id: string;
   label: string;
+  maxScreenSpaceErrorPx?: number;
+  millimetersPerPixel?: number;
 }
 
 interface ProbeSpec {
@@ -42,6 +52,7 @@ interface ProbeSpec {
   capture: CaptureRequest;
   requestLimit: number;
   schema: typeof PROBE_SCHEMA;
+  workerEnvelopeMiB?: number;
 }
 
 interface RuntimeMetrics extends BrowserMemoryMetrics {
@@ -90,7 +101,11 @@ export async function readProbeSpec(path: string): Promise<ProbeSpec> {
     value.schema !== PROBE_SCHEMA ||
     !Number.isSafeInteger(value.requestLimit) ||
     Number(value.requestLimit) < 1 ||
-    Number(value.requestLimit) > 500 ||
+    Number(value.requestLimit) > 1_000 ||
+    (value.workerEnvelopeMiB !== undefined &&
+      (!Number.isSafeInteger(value.workerEnvelopeMiB) ||
+        value.workerEnvelopeMiB < 512 ||
+        value.workerEnvelopeMiB > 4_096)) ||
     !Array.isArray(value.candidates) ||
     value.candidates.length < 1 ||
     value.candidates.length > 8 ||
@@ -113,6 +128,8 @@ export async function readProbeSpec(path: string): Promise<ProbeSpec> {
     throw new Error("capture probe requires an approved Google registered grid");
   }
   const ids = new Set<string>();
+  const physicalWidthMm = totalWidth(value.capture) * value.capture.tile.millimetersPerPixel;
+  const physicalHeightMm = totalHeight(value.capture) * value.capture.tile.millimetersPerPixel;
   for (const candidate of value.candidates) {
     if (
       !safeIdentifier(candidate.id) ||
@@ -125,9 +142,36 @@ export async function readProbeSpec(path: string): Promise<ProbeSpec> {
       candidate.azimuthMillidegrees > 359_999 ||
       !Number.isSafeInteger(candidate.elevationMillidegrees) ||
       candidate.elevationMillidegrees < 1_000 ||
-      candidate.elevationMillidegrees > 89_999
+      candidate.elevationMillidegrees > 89_999 ||
+      (candidate.coreWidthPx !== undefined &&
+        (!Number.isSafeInteger(candidate.coreWidthPx) ||
+          candidate.coreWidthPx < 1 ||
+          candidate.coreWidthPx > 3_584)) ||
+      (candidate.coreHeightPx !== undefined &&
+        (!Number.isSafeInteger(candidate.coreHeightPx) ||
+          candidate.coreHeightPx < 1 ||
+          candidate.coreHeightPx > 3_584)) ||
+      (candidate.guardPx !== undefined &&
+        (!Number.isSafeInteger(candidate.guardPx) ||
+          candidate.guardPx < 1 ||
+          candidate.guardPx > 1_024)) ||
+      (candidate.millimetersPerPixel !== undefined &&
+        (!Number.isSafeInteger(candidate.millimetersPerPixel) ||
+          candidate.millimetersPerPixel < 1 ||
+          candidate.millimetersPerPixel > 100_000)) ||
+      (candidate.maxScreenSpaceErrorPx !== undefined &&
+        (!Number.isSafeInteger(candidate.maxScreenSpaceErrorPx) ||
+          candidate.maxScreenSpaceErrorPx < 1 ||
+          candidate.maxScreenSpaceErrorPx > 64))
     ) {
       throw new Error("capture probe camera candidate is invalid");
+    }
+    const request = requestForCandidate(value.capture, candidate);
+    if (
+      totalWidth(request) * request.tile.millimetersPerPixel !== physicalWidthMm ||
+      totalHeight(request) * request.tile.millimetersPerPixel !== physicalHeightMm
+    ) {
+      throw new Error("capture probe candidates must preserve the physical comparison footprint");
     }
     ids.add(candidate.id);
   }
@@ -139,6 +183,15 @@ function requestForCandidate(base: CaptureRequest, candidate: CameraCandidateSpe
   request.bundleId = `${base.bundleId}-${candidate.id}`;
   request.camera.azimuthMillidegrees = candidate.azimuthMillidegrees;
   request.camera.elevationMillidegrees = candidate.elevationMillidegrees;
+  request.tile.coreWidthPx = candidate.coreWidthPx ?? request.tile.coreWidthPx;
+  request.tile.coreHeightPx = candidate.coreHeightPx ?? request.tile.coreHeightPx;
+  request.tile.guardPx = candidate.guardPx ?? request.tile.guardPx;
+  request.tile.millimetersPerPixel =
+    candidate.millimetersPerPixel ?? request.tile.millimetersPerPixel;
+  request.quality.maxScreenSpaceErrorPx =
+    candidate.maxScreenSpaceErrorPx ?? request.quality.maxScreenSpaceErrorPx;
+  request.camera.orthographicWidthMm = totalWidth(request) * request.tile.millimetersPerPixel;
+  request.camera.orthographicHeightMm = totalHeight(request) * request.tile.millimetersPerPixel;
   validateCaptureRequest(request);
   return request;
 }
@@ -159,7 +212,7 @@ function reportHtml(report: ProbeReport): string {
       const attribution = candidate.evidence.attributions.map(escapeHtml).join(" | ");
       return `<article>
   <h2>${escapeHtml(candidate.label)}</h2>
-  <p>${camera.azimuthMillidegrees / 1_000} degrees azimuth, ${camera.elevationMillidegrees / 1_000} degrees elevation, ${camera.orthographicWidthMm / 1_000} meter span</p>
+  <p>${camera.azimuthMillidegrees / 1_000} degrees azimuth, ${camera.elevationMillidegrees / 1_000} degrees elevation, ${camera.orthographicWidthMm / 1_000} meter span, ${candidate.request.tile.millimetersPerPixel} mm/px, ${candidate.request.quality.maxScreenSpaceErrorPx} px screen-space error</p>
   <div class="image-frame"><img src="candidates/${candidate.candidateId}/core.png" alt="${escapeHtml(candidate.label)} Hoover Tower Google Maps render"></div>
   <p>Coverage ${(candidate.evidence.coreCoverageBasisPoints / 100).toFixed(2)}%, ${candidate.evidence.visibleTiles} visible tiles, ${(candidate.evidence.diagnostics.cachedBytes / 1_048_576).toFixed(1)} MiB renderer cache</p>
   <details><summary>Two-cell join</summary><img src="candidates/${candidate.candidateId}/joined-top.png" alt="Two exact adjacent cells for ${escapeHtml(candidate.label)}"><p>Mismatch pixels: ${candidate.artifacts.mismatchPixels}</p></details>
@@ -276,6 +329,10 @@ export async function runProbe(
     const nodeMemory = process.memoryUsage();
     memorySampler.setStage("write-report");
     const processTree = memorySampler.stop();
+    const largestDimension = Math.max(
+      ...requests.flatMap((request) => [totalWidth(request), totalHeight(request)]),
+    );
+    const measuredMinimumBytes = (spec.workerEnvelopeMiB ?? 0) * 1_024 * 1_024;
     const report: ProbeReport = {
       candidates: reports,
       network: browserResult.network,
@@ -291,10 +348,12 @@ export async function runProbe(
         processTree,
         recommendedParallelWorkers: deriveCaptureWorkerCount(
           totalmem(),
-          spec.capture.tile.coreWidthPx + spec.capture.tile.guardPx * 2,
+          largestDimension,
+          measuredMinimumBytes,
         ),
         workerEnvelopeBytes: captureWorkerEnvelopeBytes(
-          spec.capture.tile.coreWidthPx + spec.capture.tile.guardPx * 2,
+          largestDimension,
+          measuredMinimumBytes,
         ),
       },
       schema: "isometric-reference-probe-report/v1",

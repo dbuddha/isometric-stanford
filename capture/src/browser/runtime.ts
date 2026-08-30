@@ -152,6 +152,7 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
             diagnostics,
             elapsedMs: ready.elapsedMs,
             layerOrder: [...REQUIRED_LAYER_NAMES],
+            networkAfterCandidate: network.snapshot(),
             projectionMatrix: [...registered.camera.projectionMatrix.elements],
             stableFrames: ready.stableFrames,
             visibleTiles: ready.visibleTiles,

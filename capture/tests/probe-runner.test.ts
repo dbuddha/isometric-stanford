@@ -48,4 +48,17 @@ describe("Hoover camera probe", () => {
     });
     expect(spec.candidates.map((candidate) => candidate.id)).toEqual(["stanford-330-42"]);
   });
+
+  it("pins equal-footprint source-LOD and raster-sampling candidates", async () => {
+    const spec = await readProbeSpec(resolve("specs/hoover-quality-probe.json"));
+    expect(spec.requestLimit).toBe(1000);
+    expect(spec.workerEnvelopeMiB).toBe(2048);
+    expect(spec.candidates.map((candidate) => candidate.id)).toEqual([
+      "baseline-sse20-250mm",
+      "lod-sse8-250mm",
+      "lod-sse4-250mm",
+      "sample-sse8-125mm",
+      "maximum-sse4-125mm",
+    ]);
+  });
 });

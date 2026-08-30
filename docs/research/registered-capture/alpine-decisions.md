@@ -2,9 +2,10 @@
 
 ## Include
 
-1. Pin 330 degrees azimuth, 42 degrees elevation, 250 millimeters per source
-   pixel, 20 meter target altitude, 2,000 meter camera distance, and a 1 to
-   5,000 meter clipping interval for the pilot.
+1. Pin 330 degrees azimuth, 42 degrees elevation, SSE 8, 20 meter target
+   altitude, 2,000 meter camera distance, and a 1 to 5,000 meter clipping
+   interval. Use 125 millimeters per pixel for the maximum-detail review master
+   and 250 millimeters per pixel for the efficient reference.
 2. Construct one world camera per bounded macroblock. Move adjacent source
    cells only with off-axis orthographic frusta.
 3. Capture at least a 1,024-pixel core with a 128-pixel guard. Prefer a 2,048
@@ -15,8 +16,10 @@
    deterministic relighting, stylization, seam oracles, hashing, and DZI.
 6. Use React for a local hash-validating review surface. Use OpenSeadragon only
    for the static final image pyramid.
-7. Retain 128 MiB and cap at 256 MiB in the current renderer. Treat 1.25 GiB as
-   the measured acquisition worker envelope for this grid size.
+7. Use the cache and worker envelope pinned by each capture spec. The SSE 8
+   maximum-detail probe permits up to 2 GiB renderer cache and uses a measured
+   2 GiB process-tree envelope. Lower-detail overlap evidence retains its 128
+   MiB target, 256 MiB ceiling, and 1.25 GiB envelope.
 8. Freeze accepted raw layer hashes before any nondeterministic model inference
    or deterministic Rust transform.
 
@@ -31,6 +34,8 @@
 6. Using Qwen to solve source capture or source seams.
 7. Collecting the 600-meter hero or full campus before the remaining issue
    #167 exit evidence is resolved or deliberately changed by an approved ADR.
+8. Treating an API key or informal permission as a written exception to Google
+   Map Tiles policy.
 
 ## Experiment next
 

@@ -115,18 +115,22 @@ function useLayerAsset(
 
 function LayerImage({
   asset,
-  height,
+  displayHeight,
+  displayWidth,
+  naturalHeight,
+  naturalWidth,
   onFailure,
   scale,
   transform,
-  width,
 }: {
   asset: LayerAsset | null;
-  height: number;
+  displayHeight: number;
+  displayWidth: number;
+  naturalHeight: number;
+  naturalWidth: number;
   onFailure: (message: string) => void;
   scale: number;
   transform: ReviewTransform;
-  width: number;
 }) {
   if (!asset) {
     return <span className="review-viewport__loading">Preparing layer</span>;
@@ -137,23 +141,23 @@ function LayerImage({
       className="review-viewport__image"
       data-layer-kind={asset.kind}
       draggable={false}
-      height={height}
+      height={naturalHeight}
       onError={() => onFailure(`${asset.kind} image decoding failed`)}
       onLoad={(event) => {
         if (
-          event.currentTarget.naturalWidth !== width ||
-          event.currentTarget.naturalHeight !== height
+          event.currentTarget.naturalWidth !== naturalWidth ||
+          event.currentTarget.naturalHeight !== naturalHeight
         ) {
           onFailure(`${asset.kind} decoded dimensions do not match the registered grid`);
         }
       }}
       src={asset.url}
       style={{
-        height: `${height}px`,
+        height: `${displayHeight}px`,
         transform: `translate(-50%, -50%) scale(${scale}) translate(${transform.panX}px, ${transform.panY}px)`,
-        width: `${width}px`,
+        width: `${displayWidth}px`,
       }}
-      width={width}
+      width={naturalWidth}
     />
   );
 }
@@ -281,11 +285,13 @@ export function ReviewViewport({
     >
       <LayerImage
         asset={primary}
-        height={height}
+        displayHeight={height}
+        displayWidth={width}
+        naturalHeight={layer.record.height_px}
+        naturalWidth={layer.record.width_px}
         onFailure={onFailure}
         scale={scale}
         transform={transform}
-        width={width}
       />
       {overlay && (
         <div
@@ -295,11 +301,13 @@ export function ReviewViewport({
         >
           <LayerImage
             asset={secondary}
-            height={height}
+            displayHeight={height}
+            displayWidth={width}
+            naturalHeight={overlay.record.height_px}
+            naturalWidth={overlay.record.width_px}
             onFailure={onFailure}
             scale={scale}
             transform={transform}
-            width={width}
           />
         </div>
       )}

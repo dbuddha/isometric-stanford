@@ -24,6 +24,9 @@ export default defineConfig({
           VITE_OVERLAP_REPORT_URL:
             process.env.E2E_OVERLAP_REPORT_URL ??
             "/isometric-stanford/fixture/overlap/overlap-report.json",
+          VITE_QUALITY_REPORT_URL:
+            process.env.E2E_QUALITY_REPORT_URL ??
+            "/isometric-stanford/fixture/quality/quality-review.json",
           VITE_REFERENCE_URL:
             process.env.E2E_REFERENCE_URL ??
             "/isometric-stanford/fixture/reference/reference.manifest.json",

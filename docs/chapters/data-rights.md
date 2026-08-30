@@ -22,6 +22,22 @@ reference. Dynamic capture is isolated from the generic source synchronizer.
 Every retained reference bundle records provider, epoch, camera, renderer,
 layer hashes, coverage, and downstream experiment identity.
 
+That owner authorization does not by itself establish a Google contractual
+exception. Google's current [Map Tiles API policy](https://developers.google.com/maps/documentation/tile/policies)
+limits the default product to visualization and prohibits unauthorized caching,
+offline use, image analysis, machine interpretation, object detection, and
+derived geodata. The bounded Hoover experiments therefore remain private
+technical evidence under the owner's asserted authorization. Campus collection,
+computer-vision processing, derived-art publication, and public display remain
+permission-gated until a written Google agreement or exception is retained in
+the provenance record and reviewed against the exact workflow. An API key and
+a Google employee's informal permission are not substitutes for that evidence.
+
+If that permission is not obtained, the production pipeline must replace the
+Google reference with licensed open imagery, LiDAR, and vector-derived renders.
+No Google-derived geometry, texture, mask, or measurement may silently enter
+the open-data world model.
+
 `source.lock.json` records immutable semantic-source URLs, bounds, dates,
 licenses, hashes, decisions, and required notices. Reference manifests own
 dynamic capture identity. Derived manifests retain both chains. Publication

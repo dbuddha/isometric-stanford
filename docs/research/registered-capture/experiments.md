@@ -117,3 +117,42 @@ The dashboard was exercised with the exact private report and seven hashed
 derived images. It loaded the source pass and remaining failures, supported
 fit and 1:1 core wipes, switched to the guard overlap and heatmap, and produced
 no browser console error.
+
+## E-004: maximum-detail source qualification
+
+Method: hold the selected camera and 320 by 320 meter guarded footprint fixed.
+Run five candidates in one live Google root session. Vary source SSE across 20,
+8, and 4. Vary output sampling across 250 and 125 millimeters per pixel. Disable
+texture mipmaps, allow 512 MiB minimum and 2 GiB maximum tile cache, and stop at
+1,000 total requests. Freeze every candidate PNG and per-candidate cumulative
+request count.
+
+| Candidate | Scale | SSE | Added requests | Visible tiles | Triangles | Max depth | Cache | Elapsed |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 250 mm/px | 20 | 266 | 73 | 237,150 | 23 | 154,261,894 B | 6.135 s |
+| Finer LOD | 250 mm/px | 8 | 518 | 224 | 1,370,554 | 25 | 408,005,115 B | 4.891 s |
+| Aggressive LOD | 250 mm/px | 4 | 0 | 224 | 1,370,554 | 25 | 408,005,115 B | 2.002 s |
+| Two-times sampling | 125 mm/px | 8 | 0 | 224 | 1,370,554 | 25 | 408,005,115 B | 2.001 s |
+| Maximum bounded | 125 mm/px | 4 | 0 | 224 | 1,370,554 | 25 | 408,005,115 B | 2.001 s |
+
+Session totals:
+
+- One root event, 784 attempted and completed requests, zero failed or blocked.
+- 496 GLB and 288 JSON responses.
+- 99.99 percent core coverage for every candidate.
+- SSE 8 and SSE 4 PNGs were byte identical at the matching sampling scale.
+- Node peak 88,670,208 bytes and Chromium-family peak 1,595,899,904 bytes.
+- Complete-tree peak 1,819,934,720 bytes within the corrected 2 GiB envelope.
+- Raw report SHA-256 `a4fb75e2af5e8a2fbf0f3388ddb7b452f1ba40abc5743c41a03d00e6a49659b3`.
+- Derived review SHA-256 `c0c79a87135d8ac2c57f9ff62106effa96a6205ba3c3b1776765b290675fb9ac`.
+
+Disposition: select SSE 8. Use 125 millimeters per pixel for the
+maximum-detail review master and 250 millimeters per pixel for smaller
+processing inputs where native supersampling is unnecessary. Do not expect
+SSE 4 or additional framebuffer pixels to repair faceted trees, construction,
+thin-object loss, or missing photogrammetry.
+
+The local dashboard was exercised at desktop and 390 by 844 mobile viewports.
+It loaded the exact five frozen candidates, changed crop and comparison state,
+showed no browser exception or failed request, and exposed a keyboard-focusable
+scroll container for the wide evidence table.

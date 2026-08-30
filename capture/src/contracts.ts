@@ -46,6 +46,13 @@ export interface ReadinessSpec {
   minimumVisibleTiles: number;
 }
 
+export interface CaptureQualitySpec {
+  maxScreenSpaceErrorPx: number;
+  minimumTileCacheMiB: number;
+  maximumTileCacheMiB: number;
+  textureMipmaps: boolean;
+}
+
 export interface CaptureRequest {
   schema: typeof CAPTURE_SCHEMA;
   bundleId: string;
@@ -53,6 +60,7 @@ export interface CaptureRequest {
   sourceEpoch: string;
   tile: TileSpec;
   camera: CameraSpec;
+  quality: CaptureQualitySpec;
   lighting: LightingSpec;
   readiness: ReadinessSpec;
 }
@@ -76,6 +84,12 @@ export interface SceneDiagnostics {
   maxCachedBytes: number;
   textures: number;
   triangles: number;
+  visibleTileDepthMaximum: number;
+  visibleTileDepthMedian: number;
+  visibleTileDepthMinimum: number;
+  visibleTileErrorMaximumMillipixels: number;
+  visibleTileErrorMedianMillipixels: number;
+  visibleTileErrorP95Millipixels: number;
 }
 
 export interface GoogleNetworkTelemetry {
@@ -100,6 +114,7 @@ export interface ProbeCandidateEvidence extends CaptureEvidence {
   cameraWorldMatrix: number[];
   candidateId: string;
   diagnostics: SceneDiagnostics;
+  networkAfterCandidate: GoogleNetworkTelemetry;
   projectionMatrix: number[];
 }
 
@@ -155,6 +170,10 @@ export function cameraFingerprint(request: CaptureRequest): string {
     request.camera.orthographicWidthMm,
     request.camera.orthographicHeightMm,
     request.camera.cameraDistanceMm,
+    request.quality.maxScreenSpaceErrorPx,
+    request.quality.minimumTileCacheMiB,
+    request.quality.maximumTileCacheMiB,
+    request.quality.textureMipmaps ? 1 : 0,
   ];
   return values.join(":");
 }
@@ -173,6 +192,7 @@ export function validateCaptureRequest(value: unknown): asserts value is Capture
     request.sourceEpoch.length === 0 ||
     request.tile === undefined ||
     request.camera === undefined ||
+    request.quality === undefined ||
     request.lighting === undefined ||
     request.readiness === undefined
   ) {
@@ -220,6 +240,19 @@ export function validateCaptureRequest(value: unknown): asserts value is Capture
     !isIntegerIn(lighting.sunElevationMillidegrees, 1_000, 89_999)
   ) {
     throw new Error("capture lighting contract is invalid");
+  }
+  const quality = request.quality;
+  if (
+    !isIntegerIn(quality.maxScreenSpaceErrorPx, 1, 64) ||
+    !isIntegerIn(quality.minimumTileCacheMiB, 64, 2_048) ||
+    !isIntegerIn(
+      quality.maximumTileCacheMiB,
+      quality.minimumTileCacheMiB,
+      2_048,
+    ) ||
+    typeof quality.textureMipmaps !== "boolean"
+  ) {
+    throw new Error("capture quality contract is invalid");
   }
   const readiness = request.readiness;
   if (
