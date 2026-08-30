@@ -98,6 +98,29 @@ independent color, coverage, depth, and normal seam gate. It does not pass the
 monolithic-oracle or captured-lighting gates, so it is evidence rather than a
 campus-collection approval.
 
+The maximum-detail probe keeps the selected camera and 320-meter guarded
+footprint fixed while changing source LOD and output sampling. It requires one
+new immutable output directory:
+
+```bash
+quality_key="$(security find-generic-password -a "$USER" -s isometric-stanford-map-tiles -w)"
+GOOGLE_MAP_TILES_API_KEY="$quality_key" npm --prefix capture run probe -- \
+  --spec specs/hoover-quality-probe.json \
+  --output ../artifacts/google-quality/<new-run-id>
+unset quality_key
+npm --prefix capture run quality-review -- \
+  ../artifacts/google-quality/<new-run-id>
+```
+
+The 2026-08-30 run used one root session and completed 784 requests with no
+failures or blocked requests. SSE 20 selected 73 visible tiles and 237,150
+triangles. SSE 8 selected 224 tiles and 1,370,554 triangles. SSE 4 then added
+zero requests and produced the exact same PNG bytes as SSE 8 at each sampling
+scale. Doubling the output grid from 250 to 125 millimeters per pixel added
+image samples but no source geometry. Use SSE 8 and 125 millimeters per pixel
+for maximum-detail inspection. Use SSE 8 and 250 millimeters per pixel when a
+smaller reference is sufficient.
+
 The 400-request camera ceiling was measured rather than guessed. A 100-request run
 loaded 4.12 MiB successfully and then blocked 26 required child requests. The
 accepted Hoover run used 282 requests and one billable root session. The probe
@@ -113,6 +136,11 @@ The measured 1,280-pixel worker envelope is 1 GiB, with a 79 MiB Node peak and
 849 MiB complete-tree peak. The measured 2,560-pixel envelope is 1.25 GiB, with
 a 79 MiB Node peak and 1,014 MiB complete-tree peak. The versioned memory policy
 reserves host memory and caps parallel acquisition at four workers.
+
+The high-LOD quality run retained 389.1 MiB of renderer data and reached a
+1,819,934,720-byte complete-tree peak. Its spec therefore pins a 2 GiB worker
+envelope. Future reports calculate scheduling from the largest candidate grid
+and this measured minimum instead of the baseline candidate alone.
 
 The larger fixed-camera overlap run raised the renderer cache from the old 96
 MiB ceiling to a 128 MiB retention target and 256 MiB ceiling. It completed 428
@@ -136,6 +164,11 @@ any release artifact.
 Use `OVERLAP_EVIDENCE_DIRECTORY` and the `/review/overlap` route for an
 overlap experiment. That route verifies the report and seven comparison image
 hashes before showing any source pixels.
+
+Use `QUALITY_EVIDENCE_DIRECTORY` and the `/review/quality` route for a
+maximum-detail experiment. The route verifies the derived report plus all five
+candidate PNG hashes, supports matched physical-footprint comparison, and
+labels source LOD separately from output raster sampling.
 
 The live command is deliberately absent from ordinary CI. A capture timeout,
 tile-load error, missing pass, camera mismatch, low coverage result, wrong hash,

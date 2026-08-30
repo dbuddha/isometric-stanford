@@ -11,7 +11,7 @@ describe("capture contracts", () => {
   it("accepts one exact registered request", () => {
     const request = syntheticRequest();
     expect(() => validateCaptureRequest(request)).not.toThrow();
-    expect(cameraFingerprint(request).split(":")).toHaveLength(13);
+    expect(cameraFingerprint(request).split(":")).toHaveLength(17);
     expect(REQUIRED_LAYER_NAMES).toEqual([
       "color",
       "whitebox",
@@ -20,6 +20,12 @@ describe("capture contracts", () => {
       "fixed-shadow",
       "coverage",
     ]);
+  });
+
+  it("rejects an unbounded or contradictory source quality profile", () => {
+    const request = syntheticRequest();
+    request.quality.maximumTileCacheMiB = 64;
+    expect(() => validateCaptureRequest(request)).toThrow(/quality contract/);
   });
 
   it("rejects a camera span that does not match the pixel grid", () => {

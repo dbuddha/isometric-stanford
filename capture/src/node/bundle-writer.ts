@@ -264,7 +264,7 @@ export class BundleWriter {
           this.#request.provider === "synthetic"
             ? "threejs-synthetic-fixture"
             : "threejs-google-3d-tiles",
-        renderer_version: "capture-v1+three-0.185.1+3d-tiles-renderer-0.5.0",
+        renderer_version: `capture-v1+three-0.185.1+3d-tiles-renderer-0.5.0+sse-${this.#request.quality.maxScreenSpaceErrorPx}+cache-${this.#request.quality.minimumTileCacheMiB}-${this.#request.quality.maximumTileCacheMiB}mib+mipmaps-${this.#request.quality.textureMipmaps ? "on" : "off"}`,
         provider: this.#request.provider,
         source_epoch: this.#request.sourceEpoch,
         complete: true,

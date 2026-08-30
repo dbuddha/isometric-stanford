@@ -25,6 +25,12 @@
     "orthographicHeightMm": 640000,
     "cameraDistanceMm": 2000000
   },
+  "quality": {
+    "maxScreenSpaceErrorPx": 20,
+    "minimumTileCacheMiB": 128,
+    "maximumTileCacheMiB": 256,
+    "textureMipmaps": false
+  },
   "lighting": {
     "sunAzimuthMillidegrees": 315000,
     "sunElevationMillidegrees": 42000

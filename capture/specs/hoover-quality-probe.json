@@ -1,0 +1,94 @@
+{
+  "schema": "isometric-reference-probe/v1",
+  "requestLimit": 1000,
+  "workerEnvelopeMiB": 2048,
+  "capture": {
+    "schema": "isometric-reference-capture/v1",
+    "bundleId": "hoover-quality",
+    "provider": "google-photorealistic-3d-tiles",
+    "sourceEpoch": "live-google-session",
+    "tile": {
+      "regionId": "hoover-quality-probe",
+      "column": 0,
+      "row": 0,
+      "coreWidthPx": 1024,
+      "coreHeightPx": 1024,
+      "guardPx": 128,
+      "millimetersPerPixel": 250,
+      "centerLongitudeE7": -1221670000,
+      "centerLatitudeE7": 374276111
+    },
+    "camera": {
+      "projection": "orthographic",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "targetAltitudeMm": 20000,
+      "nearMm": 1000,
+      "farMm": 5000000,
+      "orthographicWidthMm": 320000,
+      "orthographicHeightMm": 320000,
+      "cameraDistanceMm": 2000000
+    },
+    "quality": {
+      "maxScreenSpaceErrorPx": 20,
+      "minimumTileCacheMiB": 512,
+      "maximumTileCacheMiB": 2048,
+      "textureMipmaps": false
+    },
+    "lighting": {
+      "sunAzimuthMillidegrees": 315000,
+      "sunElevationMillidegrees": 42000
+    },
+    "readiness": {
+      "timeoutMs": 180000,
+      "stableFrames": 60,
+      "stableDurationMs": 2000,
+      "minimumVisibleTiles": 4
+    }
+  },
+  "candidates": [
+    {
+      "id": "baseline-sse20-250mm",
+      "label": "Current baseline",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "maxScreenSpaceErrorPx": 20
+    },
+    {
+      "id": "lod-sse8-250mm",
+      "label": "Finer Google LOD",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "maxScreenSpaceErrorPx": 8
+    },
+    {
+      "id": "lod-sse4-250mm",
+      "label": "Aggressive Google LOD",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "maxScreenSpaceErrorPx": 4
+    },
+    {
+      "id": "sample-sse8-125mm",
+      "label": "Two-times raster sampling",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "coreWidthPx": 2048,
+      "coreHeightPx": 2048,
+      "guardPx": 256,
+      "millimetersPerPixel": 125,
+      "maxScreenSpaceErrorPx": 8
+    },
+    {
+      "id": "maximum-sse4-125mm",
+      "label": "Maximum bounded detail",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "coreWidthPx": 2048,
+      "coreHeightPx": 2048,
+      "guardPx": 256,
+      "millimetersPerPixel": 125,
+      "maxScreenSpaceErrorPx": 4
+    }
+  ]
+}

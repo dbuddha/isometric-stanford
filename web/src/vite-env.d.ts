@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_DZI_URL?: string;
   readonly VITE_REFERENCE_URL?: string;
   readonly VITE_OVERLAP_REPORT_URL?: string;
+  readonly VITE_QUALITY_REPORT_URL?: string;
   readonly VITE_RELEASE_URL?: string;
 }
 

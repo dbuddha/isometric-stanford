@@ -19,9 +19,50 @@ import type { RegisteredScene } from "./pass-renderer.js";
 import { registeredOrthographicFrustum } from "./registered-camera.js";
 
 const DRACO_DECODER_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
-const MINIMUM_TILE_CACHE_BYTES = 128 * 1_024 * 1_024;
-const MAXIMUM_TILE_CACHE_BYTES = 256 * 1_024 * 1_024;
 
+function percentile(values: readonly number[], percentileValue: number): number {
+  if (values.length === 0) {
+    return 0;
+  }
+  const sorted = [...values].sort((left, right) => left - right);
+  const index = Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * percentileValue));
+  return sorted[index] ?? 0;
+}
+
+function visibleTileMetrics(tiles: TilesRenderer): Pick<
+  SceneDiagnostics,
+  | "visibleTileDepthMaximum"
+  | "visibleTileDepthMedian"
+  | "visibleTileDepthMinimum"
+  | "visibleTileErrorMaximumMillipixels"
+  | "visibleTileErrorMedianMillipixels"
+  | "visibleTileErrorP95Millipixels"
+> {
+  const depths: number[] = [];
+  const errors: number[] = [];
+  for (const tile of tiles.visibleTiles) {
+    const metric = tile as typeof tile & {
+      internal?: { depth?: number };
+      traversal?: { error?: number };
+    };
+    const depth = metric.internal?.depth;
+    const error = metric.traversal?.error;
+    if (Number.isFinite(depth) && Number.isInteger(depth) && Number(depth) >= 0) {
+      depths.push(Number(depth));
+    }
+    if (Number.isFinite(error) && Number(error) >= 0) {
+      errors.push(Math.round(Number(error) * 1_000));
+    }
+  }
+  return {
+    visibleTileDepthMaximum: depths.length === 0 ? 0 : Math.max(...depths),
+    visibleTileDepthMedian: percentile(depths, 0.5),
+    visibleTileDepthMinimum: depths.length === 0 ? 0 : Math.min(...depths),
+    visibleTileErrorMaximumMillipixels: errors.length === 0 ? 0 : Math.max(...errors),
+    visibleTileErrorMedianMillipixels: percentile(errors, 0.5),
+    visibleTileErrorP95Millipixels: percentile(errors, 0.95),
+  };
+}
 function targetPosition(request: CaptureRequest, groupMatrix: Matrix4): Vector3 {
   const frame = new Matrix4();
   WGS84_ELLIPSOID.getObjectFrame(
@@ -79,18 +120,24 @@ export function createGoogleScene(
   const scene = new Scene();
   scene.background = new Color(0x000000);
   const tiles = new TilesRenderer();
-  tiles.lruCache.minBytesSize = MINIMUM_TILE_CACHE_BYTES;
-  tiles.lruCache.maxBytesSize = MAXIMUM_TILE_CACHE_BYTES;
+  tiles.lruCache.minBytesSize = request.quality.minimumTileCacheMiB * 1_024 * 1_024;
+  tiles.lruCache.maxBytesSize = request.quality.maximumTileCacheMiB * 1_024 * 1_024;
   tiles.lruCache.unloadPercent = 0.25;
   const draco = new DRACOLoader().setDecoderPath(DRACO_DECODER_PATH);
   tiles.registerPlugin(
     new GoogleCloudAuthPlugin({
       apiToken: apiKey,
       autoRefreshToken: false,
-      useRecommendedSettings: true,
+      useRecommendedSettings: false,
     }),
   );
-  tiles.registerPlugin(new TileCompressionPlugin({ disableMipmaps: true, generateNormals: true }));
+  tiles.errorTarget = request.quality.maxScreenSpaceErrorPx;
+  tiles.registerPlugin(
+    new TileCompressionPlugin({
+      disableMipmaps: !request.quality.textureMipmaps,
+      generateNormals: true,
+    }),
+  );
   tiles.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: draco }));
   tiles.group.rotation.x = -Math.PI / 2;
   tiles.group.updateMatrixWorld(true);
@@ -137,6 +184,12 @@ export function createGoogleScene(
   const fixedSunVector = anchorSunPosition.sub(anchorTarget);
   sunTarget.copy(anchorTarget);
   sunPosition.copy(anchorTarget).add(fixedSunVector);
+  const shadowGrid = {
+    heightPx: initialHeight,
+    horizontalMeters,
+    verticalMeters,
+    widthPx: initialWidth,
+  };
   const applyCamera = (next: CaptureRequest): void => {
     const width = next.tile.coreWidthPx + 2 * next.tile.guardPx;
     const height = next.tile.coreHeightPx + 2 * next.tile.guardPx;
@@ -159,8 +212,13 @@ export function createGoogleScene(
     camera.near = next.camera.nearMm / 1_000;
     camera.far = next.camera.farMm / 1_000;
     camera.updateProjectionMatrix();
+    tiles.errorTarget = next.quality.maxScreenSpaceErrorPx;
     tiles.setCamera(camera);
     tiles.setResolution(camera, width, height);
+    shadowGrid.heightPx = height;
+    shadowGrid.horizontalMeters = nextHorizontalMeters;
+    shadowGrid.verticalMeters = nextVerticalMeters;
+    shadowGrid.widthPx = width;
   };
   applyCamera(request);
 
@@ -244,6 +302,7 @@ export function createGoogleScene(
         maxCachedBytes: cache.maxBytesSize,
         textures: renderer.info.memory.textures,
         triangles: renderer.info.render.triangles,
+        ...visibleTileMetrics(tiles),
       };
     },
     dispose(): void {
@@ -257,7 +316,6 @@ export function createGoogleScene(
         next.provider === request.provider &&
         next.sourceEpoch === request.sourceEpoch &&
         next.tile.regionId === request.tile.regionId &&
-        next.tile.millimetersPerPixel === request.tile.millimetersPerPixel &&
         next.camera.projection === request.camera.projection &&
         next.camera.azimuthMillidegrees === request.camera.azimuthMillidegrees &&
         next.camera.elevationMillidegrees === request.camera.elevationMillidegrees &&
@@ -265,6 +323,9 @@ export function createGoogleScene(
         next.camera.nearMm === request.camera.nearMm &&
         next.camera.farMm === request.camera.farMm &&
         next.camera.cameraDistanceMm === request.camera.cameraDistanceMm &&
+        next.quality.minimumTileCacheMiB === request.quality.minimumTileCacheMiB &&
+        next.quality.maximumTileCacheMiB === request.quality.maximumTileCacheMiB &&
+        next.quality.textureMipmaps === request.quality.textureMipmaps &&
         next.lighting.sunAzimuthMillidegrees === request.lighting.sunAzimuthMillidegrees &&
         next.lighting.sunElevationMillidegrees === request.lighting.sunElevationMillidegrees;
       if (!sameRegistration) {
@@ -282,12 +343,7 @@ export function createGoogleScene(
       applyCamera(next);
     },
     scene,
-    shadowGrid: {
-      heightPx: initialHeight,
-      horizontalMeters,
-      verticalMeters,
-      widthPx: initialWidth,
-    },
+    shadowGrid,
     sunPosition,
     sunTarget,
     waitUntilReady,

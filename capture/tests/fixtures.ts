@@ -29,6 +29,12 @@ export function syntheticRequest(): CaptureRequest {
       orthographicHeightMm: 160_000,
       cameraDistanceMm: 500_000,
     },
+    quality: {
+      maxScreenSpaceErrorPx: 20,
+      minimumTileCacheMiB: 128,
+      maximumTileCacheMiB: 256,
+      textureMipmaps: false,
+    },
     lighting: {
       sunAzimuthMillidegrees: 315_000,
       sunElevationMillidegrees: 42_000,

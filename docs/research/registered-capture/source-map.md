@@ -13,14 +13,17 @@
 | S-009 | [deck.gl Google 3D Tiles example at `a91c56d`](https://github.com/visgl/deck.gl/blob/a91c56d3a4ba22fbfaa520bba2421e7309db1689/examples/website/google-3d-tiles/app.jsx) | `Tile3DLayer`, screen-space error 20, 512 MB memory, adaptive memory, overlays, attribution | MIT | Optimized for interactive visualization, not registered multipass export |
 | S-010 | [Cesium Google helper at `93c8244`](https://github.com/CesiumGS/cesium/blob/93c82442d0733002e48c2dfde7b1a43d75da57dc/packages/engine/Source/Scene/createGooglePhotorealistic3DTileset.js) | Mature Google integration with 1,536 MB cache and 1,024 MB overflow defaults | Apache-2.0 | Product globe stack and default memory are larger than this offline capture unit needs |
 | S-011 | [Google 3D Storytelling](https://developers.google.com/maps/architecture/3d-storytelling) and [3D Area Explorer](https://developers.google.com/maps/architecture/3d-area-explorer) | Official solution precedents for camera navigation, place overlays, and application structure | Repository-specific terms | Perspective storytelling products, not exact raster exporters |
+| S-012 | Official [3D Tiles overview](https://developers.google.com/maps/documentation/tile/3d-tiles-overview) and [renderer examples](https://developers.google.com/maps/documentation/tile/use-renderer), parameter audit reviewed 2026-08-30 | The documented root endpoint takes an API key, regular upstream updates are disclosed, and no historical 3D capture-date selector is documented | Google documentation terms | Absence is bounded to the current public 3D Tiles API documentation |
+| S-013 | [Google Map Tiles API policies](https://developers.google.com/maps/documentation/tile/policies), reviewed 2026-08-30, page last updated 2026-08-25 | Default policy restricts unauthorized caching, offline use, image analysis, machine interpretation, object detection, and derived geodata subject to the customer's agreement | Google documentation terms | A written customer agreement can define a different allowed scope and must be reviewed separately |
 | E-001 | Private moving-camera Hoover report, SHA-256 `0501596e9debb40e09dadf1733d9a048b06bd9fa349f242a9c474471939843fb` | Controlled local one-session differential experiment | Private Google-derived evidence | Not committed or publishable as project art |
 | E-002 | Private fixed-camera Hoover report, SHA-256 `5caa7d62574531ae8c0db1f6f79e860c1dcfd096afee370e0d973a702f297db0` | Controlled local one-session differential experiment | Private Google-derived evidence | Captured before the lighting remediation was implemented |
 | E-003 | Derived fixed-camera comparison v3, SHA-256 `d14d3b3d681ce5f35743d8b60a974b519529fff87c42d033898d5bd9806c866e` | Safe-Rust reanalysis of the frozen E-002 raw layers | Original project code over private inputs | Reproduces source seam only, not complete lighting or monolithic qualification |
+| E-004 | Private maximum-detail Hoover report, SHA-256 `a4fb75e2af5e8a2fbf0f3388ddb7b452f1ba40abc5743c41a03d00e6a49659b3`, with derived review `c0c79a87135d8ac2c57f9ff62106effa96a6205ba3c3b1776765b290675fb9ac` | Controlled one-session SSE and output-sampling differential experiment | Private Google-derived evidence | Qualifies one Stanford view and does not grant publication or computer-vision rights |
 
 ## Independence and triangulation
 
 Google documentation defines the service contract. The three renderer projects
 show distinct integration tradeoffs. Isometric NYC supplies the nearest
-workflow comparator. E-001 through E-003 are project-controlled measurements.
+workflow comparator. E-001 through E-004 are project-controlled measurements.
 The performance and seam decisions do not depend on a single upstream's
 marketing claim.

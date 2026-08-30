@@ -8,6 +8,7 @@ import { defineConfig } from "vitest/config";
 const BASE = "/isometric-stanford/";
 const LOCAL_REFERENCE_ROUTE = `${BASE}__reference__/`;
 const LOCAL_OVERLAP_ROUTE = `${BASE}__overlap__/`;
+const LOCAL_QUALITY_ROUTE = `${BASE}__quality__/`;
 const REFERENCE_FILES: Record<string, string> = {
   "color.png": "image/png",
   "coverage.png": "image/png",
@@ -26,6 +27,14 @@ const OVERLAP_FILES: Record<string, string> = {
   "comparison/overlap-monolithic.png": "image/png",
   "comparison/overlap-right.png": "image/png",
   "overlap-report.json": "application/json; charset=utf-8",
+};
+const QUALITY_FILES: Record<string, string> = {
+  "quality-review.json": "application/json; charset=utf-8",
+  "candidates/baseline-sse20-250mm/core.png": "image/png",
+  "candidates/lod-sse8-250mm/core.png": "image/png",
+  "candidates/lod-sse4-250mm/core.png": "image/png",
+  "candidates/sample-sse8-125mm/core.png": "image/png",
+  "candidates/maximum-sse4-125mm/core.png": "image/png",
 };
 
 function localFilePlugin(
@@ -102,6 +111,7 @@ function localReferencePlugin(directory: string | undefined): Plugin {
 export default defineConfig(() => {
   const referenceDirectory = process.env.REFERENCE_BUNDLE_DIRECTORY;
   const overlapDirectory = process.env.OVERLAP_EVIDENCE_DIRECTORY;
+  const qualityDirectory = process.env.QUALITY_EVIDENCE_DIRECTORY;
   const definedEnvironment: Record<string, string> = {};
   if (referenceDirectory) {
     definedEnvironment["import.meta.env.VITE_REFERENCE_URL"] = JSON.stringify(
@@ -113,6 +123,11 @@ export default defineConfig(() => {
       `${LOCAL_OVERLAP_ROUTE}overlap-report.json`,
     );
   }
+  if (qualityDirectory) {
+    definedEnvironment["import.meta.env.VITE_QUALITY_REPORT_URL"] = JSON.stringify(
+      `${LOCAL_QUALITY_ROUTE}quality-review.json`,
+    );
+  }
   return {
     plugins: [
       react(),
@@ -122,6 +137,12 @@ export default defineConfig(() => {
         LOCAL_OVERLAP_ROUTE,
         overlapDirectory,
         OVERLAP_FILES,
+      ),
+      localFilePlugin(
+        "local-reference-quality",
+        LOCAL_QUALITY_ROUTE,
+        qualityDirectory,
+        QUALITY_FILES,
       ),
     ],
     base: BASE,

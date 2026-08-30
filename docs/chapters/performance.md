@@ -36,6 +36,26 @@ readiness took 3.132 seconds for the monolithic view, 1.518 seconds for the
 left view, and 1.632 seconds for the right view after scene startup. These are
 capture readiness times, not complete campus throughput.
 
+The maximum-detail Hoover experiment is the highest measured source-quality
+load. Lowering screen-space error from 20 to 8 raised visible tiles from 73 to
+224, selected triangles from 237,150 to 1,370,554, and renderer cache from
+154,261,894 to 408,005,115 bytes. The one-session process peaks were:
+
+| Process boundary | Peak RSS |
+| --- | ---: |
+| Node orchestrator | 88,670,208 bytes |
+| Chromium process family | 1,595,899,904 bytes |
+| Chromium GPU process | 466,862,080 bytes |
+| Chromium renderer process | 952,025,088 bytes |
+| Complete process tree | 1,819,934,720 bytes |
+
+The quality spec pins a 2 GiB worker envelope. Future probe reports use the
+largest candidate dimensions and this measured minimum when calculating
+admission. The quality run completed all 784 attempted requests with no failed
+or blocked request. Lowering SSE from 8 to 4 added no request or geometry, so
+it is rejected as wasted aggressiveness. A 125-millimeter framebuffer remains
+useful for maximum-detail review, but it does not increase source residency.
+
 Capture scheduling reserves at least 2 GiB and 25 percent of host memory, uses
 the smaller resulting capacity, divides by the measured per-grid envelope, and
 caps concurrency at four. It returns zero workers when no measured envelope

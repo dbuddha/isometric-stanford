@@ -1,5 +1,5 @@
 ---
-title: "Registered Google capture and overlap"
+title: "Registered Google capture, quality, and overlap"
 slug: "registered-capture"
 status: "active"
 research_kind: "source archaeology and controlled differential experiment"
@@ -14,20 +14,29 @@ upstream_revisions:
   - "NASA-AMMOS/3DTilesRendererJS@10e9dc969ba5fdd27a83fd47149a2b8eae841741"
   - "visgl/deck.gl@a91c56d3a4ba22fbfaa520bba2421e7309db1689"
   - "CesiumGS/cesium@93c82442d0733002e48c2dfde7b1a43d75da57dc"
-related_issues: [167]
+related_issues: [167, 171]
 related_requirements: [141]
 supersedes: []
 ---
 
-# Registered Google capture and overlap
+# Registered Google capture, quality, and overlap
 
 ## Decision answer
 
-Use a fixed 330 degree azimuth, 42 degree elevation orthographic camera at
-250 millimeters per source pixel. Keep the camera world matrix fixed across a
-bounded macroblock and move adjacent captures with off-axis projection
-windows. Camera distance remains 2,000 meters only for clipping safety. It does
-not control orthographic scale.
+Use a fixed 330 degree azimuth, 42 degree elevation orthographic camera. Use
+SSE 8 and 125 millimeters per output pixel for maximum-detail review. Use SSE 8
+and 250 millimeters per pixel for the smaller efficient reference. Keep the
+camera world matrix fixed across a bounded macroblock and move adjacent
+captures with off-axis projection windows. Camera distance remains 2,000
+meters only for clipping safety. It does not control orthographic scale.
+
+The quality experiment separated source LOD from output sampling. Moving from
+SSE 20 to 8 increased selected triangles from 237,150 to 1,370,554. Moving
+from SSE 8 to 4 added no requests and produced byte-identical images. Doubling
+the output dimensions at 125 millimeters per pixel improved native inspection
+without adding source geometry. Remaining faceted trees, construction, and
+missing photogrammetry are source defects for the later mask and repair stages.
+The API has no documented historical 3D Tiles selector.
 
 Keep Google scene streaming and GPU capture in TypeScript, Three.js, and
 `3d-tiles-renderer`. Keep immutable validation, comparison, future masks,
@@ -59,7 +68,8 @@ Issue #167 stays open.
 Included:
 
 - Current Google Photorealistic 3D Tiles protocol, quota, and renderer boundary.
-- Hoover camera orientation, scale, geographic stepping, and two-cell overlap.
+- Hoover camera orientation, source LOD, output sampling, geographic stepping,
+  and two-cell overlap.
 - Source formats, cache behavior, memory, readiness, and local review.
 - Isometric NYC capture and infill behavior at one pinned revision.
 - `3d-tiles-renderer`, deck.gl, CesiumJS, and Google solution precedents.
