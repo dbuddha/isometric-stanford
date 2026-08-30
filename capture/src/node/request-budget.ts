@@ -1,19 +1,15 @@
 import type { BrowserContext } from "@playwright/test";
+import type { GoogleNetworkTelemetry } from "../contracts.js";
 
 interface RequestSizes {
   responseBodySize: number;
 }
 
-export interface GoogleNetworkTelemetry {
-  attempted: number;
-  billableRootRequests: number;
-  blocked: number;
-  completed: number;
-  failed: number;
-  formats: Record<string, number>;
-  requestLimit: number;
-  responseBodyBytes: number;
-  statuses: Record<string, number>;
+export type { GoogleNetworkTelemetry } from "../contracts.js";
+
+export interface GoogleRequestObservations {
+  drain(): Promise<void>;
+  pending(): number;
 }
 
 function googleUrl(value: string): URL | undefined {
@@ -112,8 +108,8 @@ export class GoogleRequestBudget {
 export async function installGoogleRequestBudget(
   context: BrowserContext,
   budget: GoogleRequestBudget,
-): Promise<Promise<unknown>[]> {
-  const observations: Promise<unknown>[] = [];
+): Promise<GoogleRequestObservations> {
+  const observations = new Set<Promise<void>>();
   await context.route("https://tile.googleapis.com/**", async (route) => {
     if (!budget.authorize(route.request().url())) {
       await route.abort("blockedbyclient");
@@ -128,12 +124,21 @@ export async function installGoogleRequestBudget(
     budget.recordFailure(request.url());
   });
   context.on("requestfinished", (request) => {
-    observations.push(
-      request
-        .sizes()
-        .then((sizes) => budget.recordFinished(request.url(), sizes))
-        .catch(() => budget.recordFailure(request.url())),
-    );
+    const observation = request
+      .sizes()
+      .then((sizes) => budget.recordFinished(request.url(), sizes))
+      .catch(() => budget.recordFailure(request.url()));
+    observations.add(observation);
+    void observation.then(() => observations.delete(observation));
   });
-  return observations;
+  return {
+    async drain(): Promise<void> {
+      while (observations.size > 0) {
+        await Promise.all([...observations]);
+      }
+    },
+    pending(): number {
+      return observations.size;
+    },
+  };
 }

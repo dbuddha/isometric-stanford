@@ -18,6 +18,8 @@ mod candidate;
 const USAGE: &str = "Usage:
   isometric-stanford source sync [cache-directory]
   isometric-stanford reference inspect [bundle-directory]
+  isometric-stanford reference encode-png [raw] [output] [width] [height] [gray8|rgba8]
+  isometric-stanford reference crop-png [raw] [output] [source-width] [source-height] [x] [y] [width] [height] [gray8|rgba8]
   isometric-stanford mask inspect [artifact-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
@@ -69,20 +71,17 @@ fn main() -> ExitCode {
 
 fn run(arguments: &[String]) -> Result<String, String> {
     match arguments {
+        [group, rest @ ..] if group == "reference" => run_reference(rest),
         [group, command] if group == "source" && command == "sync" => {
             sync_sources(Path::new("artifacts/source-cache"))
         }
         [group, command, cache] if group == "source" && command == "sync" => {
             sync_sources(&PathBuf::from(cache))
         }
-        [group, command]
-            if command == "inspect" && matches!(group.as_str(), "reference" | "mask") =>
-        {
+        [group, command] if command == "inspect" && group == "mask" => {
             inspect_artifact(group, None)
         }
-        [group, command, input]
-            if command == "inspect" && matches!(group.as_str(), "reference" | "mask") =>
-        {
+        [group, command, input] if command == "inspect" && group == "mask" => {
             inspect_artifact(group, Some(input))
         }
         [group, command] if group == "perceive" && command == "run" => {
@@ -155,6 +154,108 @@ fn run(arguments: &[String]) -> Result<String, String> {
         )),
         _ => Err("unrecognized command".into()),
     }
+}
+
+fn run_reference(arguments: &[String]) -> Result<String, String> {
+    match arguments {
+        [command] if command == "inspect" => inspect_artifact("reference", None),
+        [command, input] if command == "inspect" => inspect_artifact("reference", Some(input)),
+        [command, raw, output, width, height, color] if command == "encode-png" => {
+            encode_reference_png(raw, output, width, height, color)
+        }
+        [
+            command,
+            raw,
+            output,
+            source_width,
+            source_height,
+            x,
+            y,
+            width,
+            height,
+            color,
+        ] if command == "crop-png" => crop_reference_png(
+            raw,
+            output,
+            source_width,
+            source_height,
+            x,
+            y,
+            width,
+            height,
+            color,
+        ),
+        [command, ..] => Err(format!(
+            "reference {command} is specified but not implemented yet"
+        )),
+        [] => Err("reference command is missing".into()),
+    }
+}
+
+fn encode_reference_png(
+    raw: &str,
+    output: &str,
+    width: &str,
+    height: &str,
+    color: &str,
+) -> Result<String, String> {
+    let width = width
+        .parse::<u32>()
+        .map_err(|_| "reference PNG width is not a u32".to_string())?;
+    let height = height
+        .parse::<u32>()
+        .map_err(|_| "reference PNG height is not a u32".to_string())?;
+    let color_type = match color {
+        "gray8" => isometric_reference::PngColorType::Grayscale,
+        "rgba8" => isometric_reference::PngColorType::Rgba,
+        _ => return Err("reference PNG color type must be gray8 or rgba8".into()),
+    };
+    let bytes = isometric_reference::encode_raw_png(
+        Path::new(raw),
+        Path::new(output),
+        width,
+        height,
+        color_type,
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(format!("encoded bounded reference PNG: {bytes} bytes"))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn crop_reference_png(
+    raw: &str,
+    output: &str,
+    source_width: &str,
+    source_height: &str,
+    x: &str,
+    y: &str,
+    width: &str,
+    height: &str,
+    color: &str,
+) -> Result<String, String> {
+    let parse = |name: &str, value: &str| {
+        value
+            .parse::<u32>()
+            .map_err(|_| format!("reference PNG {name} is not a u32"))
+    };
+    let color_type = match color {
+        "gray8" => isometric_reference::PngColorType::Grayscale,
+        "rgba8" => isometric_reference::PngColorType::Rgba,
+        _ => return Err("reference PNG color type must be gray8 or rgba8".into()),
+    };
+    let bytes = isometric_reference::encode_raw_png_crop(
+        Path::new(raw),
+        Path::new(output),
+        parse("source width", source_width)?,
+        parse("source height", source_height)?,
+        parse("crop x", x)?,
+        parse("crop y", y)?,
+        parse("crop width", width)?,
+        parse("crop height", height)?,
+        color_type,
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(format!("encoded bounded reference PNG crop: {bytes} bytes"))
 }
 
 fn inspect_artifact(group: &str, input: Option<&String>) -> Result<String, String> {

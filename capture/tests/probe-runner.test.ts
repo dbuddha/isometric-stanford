@@ -30,4 +30,22 @@ describe("Hoover camera probe", () => {
       }),
     );
   });
+
+  it("pins the one-camera 2560-pixel pilot memory probe", async () => {
+    const spec = await readProbeSpec(resolve("specs/hoover-pilot-supertile.json"));
+    expect(spec.requestLimit).toBe(500);
+    expect(spec.capture.tile).toMatchObject({
+      coreHeightPx: 2048,
+      coreWidthPx: 2048,
+      guardPx: 256,
+      millimetersPerPixel: 250,
+    });
+    expect(spec.capture.camera).toMatchObject({
+      azimuthMillidegrees: 330000,
+      elevationMillidegrees: 42000,
+      orthographicHeightMm: 640000,
+      orthographicWidthMm: 640000,
+    });
+    expect(spec.candidates.map((candidate) => candidate.id)).toEqual(["stanford-330-42"]);
+  });
 });

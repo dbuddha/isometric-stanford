@@ -1,5 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, open, rename, rm, stat, writeFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { chmod, copyFile, mkdir, open, rename, rm, stat, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   REQUIRED_LAYER_NAMES,
@@ -8,7 +10,8 @@ import {
   totalWidth,
 } from "../contracts.js";
 import type { CaptureEvidence, CaptureRequest, LayerName } from "../contracts.js";
-import { encodePng } from "./png.js";
+import { writePngFile } from "./png.js";
+import { encodeRustPng } from "./rust-reference.js";
 
 export type PixelFormat = "gray8" | "rgba8" | "u32le-millimeters";
 
@@ -65,6 +68,14 @@ function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+async function sha256File(path: string): Promise<string> {
+  const digest = createHash("sha256");
+  for await (const chunk of createReadStream(path)) {
+    digest.update(chunk);
+  }
+  return digest.digest("hex");
+}
+
 export class BundleWriter {
   readonly #accepted = new Map<LayerName, AcceptedLayer>();
   readonly #outputDirectory: string;
@@ -105,6 +116,29 @@ export class BundleWriter {
     height: number,
     pixelFormat: PixelFormat,
   ): Promise<void> {
+    await this.#accept(name, pixels.length, width, height, pixelFormat, pixels);
+  }
+
+  public async acceptFile(
+    name: LayerName,
+    path: string,
+    byteLength: number,
+    width: number,
+    height: number,
+    pixelFormat: PixelFormat,
+  ): Promise<void> {
+    await this.#accept(name, byteLength, width, height, pixelFormat, undefined, path);
+  }
+
+  async #accept(
+    name: LayerName,
+    sourceByteLength: number,
+    width: number,
+    height: number,
+    pixelFormat: PixelFormat,
+    pixels?: Uint8Array,
+    rawPath?: string,
+  ): Promise<void> {
     const expectedName = REQUIRED_LAYER_NAMES[this.#accepted.size];
     const contract = LAYER_CONTRACT[name];
     if (
@@ -116,26 +150,68 @@ export class BundleWriter {
     ) {
       throw new Error(`capture layer ${name} violates registration or ordering`);
     }
-    let artifact: Uint8Array;
+    let byteLength: number;
+    let artifactSha256: string;
+    const artifactPath = resolve(this.#stagingDirectory, contract.filename);
     if (contract.colorType === undefined) {
       const expectedLength = 16 + width * height * 4;
-      if (pixels.length !== expectedLength || Buffer.from(pixels.subarray(0, 8)).toString() !== "ISOD32V1") {
+      if (sourceByteLength !== expectedLength) {
         throw new Error("capture depth payload violates its portable contract");
       }
-      artifact = pixels;
+      if (pixels !== undefined) {
+        if (Buffer.from(pixels.subarray(0, 8)).toString() !== "ISOD32V1") {
+          throw new Error("capture depth payload violates its portable contract");
+        }
+        await writeFile(artifactPath, pixels, { flag: "wx", mode: 0o600 });
+        artifactSha256 = sha256(pixels);
+      } else if (rawPath !== undefined) {
+        const handle = await open(rawPath, "r");
+        const header = Buffer.alloc(8);
+        try {
+          const { bytesRead } = await handle.read(header, 0, header.length, 0);
+          if (bytesRead !== header.length || header.toString() !== "ISOD32V1") {
+            throw new Error("capture depth payload violates its portable contract");
+          }
+        } finally {
+          await handle.close();
+        }
+        await copyFile(rawPath, artifactPath, constants.COPYFILE_EXCL);
+        artifactSha256 = await sha256File(artifactPath);
+      } else {
+        throw new Error("capture layer has no raw source");
+      }
+      byteLength = sourceByteLength;
     } else {
-      artifact = encodePng(pixels, width, height, contract.colorType);
+      const channels = contract.colorType === 0 ? 1 : 4;
+      if (sourceByteLength !== width * height * channels) {
+        throw new Error("capture image payload violates its registered dimensions");
+      }
+      const written =
+        pixels !== undefined
+          ? await writePngFile(artifactPath, pixels, width, height, contract.colorType)
+          : rawPath !== undefined
+            ? (() => {
+                encodeRustPng(rawPath, artifactPath, width, height, pixelFormat as "gray8" | "rgba8");
+                return undefined;
+              })()
+            : undefined;
+      if (pixels === undefined && rawPath !== undefined) {
+        await chmod(artifactPath, 0o600);
+        byteLength = (await stat(artifactPath)).size;
+        artifactSha256 = await sha256File(artifactPath);
+      } else if (written !== undefined) {
+        byteLength = written.byteLength;
+        artifactSha256 = written.sha256;
+      } else {
+        throw new Error("capture layer has no raw source");
+      }
     }
-    await writeFile(resolve(this.#stagingDirectory, contract.filename), artifact, {
-      flag: "wx",
-      mode: 0o600,
-    });
     this.#accepted.set(name, {
-      byteLength: artifact.length,
+      byteLength,
       encoding: contract.encoding,
       filename: contract.filename,
       kind: contract.kind,
-      sha256: sha256(artifact),
+      sha256: artifactSha256,
     });
   }
 

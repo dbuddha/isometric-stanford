@@ -1,4 +1,4 @@
-import { mkdtemp, rm, stat } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -44,5 +44,59 @@ describe("probe cell evidence", () => {
     ]) {
       expect((await stat(resolve(root, "candidate", filename))).size).toBeGreaterThan(0);
     }
+  });
+
+  it("streams raw probe crops through bounded Rust processes", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "isometric-probe-raw-cells-"));
+    roots.push(root);
+    const request = syntheticRequest();
+    request.tile.coreWidthPx = 1_024;
+    request.tile.coreHeightPx = 1_024;
+    request.tile.guardPx = 128;
+    request.camera.orthographicWidthMm = 2_560_000;
+    request.camera.orthographicHeightMm = 2_560_000;
+    const width = 1_280;
+    const height = 1_280;
+    const raw = resolve(root, "color.raw");
+    const pixels = new Uint8Array(width * height * 4).fill(127);
+    await writeFile(raw, pixels);
+    const writer = new ProbeArtifactWriter(resolve(root, "candidate"), request);
+    await writer.acceptFile("color", raw, pixels.length, width, height, "rgba8");
+    const evidence = writer.finalize();
+    expect(evidence.mismatchPixels).toBe(0);
+    expect(evidence.assembledRawSha256).toBe(evidence.sourceRawSha256);
+    for (const filename of [
+      "core.png",
+      "cell-0-0.png",
+      "cell-1-0.png",
+      "joined-top.png",
+    ]) {
+      expect((await stat(resolve(root, "candidate", filename))).size).toBeGreaterThan(0);
+    }
+  });
+
+  it("streams the 2560-pixel pilot supertile without a full Node raster", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "isometric-probe-pilot-cells-"));
+    roots.push(root);
+    const request = syntheticRequest();
+    request.tile.coreWidthPx = 2_048;
+    request.tile.coreHeightPx = 2_048;
+    request.tile.guardPx = 256;
+    request.camera.orthographicWidthMm = 640_000;
+    request.camera.orthographicHeightMm = 640_000;
+    const width = 2_560;
+    const height = 2_560;
+    const byteLength = width * height * 4;
+    const raw = resolve(root, "color.raw");
+    await writeFile(raw, new Uint8Array());
+    await truncate(raw, byteLength);
+    const writer = new ProbeArtifactWriter(resolve(root, "candidate"), request);
+    await writer.acceptFile("color", raw, byteLength, width, height, "rgba8");
+    const evidence = writer.finalize();
+    expect(evidence.mismatchPixels).toBe(0);
+    expect(evidence.assembledRawSha256).toBe(evidence.sourceRawSha256);
+    const core = await readFile(resolve(root, "candidate", "core.png"));
+    expect(core.readUInt32BE(16)).toBe(2_048);
+    expect(core.readUInt32BE(20)).toBe(2_048);
   });
 });

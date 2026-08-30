@@ -11,12 +11,22 @@ memory configuration, worker count, warmup, sample distribution, accepted and
 rejected tile counts, peak RSS, and output hashes. A single best run is not
 qualification evidence.
 
-The live Hoover acquisition probe is not yet memory-qualified. Its three-camera
-run streamed 15.39 MiB from one Google root session but reached 740 to 865 MiB
-Node peak RSS while encoding private registered bundles. This exceeds the intended
-capture-worker baseline and blocks parallel campus acquisition until buffer
-lifetime and PNG encoding are profiled and bounded. See
-[Google reference capture](reference-capture.md) for the measured workload.
+The live Hoover acquisition path is memory-qualified under the revised
+measured envelopes in ADR 0007. The three-camera 1,280-pixel probe reached 79
+MiB Node, 85 MiB ingest-worker, 675 MiB Chromium, and 849 MiB complete-tree peak
+RSS. The one-camera 2,560-pixel pilot reached 79 MiB Node, 90 MiB ingest-worker,
+810 MiB Chromium, and 1,014 MiB complete-tree peaks. Both stayed inside the 1
+GiB and 1.25 GiB operational worker envelopes, retained 99.99 percent core
+coverage, produced exact internal joins, and passed Rust bundle validation.
+
+Capture scheduling reserves at least 2 GiB and 25 percent of host memory, uses
+the smaller resulting capacity, divides by the measured per-grid envelope, and
+caps concurrency at four. It returns zero workers when no measured envelope
+fits. This prevents the later campus collector from guessing concurrency or
+allocating a campus master image. See
+[Google reference capture](reference-capture.md) for the measured workload and
+[ADR 0007](../adr/0007-bounded-reference-capture.md) for the rejected 768 MiB
+tree assumption.
 
 If profiling projects more than eight hours for the full estate, first remove
 algorithmic waste and validate parallel partitioning. Only then open the

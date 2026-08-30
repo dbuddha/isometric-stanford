@@ -18,6 +18,8 @@ import { TileReadiness, waitForStableReadiness } from "../readiness.js";
 import type { RegisteredScene } from "./pass-renderer.js";
 
 const DRACO_DECODER_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
+const MINIMUM_TILE_CACHE_BYTES = 64 * 1_024 * 1_024;
+const MAXIMUM_TILE_CACHE_BYTES = 96 * 1_024 * 1_024;
 
 function framePosition(
   request: CaptureRequest,
@@ -60,6 +62,9 @@ export function createGoogleScene(
   const scene = new Scene();
   scene.background = new Color(0x000000);
   const tiles = new TilesRenderer();
+  tiles.lruCache.minBytesSize = MINIMUM_TILE_CACHE_BYTES;
+  tiles.lruCache.maxBytesSize = MAXIMUM_TILE_CACHE_BYTES;
+  tiles.lruCache.unloadPercent = 0.25;
   const draco = new DRACOLoader().setDecoderPath(DRACO_DECODER_PATH);
   tiles.registerPlugin(
     new GoogleCloudAuthPlugin({

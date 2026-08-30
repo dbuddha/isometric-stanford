@@ -1,20 +1,21 @@
-import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "@playwright/test";
-import type { Browser } from "@playwright/test";
-import type { CaptureEvidence, CaptureRequest } from "../contracts.js";
+import type { CaptureRequest, ProbeCandidate } from "../contracts.js";
 import { redactSecrets, validateCaptureRequest } from "../contracts.js";
-import { BundleWriter } from "./bundle-writer.js";
-import { GoogleRequestBudget, installGoogleRequestBudget } from "./request-budget.js";
+import { runDirectChromiumProbe } from "./headless-probe.js";
+import { startProbeCoordinator } from "./probe-coordinator.js";
+import type { ProbeCoordinator } from "./probe-coordinator.js";
+import { startProbeIngest } from "./probe-ingest-client.js";
+import type { ProbeIngestClient } from "./probe-ingest-client.js";
+import { validateRustBundle as validateRustBundleCommand } from "./rust-reference.js";
 import { startStaticRendererServer } from "./static-renderer-server.js";
 import type { StaticRendererServer } from "./static-renderer-server.js";
-import { startUploadServer } from "./upload-server.js";
 
 const CAPTURE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const REPOSITORY_ROOT = resolve(CAPTURE_ROOT, "..");
 const LIVE_CAPTURE_REQUEST_LIMIT = 1_000;
+const SINGLE_CAPTURE_ID = "capture";
 
 export async function readCaptureRequest(path: string): Promise<CaptureRequest> {
   const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
@@ -23,15 +24,17 @@ export async function readCaptureRequest(path: string): Promise<CaptureRequest> 
 }
 
 export async function validateRustBundle(stagingDirectory: string): Promise<void> {
-  const environment = { ...process.env };
-  delete environment.GOOGLE_MAP_TILES_API_KEY;
-  const result = spawnSync(
-    "cargo",
-    ["run", "--quiet", "--locked", "--", "reference", "inspect", stagingDirectory],
-    { cwd: REPOSITORY_ROOT, encoding: "utf8", env: environment },
-  );
-  if (result.status !== 0) {
-    throw new Error(`Rust reference validation failed: ${result.stderr.trim()}`);
+  validateRustBundleCommand(stagingDirectory);
+}
+
+async function assertAbsent(path: string): Promise<void> {
+  try {
+    await stat(path);
+    throw new Error("capture output already exists; registered bundles are immutable");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
   }
 }
 
@@ -43,59 +46,60 @@ export async function captureBundle(
   if (request.provider !== "google-photorealistic-3d-tiles") {
     throw new Error("only Google reference requests may be promoted as durable bundles");
   }
-  const writer = new BundleWriter(outputDirectory, request);
-  const budget = new GoogleRequestBudget(LIVE_CAPTURE_REQUEST_LIMIT);
-  await writer.start();
-  let browser: Browser | undefined;
-  let upload: Awaited<ReturnType<typeof startUploadServer>> | undefined;
+  if (apiKey.length < 6) {
+    throw new Error("Google tile credential is missing");
+  }
+  const output = resolve(outputDirectory);
+  await mkdir(dirname(output), { mode: 0o700, recursive: true });
+  await assertAbsent(output);
+  const staging = resolve(dirname(output), `.capture-${randomBytes(8).toString("hex")}`);
+  await mkdir(staging, { mode: 0o700, recursive: false });
+  const secrets: string[] = [];
+  let coordinator: ProbeCoordinator | undefined;
+  let ingest: ProbeIngestClient | undefined;
   let rendererServer: StaticRendererServer | undefined;
   try {
-    upload = await startUploadServer(writer);
+    ingest = await startProbeIngest(staging, [{ candidateId: SINGLE_CAPTURE_ID, request }]);
+    const target = ingest.targets[0];
+    if (target === undefined || target.candidateId !== SINGLE_CAPTURE_ID) {
+      throw new Error("capture ingest worker returned no upload target");
+    }
+    secrets.push(target.upload.token);
+    const candidate: ProbeCandidate = {
+      candidateId: SINGLE_CAPTURE_ID,
+      request,
+      upload: target.upload,
+    };
     rendererServer = await startStaticRendererServer(resolve(CAPTURE_ROOT, "dist"));
-    browser = await chromium.launch({
-      args: ["--disable-dev-shm-usage", "--use-gl=swiftshader"],
-      headless: true,
+    coordinator = await startProbeCoordinator({
+      apiKey,
+      candidates: [candidate],
+      requestLimit: LIVE_CAPTURE_REQUEST_LIMIT,
     });
-    const context = await browser.newContext({ deviceScaleFactor: 1 });
-    const observations = await installGoogleRequestBudget(context, budget);
-    await context.addInitScript((googleApiKey: string) => {
-      window.__CAPTURE_SECRETS__ = { googleApiKey };
-    }, apiKey);
-    const page = await context.newPage();
-    await page.goto(rendererServer.url, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => window.ISOMETRIC_CAPTURE?.ready === true);
-    const evidence = await page.evaluate(
-      async ({ captureRequest, uploadTarget }): Promise<CaptureEvidence> => {
-        if (window.ISOMETRIC_CAPTURE === undefined) {
-          throw new Error("capture runtime was not installed");
-        }
-        return window.ISOMETRIC_CAPTURE.capture(captureRequest, uploadTarget);
-      },
-      {
-        captureRequest: request,
-        uploadTarget: { token: upload.token, url: upload.url },
-      },
+    secrets.push(coordinator.token);
+    const execution = await runDirectChromiumProbe(
+      rendererServer.url,
+      coordinator,
+      request.readiness.timeoutMs + 60_000,
     );
-    await page.close();
-    await context.close();
-    await Promise.all(observations);
-    await upload.close();
-    if (budget.snapshot().blocked !== 0) {
+    if (execution.probe.network.blocked !== 0) {
       throw new Error("capture exhausted its Google request budget");
     }
-    return await writer.finalize(evidence, validateRustBundle);
+    const evidence = execution.probe.candidates[0];
+    if (evidence === undefined || evidence.candidateId !== SINGLE_CAPTURE_ID) {
+      throw new Error("capture browser returned incomplete registered evidence");
+    }
+    await ingest.finalize([evidence]);
+    const bundle = resolve(staging, "bundles", SINGLE_CAPTURE_ID);
+    await rename(bundle, output);
+    return output;
   } catch (error) {
-    await writer.abort();
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(
-      redactSecrets(
-        `${message}; Google request telemetry: ${JSON.stringify(budget.snapshot())}`,
-        [apiKey, upload?.token ?? ""],
-      ),
-    );
+    throw new Error(redactSecrets(message, [apiKey, ...secrets]));
   } finally {
-    await upload?.close();
-    await browser?.close();
-    await rendererServer?.close();
+    await ingest?.abort().catch(() => undefined);
+    await coordinator?.close().catch(() => undefined);
+    await rendererServer?.close().catch(() => undefined);
+    await rm(staging, { force: true, recursive: true });
   }
 }

@@ -78,6 +78,18 @@ export interface SceneDiagnostics {
   triangles: number;
 }
 
+export interface GoogleNetworkTelemetry {
+  attempted: number;
+  billableRootRequests: number;
+  blocked: number;
+  completed: number;
+  failed: number;
+  formats: Record<string, number>;
+  requestLimit: number;
+  responseBodyBytes: number;
+  statuses: Record<string, number>;
+}
+
 export interface ProbeCandidate {
   candidateId: string;
   request: CaptureRequest;
@@ -89,6 +101,22 @@ export interface ProbeCandidateEvidence extends CaptureEvidence {
   candidateId: string;
   diagnostics: SceneDiagnostics;
   projectionMatrix: number[];
+}
+
+export interface ProbeBrowserResult {
+  candidates: ProbeCandidateEvidence[];
+  network: GoogleNetworkTelemetry;
+}
+
+export interface BrowserMemoryMetrics {
+  jsHeapSizeLimitBytes: number | null;
+  jsHeapTotalBytes: number | null;
+  jsHeapUsedBytes: number | null;
+}
+
+export interface ProbeExecutionResult {
+  browserMemory: BrowserMemoryMetrics;
+  probe: ProbeBrowserResult;
 }
 
 export interface UploadTarget {

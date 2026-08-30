@@ -175,6 +175,12 @@ evidence = ["npm --prefix capture run check", "npm --prefix capture test", "npm 
 status = "implemented"
 
 [[claim]]
+id = "REF-CAPTURE-MEMORY-001"
+statement = "Direct headless capture streams raw passes through a credential-free worker and bounded Rust encoder, records process-separated memory, derives concurrency from measured 1 GiB and 1.25 GiB worker envelopes, and never allocates a campus master raster."
+evidence = ["npm --prefix capture test", "npm --prefix capture run test:e2e", "capture/specs/hoover-camera-probe.json", "capture/specs/hoover-pilot-supertile.json", "docs/adr/0007-bounded-reference-capture.md", "docs/chapters/performance.md"]
+status = "implemented"
+
+[[claim]]
 id = "REF-REVIEW-001"
 statement = "The routed reference workbench verifies the complete six-layer hash and registration chain before display, decodes only the selected comparison pair, synchronizes source-pixel navigation, and fails closed on corrupt or missing artifacts on desktop and mobile."
 evidence = ["npm --prefix web test -- --run", "npm --prefix web run test:e2e", "web/src/reference-bundle.test.ts", "web/e2e/review.spec.ts", "docs/chapters/visual-qualification.md"]
