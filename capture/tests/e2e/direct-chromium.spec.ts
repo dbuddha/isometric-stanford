@@ -9,7 +9,7 @@ test("direct Chromium returns credential-free evidence without a Playwright prot
   const renderer = createServer((request, response) => {
     requests.push(request.url ?? "");
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><script type="module">
+    response.end(`<!doctype html><link rel="icon" href="data:," /><script type="module">
       const canvas = document.createElement('canvas');
       if (canvas.getContext('webgl2') === null) throw new Error('WebGL2 unavailable');
       const fragment = new URLSearchParams(location.hash.slice(1));

@@ -303,6 +303,11 @@ export async function runDirectChromiumProbe(
       }, 5_000);
       timer.unref();
     });
-    await rm(profile, { force: true, recursive: true });
+    await rm(profile, {
+      force: true,
+      maxRetries: 5,
+      recursive: true,
+      retryDelay: 100,
+    });
   }
 }
