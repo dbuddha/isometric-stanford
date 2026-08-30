@@ -11,6 +11,13 @@ memory configuration, worker count, warmup, sample distribution, accepted and
 rejected tile counts, peak RSS, and output hashes. A single best run is not
 qualification evidence.
 
+The live Hoover acquisition probe is not yet memory-qualified. Its three-camera
+run streamed 15.39 MiB from one Google root session but reached 740 to 865 MiB
+Node peak RSS while encoding private registered bundles. This exceeds the intended
+capture-worker baseline and blocks parallel campus acquisition until buffer
+lifetime and PNG encoding are profiled and bounded. See
+[Google reference capture](reference-capture.md) for the measured workload.
+
 If profiling projects more than eight hours for the full estate, first remove
 algorithmic waste and validate parallel partitioning. Only then open the
 accepted `wgpu` research decision. A GPU backend must preserve the semantic and

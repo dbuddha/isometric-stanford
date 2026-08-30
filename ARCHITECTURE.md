@@ -34,6 +34,14 @@ staging directory. The Rust reference validator must accept the complete
 version-two bundle before an atomic rename makes it visible to later stages. Credentials
 are injected only into the isolated browser context and are removed from
 validator subprocesses and sanitized diagnostics.
+The built browser client is served by an allowlisted loopback static server,
+not a development server. The bounded Hoover probe installs its request ceiling
+before navigation, reuses one Google root tileset while reframing three camera
+orientations, records URL-free network and renderer telemetry, and writes
+private visual and exact crop-join evidence. The pinned baseline camera is 330
+degrees azimuth, 42 degrees elevation, and 250 millimeters per source pixel.
+The current crop join proves cells inside one guarded supertile; independent
+supertile overlap remains a separate unimplemented gate.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or
@@ -135,7 +143,8 @@ The CLI currently implements `source sync`, `reference inspect`, `mask inspect`,
 `style candidate-c`. Source synchronization rejects unapproved, mis-hashed,
 insecure records before use. Dynamic Google reference capture remains separate
 from the generic immutable source synchronizer. The capture workspace contains
-a pinned Hoover request at `capture/specs/hoover-pilot.json`; running it
+a pinned Hoover request at `capture/specs/hoover-pilot.json` and the measured
+camera probe at `capture/specs/hoover-camera-probe.json`; running either
 requires an explicit local credential and never occurs in ordinary CI.
 Mask inspection reads a manifest capped at 1 MiB, streams one fixed-width
 eight-byte record per pixel through a 64 KiB buffer, and retains only 24 class

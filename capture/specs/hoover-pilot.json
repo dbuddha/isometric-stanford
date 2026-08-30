@@ -11,12 +11,12 @@
     "coreHeightPx": 2048,
     "guardPx": 256,
     "millimetersPerPixel": 250,
-    "centerLongitudeE7": -1221697000,
-    "centerLatitudeE7": 374275000
+    "centerLongitudeE7": -1221670000,
+    "centerLatitudeE7": 374276111
   },
   "camera": {
     "projection": "orthographic",
-    "azimuthMillidegrees": 315000,
+    "azimuthMillidegrees": 330000,
     "elevationMillidegrees": 42000,
     "targetAltitudeMm": 20000,
     "nearMm": 1000,

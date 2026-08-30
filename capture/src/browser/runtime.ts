@@ -5,6 +5,7 @@ import {
   validateCaptureRequest,
 } from "../contracts.js";
 import type { CaptureEvidence, CaptureRequest, UploadTarget } from "../contracts.js";
+import type { ProbeCandidate, ProbeCandidateEvidence } from "../contracts.js";
 import { createGoogleScene } from "./google-scene.js";
 import type { LayerUpload, RegisteredScene } from "./pass-renderer.js";
 import { renderRegisteredLayers } from "./pass-renderer.js";
@@ -12,6 +13,7 @@ import { createSyntheticScene } from "./synthetic-scene.js";
 
 export interface BrowserCaptureApi {
   capture(request: unknown, upload: UploadTarget): Promise<CaptureEvidence>;
+  probe(candidates: unknown): Promise<ProbeCandidateEvidence[]>;
   ready: true;
 }
 
@@ -75,6 +77,85 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(redactSecrets(message, [apiKey, upload.token]));
+      } finally {
+        registered?.dispose();
+      }
+    },
+    async probe(value: unknown): Promise<ProbeCandidateEvidence[]> {
+      if (!Array.isArray(value) || value.length < 1 || value.length > 8) {
+        throw new Error("capture probe requires between one and eight camera candidates");
+      }
+      const candidates = value as ProbeCandidate[];
+      for (const candidate of candidates) {
+        validateCaptureRequest(candidate.request);
+        if (
+          candidate.request.provider !== "google-photorealistic-3d-tiles" ||
+          typeof candidate.candidateId !== "string" ||
+          !/^[a-z0-9-]{1,64}$/.test(candidate.candidateId) ||
+          typeof candidate.upload?.token !== "string" ||
+          typeof candidate.upload.url !== "string"
+        ) {
+          throw new Error("capture probe candidate is invalid");
+        }
+      }
+      const apiKey = window.__CAPTURE_SECRETS__?.googleApiKey ?? "";
+      let registered: RegisteredScene | undefined;
+      try {
+        const first = candidates[0];
+        if (first === undefined) {
+          throw new Error("capture probe has no first candidate");
+        }
+        registered = createGoogleScene(canvas, first.request, apiKey);
+        const results: ProbeCandidateEvidence[] = [];
+        for (let index = 0; index < candidates.length; index += 1) {
+          const candidate = candidates[index];
+          if (candidate === undefined) {
+            throw new Error("capture probe candidate disappeared");
+          }
+          if (index > 0) {
+            if (registered.reframe === undefined) {
+              throw new Error("capture provider cannot reframe one tileset session");
+            }
+            registered.reframe(candidate.request);
+          }
+          const ready = await registered.waitUntilReady();
+          const attributions = registered.attributions();
+          if (!attributions.includes("Google Maps") || attributions.length < 2) {
+            throw new Error("capture provider returned incomplete attribution records");
+          }
+          const attributionElement = document.querySelector<HTMLElement>("#attribution");
+          if (attributionElement !== null) {
+            attributionElement.textContent = attributions.join(" | ");
+          }
+          const coreCoverageBasisPoints = await renderRegisteredLayers(
+            registered,
+            candidate.request,
+            async (layer) => uploadLayer(candidate.upload, layer),
+          );
+          const diagnostics = registered.diagnostics?.();
+          if (diagnostics === undefined) {
+            throw new Error("capture provider returned no scene diagnostics");
+          }
+          results.push({
+            attributions,
+            cameraFingerprint: cameraFingerprint(candidate.request),
+            cameraWorldMatrix: [...registered.camera.matrixWorld.elements],
+            candidateId: candidate.candidateId,
+            complete: true,
+            coreCoverageBasisPoints,
+            diagnostics,
+            elapsedMs: ready.elapsedMs,
+            layerOrder: [...REQUIRED_LAYER_NAMES],
+            projectionMatrix: [...registered.camera.projectionMatrix.elements],
+            stableFrames: ready.stableFrames,
+            visibleTiles: ready.visibleTiles,
+          });
+        }
+        return results;
+      } catch (error) {
+        const tokens = candidates.map((candidate) => candidate.upload.token);
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(redactSecrets(message, [apiKey, ...tokens]));
       } finally {
         registered?.dispose();
       }

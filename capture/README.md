@@ -50,9 +50,25 @@ Build the Node entry point, install Chromium once, and run the pinned request:
 npm --prefix capture run build
 npm --prefix capture exec -- playwright install chromium
 GOOGLE_MAP_TILES_API_KEY='<local credential>' npm --prefix capture run capture -- \
-  --spec capture/specs/hoover-pilot.json \
-  --output artifacts/reference/hoover
+  --spec specs/hoover-pilot.json \
+  --output ../artifacts/reference/hoover
 ```
+
+The bounded camera probe reuses one Google root session for three exact
+orthographic orientations and produces a private HTML comparison report:
+
+```bash
+probe_key="$(security find-generic-password -a "$USER" -s isometric-stanford-map-tiles -w)"
+GOOGLE_MAP_TILES_API_KEY="$probe_key" npm --prefix capture run probe -- \
+  --spec specs/hoover-camera-probe.json \
+  --output ../artifacts/google-probe/hoover
+unset probe_key
+```
+
+The 400-request ceiling was measured rather than guessed. A 100-request run
+loaded 4.12 MiB successfully and then blocked 26 required child requests. The
+accepted Hoover run used 282 requests and one billable root session. The probe
+stores no request URLs, keys, or session values.
 
 After Rust validation accepts the immutable bundle, inspect its six registered
 layers through the local-only review route:

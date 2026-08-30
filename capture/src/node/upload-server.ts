@@ -4,7 +4,7 @@ import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import { once } from "node:events";
 import { REQUIRED_LAYER_NAMES } from "../contracts.js";
 import type { LayerName } from "../contracts.js";
-import type { BundleWriter, PixelFormat } from "./bundle-writer.js";
+import type { PixelFormat } from "./bundle-writer.js";
 
 const MAX_UPLOAD_BYTES = 80 * 1024 * 1024;
 const ALLOWED_FORMATS = new Set<PixelFormat>(["gray8", "rgba8", "u32le-millimeters"]);
@@ -13,6 +13,16 @@ export interface UploadServer {
   close(): Promise<void>;
   token: string;
   url: string;
+}
+
+export interface LayerSink {
+  accept(
+    name: LayerName,
+    pixels: Uint8Array,
+    width: number,
+    height: number,
+    pixelFormat: PixelFormat,
+  ): Promise<void>;
 }
 
 function respond(response: ServerResponse, status: number, message: string): void {
@@ -50,7 +60,7 @@ function isLayerName(value: string): value is LayerName {
   return (REQUIRED_LAYER_NAMES as readonly string[]).includes(value);
 }
 
-export async function startUploadServer(writer: BundleWriter): Promise<UploadServer> {
+export async function startUploadServer(writer: LayerSink): Promise<UploadServer> {
   const token = randomBytes(32).toString("hex");
   let closed = false;
   let chain = Promise.resolve();

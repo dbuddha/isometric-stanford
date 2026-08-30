@@ -16,12 +16,14 @@ import {
   WebGLRenderer,
   WebGLRenderTarget,
 } from "three";
-import type { CaptureRequest, LayerName } from "../contracts.js";
+import type { CaptureRequest, LayerName, SceneDiagnostics } from "../contracts.js";
 
 export interface RegisteredScene {
   attributions(): string[];
   camera: OrthographicCamera;
+  diagnostics?(): SceneDiagnostics;
   dispose(): void;
+  reframe?(request: CaptureRequest): void;
   renderer: WebGLRenderer;
   scene: Scene;
   sunPosition: Vector3;

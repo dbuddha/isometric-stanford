@@ -4,6 +4,7 @@
 - [User experience](./chapters/user-experience.md)
 - [Isometric NYC source study](./chapters/isometric-nyc-study.md)
 - [Data rights and provenance](./chapters/data-rights.md)
+- [Google reference capture](./chapters/reference-capture.md)
 - [Canonical world model](./chapters/world-model.md)
 - [Perception system](./chapters/perception.md)
 - [Rendering pipeline](./chapters/rendering.md)

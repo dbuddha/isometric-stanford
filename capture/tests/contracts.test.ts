@@ -30,9 +30,11 @@ describe("capture contracts", () => {
 
   it("redacts direct credentials and URL query credentials", () => {
     const secret = "test-secret-value";
-    const message = `failed ${secret} at https://tiles.test/root?key=${secret}&session=abc`;
+    const message = `failed ${secret} at https://tiles.test/root?key=${secret}&session=session-value`;
     const redacted = redactSecrets(message, [secret]);
     expect(redacted).not.toContain(secret);
+    expect(redacted).not.toContain("session-value");
     expect(redacted).toContain("key=[REDACTED]");
+    expect(redacted).toContain("session=[REDACTED]");
   });
 });

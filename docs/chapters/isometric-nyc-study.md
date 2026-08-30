@@ -32,6 +32,21 @@ context failures. With only 157 current tiles, same-origin static hosting is
 adequate. A content-versioned object-storage prefix becomes necessary before
 campus-scale releases can safely use immutable caching.
 
+The pinned `tiny-nyc` generation configuration used a 1,024 by 1,024
+orthographic render with a 300-meter view height, camera azimuth -15 degrees,
+camera elevation -45 degrees, and half-view tile stepping. In this project's
+positive compass and elevation convention, that comparator is 345 degrees
+azimuth and 45 degrees elevation. The web renderer captured one 1,024-pixel
+Google view and then split it into four 512-pixel quadrants.
+
+Its infill happened after Google capture, inside Qwen image generation. A
+1,024-pixel template combined finished neighboring art with raw Google regions
+outlined for replacement. Ordered generation gave the model completed art at
+the boundary it needed to continue. It did not reconstruct missing Google
+geometry before styling and it did not make two independently captured Google
+views deterministic. Stanford's capture join, obstruction repair, and
+art-stitching gates therefore remain three separate systems.
+
 The main lesson is that style did not live in a conventional image-processing
 filter. It lived in reference images, prompts, accepted image pairs, fine-tuned
 weights, generation order, and manual correction. OpenCV-style preprocessing

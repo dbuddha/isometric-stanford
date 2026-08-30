@@ -68,6 +68,29 @@ export interface CaptureEvidence {
   visibleTiles: number;
 }
 
+export interface SceneDiagnostics {
+  cachedBytes: number;
+  cachedTiles: number;
+  errorTarget: number;
+  geometries: number;
+  maxCachedBytes: number;
+  textures: number;
+  triangles: number;
+}
+
+export interface ProbeCandidate {
+  candidateId: string;
+  request: CaptureRequest;
+  upload: UploadTarget;
+}
+
+export interface ProbeCandidateEvidence extends CaptureEvidence {
+  cameraWorldMatrix: number[];
+  candidateId: string;
+  diagnostics: SceneDiagnostics;
+  projectionMatrix: number[];
+}
+
 export interface UploadTarget {
   token: string;
   url: string;
@@ -182,7 +205,10 @@ export function validateCaptureRequest(value: unknown): asserts value is Capture
 }
 
 export function redactSecrets(message: string, secrets: readonly string[]): string {
-  let redacted = message.replaceAll(/([?&](?:key|token|api_key)=)[^&\s]+/gi, "$1[REDACTED]");
+  let redacted = message.replaceAll(
+    /([?&](?:key|token|api_key|session)=)[^&\s]+/gi,
+    "$1[REDACTED]",
+  );
   for (const secret of secrets) {
     if (secret.length >= 6) {
       redacted = redacted.replaceAll(secret, "[REDACTED]");
