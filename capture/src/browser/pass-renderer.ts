@@ -26,6 +26,12 @@ export interface RegisteredScene {
   reframe?(request: CaptureRequest): void;
   renderer: WebGLRenderer;
   scene: Scene;
+  shadowGrid: {
+    heightPx: number;
+    horizontalMeters: number;
+    verticalMeters: number;
+    widthPx: number;
+  };
   sunPosition: Vector3;
   sunTarget: Vector3;
   waitUntilReady(): Promise<{ elapsedMs: number; stableFrames: number; visibleTiles: number }>;
@@ -147,11 +153,11 @@ export async function renderRegisteredLayers(
   sun.target.position.copy(registered.sunTarget);
   sun.castShadow = true;
   sun.shadow.mapSize.set(
-    Math.min(4_096, 2 ** Math.ceil(Math.log2(width))),
-    Math.min(4_096, 2 ** Math.ceil(Math.log2(height))),
+    Math.min(4_096, registered.shadowGrid.widthPx),
+    Math.min(4_096, registered.shadowGrid.heightPx),
   );
-  const horizontalMeters = request.camera.orthographicWidthMm / 1_000;
-  const verticalMeters = request.camera.orthographicHeightMm / 1_000;
+  const horizontalMeters = registered.shadowGrid.horizontalMeters;
+  const verticalMeters = registered.shadowGrid.verticalMeters;
   sun.shadow.camera.left = -horizontalMeters / 2;
   sun.shadow.camera.right = horizontalMeters / 2;
   sun.shadow.camera.top = verticalMeters / 2;
@@ -160,7 +166,7 @@ export async function renderRegisteredLayers(
   sun.shadow.camera.far = Math.max(5_000, registered.sunPosition.distanceTo(registered.sunTarget) * 2);
   sun.shadow.bias = -0.0001;
   sun.shadow.camera.updateProjectionMatrix();
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = false;
   renderer.toneMapping = NoToneMapping;
   renderer.outputColorSpace = LinearSRGBColorSpace;
 
@@ -197,6 +203,7 @@ export async function renderRegisteredLayers(
     scene.overrideMaterial = normal;
     await upload({ bytes: renderRgba(), height, name: "view-normal", pixelFormat: "rgba8", width });
 
+    renderer.shadowMap.enabled = true;
     scene.overrideMaterial = shadow;
     const shadowBytes = grayscale(renderRgba());
     await upload({ bytes: shadowBytes, height, name: "fixed-shadow", pixelFormat: "gray8", width });
@@ -207,6 +214,7 @@ export async function renderRegisteredLayers(
     await upload({ bytes: coverageBytes, height, name: "coverage", pixelFormat: "gray8", width });
   } finally {
     renderer.setRenderTarget(null);
+    renderer.shadowMap.enabled = false;
     scene.overrideMaterial = null;
     scene.remove(ambient, sun, sun.target);
     neutral.dispose();

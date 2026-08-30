@@ -32,6 +32,15 @@ context failures. With only 157 current tiles, same-origin static hosting is
 adequate. A content-versioned object-storage prefix becomes necessary before
 campus-scale releases can safely use immutable caching.
 
+The file `src/isometric_nyc/data/google_maps.py` is not the Photorealistic 3D
+Tiles implementation. It wraps geocoding and constructs Static Maps and Street
+View URLs. The 3D scene lives in `src/web_render/main.js`: Three.js,
+`3d-tiles-renderer`, `GoogleCloudAuthPlugin`, `TileCompressionPlugin`, Draco,
+an orthographic camera, and a fixed one-pixel device scale. Python's
+`WebRenderer` keeps a Vite process and generation queue alive, opens the page
+with Playwright, waits for tile stability, screenshots the complete view, and
+splits that view into four 512-pixel quadrants.
+
 The pinned `tiny-nyc` generation configuration used a 1,024 by 1,024
 orthographic render with a 300-meter view height, camera azimuth -15 degrees,
 camera elevation -45 degrees, and half-view tile stepping. In this project's
@@ -46,6 +55,15 @@ the boundary it needed to continue. It did not reconstruct missing Google
 geometry before styling and it did not make two independently captured Google
 views deterministic. Stanford's capture join, obstruction repair, and
 art-stitching gates therefore remain three separate systems.
+
+The 512-pixel quadrant database and dashboard are valuable precedents. They
+make source renders, finished generations, queue state, flags, prompt changes,
+water tools, exports, and manual review visible. Their generation-order rules
+exist because Qwen can change style, geometry, light, and palette between
+calls. Stanford keeps the small-cell review and evidence model but does not
+copy that art dependency graph. A deterministic transform computes a saved
+pixel from frozen registered layers, accepted masks, world coordinates, and a
+style pack rather than neighboring completed art.
 
 The main lesson is that style did not live in a conventional image-processing
 filter. It lived in reference images, prompts, accepted image pairs, fine-tuned
@@ -69,6 +87,13 @@ three hero landmarks have not received visual approval. The source repository
 does not contain a procedural renderer that Stanford can reuse to close this
 gap. Its relevant precedent is the delivery architecture and review workflow,
 not a deterministic art converter.
+
+The Hoover fixed-camera experiment establishes the missing source result: two
+independent cores can join cleanly when the world camera stays fixed and only
+the orthographic projection window shifts. That is stronger source
+registration than Isometric NYC's public workflow proves, but it says nothing
+about equivalent final art quality. The source seam can be reproducible while
+the style problem remains hard.
 
 Do not copy Isometric NYC imagery or assume its assets are licensed for reuse.
 The project records observable characteristics and independently creates its

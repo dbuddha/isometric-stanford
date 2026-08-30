@@ -67,3 +67,7 @@ export function cropRustPng(
     "rgba8",
   ]);
 }
+
+export function compareRustOverlap(requestPath: string): void {
+  runReferenceCommand(["compare-overlap", requestPath]);
+}

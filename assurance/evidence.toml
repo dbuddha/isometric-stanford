@@ -181,6 +181,18 @@ evidence = ["npm --prefix capture test", "npm --prefix capture run test:e2e", "c
 status = "implemented"
 
 [[claim]]
+id = "REF-OVERLAP-001"
+statement = "The registered overlap path derives geographic neighbors, keeps one camera world matrix across off-axis frusta, archives six bounded raw layers, separates source, monolithic, and lighting gates, and reproduced a clean bounded independent Hoover source seam without claiming complete qualification."
+evidence = ["cargo test -p isometric-reference overlap", "npm --prefix capture test", "npm --prefix web run test:e2e -- overlap-review.spec.ts", "capture/specs/hoover-overlap-probe.json", "docs/research/registered-capture/index.md", "docs/chapters/reference-capture.md"]
+status = "implemented"
+
+[[claim]]
+id = "REF-OVERLAP-QUAL-001"
+statement = "Independent registered Stanford supertiles satisfy the complete source, monolithic-oracle, and captured-lighting overlap contract."
+evidence = []
+status = "not-implemented"
+
+[[claim]]
 id = "REF-REVIEW-001"
 statement = "The routed reference workbench verifies the complete six-layer hash and registration chain before display, decodes only the selected comparison pair, synchronizes source-pixel navigation, and fails closed on corrupt or missing artifacts on desktop and mobile."
 evidence = ["npm --prefix web test -- --run", "npm --prefix web run test:e2e", "web/src/reference-bundle.test.ts", "web/e2e/review.spec.ts", "docs/chapters/visual-qualification.md"]

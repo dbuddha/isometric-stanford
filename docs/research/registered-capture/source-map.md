@@ -1,0 +1,26 @@
+# Source map
+
+| ID | Kind and identity | Authority and exact extraction | License | Limits |
+| --- | --- | --- | --- | --- |
+| S-001 | [Google Photorealistic 3D Tiles overview](https://developers.google.com/maps/documentation/tile/3d-tiles-overview), reviewed 2026-08-30, page last updated 2026-08-25 | Official API boundary: OGC 3D Tiles served for own or open-source renderers | Google documentation terms | Describes the service, not this export protocol |
+| S-002 | [Google renderer guide](https://developers.google.com/maps/documentation/tile/use-renderer), reviewed 2026-08-30 | Official integration guidance and attribution boundary | Google documentation terms | Interactive renderer guidance, not deterministic capture |
+| S-003 | [Google usage and billing](https://developers.google.com/maps/documentation/tile/usage-and-billing), reviewed 2026-08-30 | Official quota: 10,000 root queries/day, child renderer requests do not consume daily root quota, session up to three hours, 12,000 renderer queries/minute | Google documentation terms | Project-specific quotas may differ |
+| S-004 | [Google pricing](https://developers.google.com/maps/billing-and-pricing/pricing), reviewed 2026-08-30 | Official Photorealistic 3D Tiles free monthly usage cap of 1,000 billable events | Google documentation terms | Billing account aggregation and future pricing can change |
+| S-005 | [Isometric NYC project account](https://cannoneyed.com/projects/isometric-nyc), reviewed 2026-08-30 | Author account of Google capture, Qwen fine-tuning, infill, manual review, OpenSeadragon, cost, and failure modes | Copyright retained by author | Practitioner account, not a controlled benchmark |
+| S-006 | [Isometric NYC source at `0084463`](https://github.com/cannoneyed/isometric-nyc/tree/008446357ec67512c4329d25edefb6c508c7b24d) | `src/web_render/main.js`, `web_renderer.py`, `infill_template.py`, `docs/generation.md`, tasks 004 and 006 | MIT | Repository quality and documentation are uneven by the author's account |
+| S-007 | [`3d-tiles-renderer` 0.5.0 at `10e9dc9`](https://github.com/NASA-AMMOS/3DTilesRendererJS/tree/10e9dc969ba5fdd27a83fd47149a2b8eae841741) | Project-pinned Google auth, Three integration, glTF/Draco traversal, compression, and recommended settings | Apache-2.0 | Dynamic LOD is intentionally screen-space driven |
+| S-008 | [`3d-tiles-renderer` issue 1689](https://github.com/NASA-AMMOS/3DTilesRendererJS/issues/1689), opened 2026-08-18 | Disconfirming report that a hard byte cap can starve loading and repeatedly discard demanded tiles | Public issue discussion | Reproduction is external; this project observed compatible symptoms but not the exact workload |
+| S-009 | [deck.gl Google 3D Tiles example at `a91c56d`](https://github.com/visgl/deck.gl/blob/a91c56d3a4ba22fbfaa520bba2421e7309db1689/examples/website/google-3d-tiles/app.jsx) | `Tile3DLayer`, screen-space error 20, 512 MB memory, adaptive memory, overlays, attribution | MIT | Optimized for interactive visualization, not registered multipass export |
+| S-010 | [Cesium Google helper at `93c8244`](https://github.com/CesiumGS/cesium/blob/93c82442d0733002e48c2dfde7b1a43d75da57dc/packages/engine/Source/Scene/createGooglePhotorealistic3DTileset.js) | Mature Google integration with 1,536 MB cache and 1,024 MB overflow defaults | Apache-2.0 | Product globe stack and default memory are larger than this offline capture unit needs |
+| S-011 | [Google 3D Storytelling](https://developers.google.com/maps/architecture/3d-storytelling) and [3D Area Explorer](https://developers.google.com/maps/architecture/3d-area-explorer) | Official solution precedents for camera navigation, place overlays, and application structure | Repository-specific terms | Perspective storytelling products, not exact raster exporters |
+| E-001 | Private moving-camera Hoover report, SHA-256 `0501596e9debb40e09dadf1733d9a048b06bd9fa349f242a9c474471939843fb` | Controlled local one-session differential experiment | Private Google-derived evidence | Not committed or publishable as project art |
+| E-002 | Private fixed-camera Hoover report, SHA-256 `5caa7d62574531ae8c0db1f6f79e860c1dcfd096afee370e0d973a702f297db0` | Controlled local one-session differential experiment | Private Google-derived evidence | Captured before the lighting remediation was implemented |
+| E-003 | Derived fixed-camera comparison v3, SHA-256 `d14d3b3d681ce5f35743d8b60a974b519529fff87c42d033898d5bd9806c866e` | Safe-Rust reanalysis of the frozen E-002 raw layers | Original project code over private inputs | Reproduces source seam only, not complete lighting or monolithic qualification |
+
+## Independence and triangulation
+
+Google documentation defines the service contract. The three renderer projects
+show distinct integration tradeoffs. Isometric NYC supplies the nearest
+workflow comparator. E-001 through E-003 are project-controlled measurements.
+The performance and seam decisions do not depend on a single upstream's
+marketing claim.

@@ -16,10 +16,27 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import type { CaptureRequest, SceneDiagnostics } from "../contracts.js";
 import { TileReadiness, waitForStableReadiness } from "../readiness.js";
 import type { RegisteredScene } from "./pass-renderer.js";
+import { registeredOrthographicFrustum } from "./registered-camera.js";
 
 const DRACO_DECODER_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
-const MINIMUM_TILE_CACHE_BYTES = 64 * 1_024 * 1_024;
-const MAXIMUM_TILE_CACHE_BYTES = 96 * 1_024 * 1_024;
+const MINIMUM_TILE_CACHE_BYTES = 128 * 1_024 * 1_024;
+const MAXIMUM_TILE_CACHE_BYTES = 256 * 1_024 * 1_024;
+
+function targetPosition(request: CaptureRequest, groupMatrix: Matrix4): Vector3 {
+  const frame = new Matrix4();
+  WGS84_ELLIPSOID.getObjectFrame(
+    (request.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+    (request.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+    request.camera.targetAltitudeMm / 1_000,
+    0,
+    Math.PI / 2,
+    0,
+    frame,
+    CAMERA_FRAME,
+  );
+  frame.premultiply(groupMatrix);
+  return new Vector3().setFromMatrixPosition(frame);
+}
 
 function framePosition(
   request: CaptureRequest,
@@ -52,11 +69,11 @@ export function createGoogleScene(
   if (apiKey.length < 6) {
     throw new Error("Google tile credential is missing");
   }
-  const width = request.tile.coreWidthPx + 2 * request.tile.guardPx;
-  const height = request.tile.coreHeightPx + 2 * request.tile.guardPx;
+  const initialWidth = request.tile.coreWidthPx + 2 * request.tile.guardPx;
+  const initialHeight = request.tile.coreHeightPx + 2 * request.tile.guardPx;
   const renderer = new WebGLRenderer({ antialias: false, canvas, preserveDrawingBuffer: false });
   renderer.setPixelRatio(1);
-  renderer.setSize(width, height, false);
+  renderer.setSize(initialWidth, initialHeight, false);
   renderer.setClearColor(0x000000, 1);
 
   const scene = new Scene();
@@ -89,25 +106,58 @@ export function createGoogleScene(
     request.camera.nearMm / 1_000,
     request.camera.farMm / 1_000,
   );
+  WGS84_ELLIPSOID.getObjectFrame(
+    (request.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+    (request.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+    request.camera.targetAltitudeMm / 1_000,
+    (request.camera.azimuthMillidegrees / 1_000) * MathUtils.DEG2RAD,
+    -(request.camera.elevationMillidegrees / 1_000) * MathUtils.DEG2RAD,
+    0,
+    camera.matrixWorld,
+    CAMERA_FRAME,
+  );
+  camera.matrixWorld.multiply(
+    new Matrix4().makeTranslation(0, 0, request.camera.cameraDistanceMm / 1_000),
+  );
+  camera.matrixWorld.premultiply(tiles.group.matrixWorld);
+  camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
+  camera.updateMatrixWorld(true);
+  const anchorTarget = targetPosition(request, tiles.group.matrixWorld);
+  const cameraRight = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+  const cameraUp = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+  const sunPosition = new Vector3();
+  const sunTarget = new Vector3();
+  const anchorSunPosition = framePosition(
+    request,
+    request.lighting.sunAzimuthMillidegrees,
+    request.lighting.sunElevationMillidegrees,
+    Math.max(2_000, Math.max(horizontalMeters, verticalMeters) * 4),
+    tiles.group.matrixWorld,
+  );
+  const fixedSunVector = anchorSunPosition.sub(anchorTarget);
+  sunTarget.copy(anchorTarget);
+  sunPosition.copy(anchorTarget).add(fixedSunVector);
   const applyCamera = (next: CaptureRequest): void => {
+    const width = next.tile.coreWidthPx + 2 * next.tile.guardPx;
+    const height = next.tile.coreHeightPx + 2 * next.tile.guardPx;
+    const nextHorizontalMeters = next.camera.orthographicWidthMm / 1_000;
+    const nextVerticalMeters = next.camera.orthographicHeightMm / 1_000;
+    const centerDelta = targetPosition(next, tiles.group.matrixWorld).sub(anchorTarget);
+    const centerX = centerDelta.dot(cameraRight);
+    const centerY = centerDelta.dot(cameraUp);
+    const frustum = registeredOrthographicFrustum(
+      nextHorizontalMeters,
+      nextVerticalMeters,
+      centerX,
+      centerY,
+    );
+    renderer.setSize(width, height, false);
+    camera.left = frustum.left;
+    camera.right = frustum.right;
+    camera.top = frustum.top;
+    camera.bottom = frustum.bottom;
     camera.near = next.camera.nearMm / 1_000;
     camera.far = next.camera.farMm / 1_000;
-    WGS84_ELLIPSOID.getObjectFrame(
-      (next.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-      (next.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-      next.camera.targetAltitudeMm / 1_000,
-      (next.camera.azimuthMillidegrees / 1_000) * MathUtils.DEG2RAD,
-      -(next.camera.elevationMillidegrees / 1_000) * MathUtils.DEG2RAD,
-      0,
-      camera.matrixWorld,
-      CAMERA_FRAME,
-    );
-    camera.matrixWorld.multiply(
-      new Matrix4().makeTranslation(0, 0, next.camera.cameraDistanceMm / 1_000),
-    );
-    camera.matrixWorld.premultiply(tiles.group.matrixWorld);
-    camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
-    camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     tiles.setCamera(camera);
     tiles.setResolution(camera, width, height);
@@ -172,20 +222,6 @@ export function createGoogleScene(
     };
   };
 
-  const targetFrame = new Matrix4();
-  WGS84_ELLIPSOID.getObjectFrame(
-    (request.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-    (request.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-    request.camera.targetAltitudeMm / 1_000,
-    0,
-    Math.PI / 2,
-    0,
-    targetFrame,
-    CAMERA_FRAME,
-  );
-  targetFrame.premultiply(tiles.group.matrixWorld);
-  const sunDistanceMeters = Math.max(2_000, horizontalMeters * 4);
-
   return {
     attributions(): string[] {
       const values = tiles
@@ -217,17 +253,22 @@ export function createGoogleScene(
     },
     renderer,
     reframe(next: CaptureRequest): void {
-      const sameGrid =
-        next.tile.centerLatitudeE7 === request.tile.centerLatitudeE7 &&
-        next.tile.centerLongitudeE7 === request.tile.centerLongitudeE7 &&
-        next.tile.coreWidthPx === request.tile.coreWidthPx &&
-        next.tile.coreHeightPx === request.tile.coreHeightPx &&
-        next.tile.guardPx === request.tile.guardPx &&
+      const sameRegistration =
+        next.provider === request.provider &&
+        next.sourceEpoch === request.sourceEpoch &&
+        next.tile.regionId === request.tile.regionId &&
         next.tile.millimetersPerPixel === request.tile.millimetersPerPixel &&
-        next.camera.orthographicWidthMm === request.camera.orthographicWidthMm &&
-        next.camera.orthographicHeightMm === request.camera.orthographicHeightMm;
-      if (!sameGrid) {
-        throw new Error("probe camera may not change its registered target or pixel grid");
+        next.camera.projection === request.camera.projection &&
+        next.camera.azimuthMillidegrees === request.camera.azimuthMillidegrees &&
+        next.camera.elevationMillidegrees === request.camera.elevationMillidegrees &&
+        next.camera.targetAltitudeMm === request.camera.targetAltitudeMm &&
+        next.camera.nearMm === request.camera.nearMm &&
+        next.camera.farMm === request.camera.farMm &&
+        next.camera.cameraDistanceMm === request.camera.cameraDistanceMm &&
+        next.lighting.sunAzimuthMillidegrees === request.lighting.sunAzimuthMillidegrees &&
+        next.lighting.sunElevationMillidegrees === request.lighting.sunElevationMillidegrees;
+      if (!sameRegistration) {
+        throw new Error("probe reframe may change only its registered target and bounded grid");
       }
       currentRequest = next;
       readiness = new TileReadiness(next.readiness);
@@ -241,14 +282,14 @@ export function createGoogleScene(
       applyCamera(next);
     },
     scene,
-    sunPosition: framePosition(
-      request,
-      request.lighting.sunAzimuthMillidegrees,
-      request.lighting.sunElevationMillidegrees,
-      sunDistanceMeters,
-      tiles.group.matrixWorld,
-    ),
-    sunTarget: new Vector3().setFromMatrixPosition(targetFrame),
+    shadowGrid: {
+      heightPx: initialHeight,
+      horizontalMeters,
+      verticalMeters,
+      widthPx: initialWidth,
+    },
+    sunPosition,
+    sunTarget,
     waitUntilReady,
   };
 }

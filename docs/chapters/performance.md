@@ -19,6 +19,23 @@ RSS. The one-camera 2,560-pixel pilot reached 79 MiB Node, 90 MiB ingest-worker,
 GiB and 1.25 GiB operational worker envelopes, retained 99.99 percent core
 coverage, produced exact internal joins, and passed Rust bundle validation.
 
+The later fixed-camera overlap experiment is the highest measured acquisition
+load. It rendered one 2,304 by 1,280 monolithic grid and two 1,280 by 1,280
+neighbors through one Chromium session. It completed 428 requests, retained up
+to 226,785,670 renderer-cache bytes, and reached these peaks:
+
+| Process boundary | Peak RSS |
+| --- | ---: |
+| Node orchestrator | 85,606,400 bytes |
+| Ingest worker | 98,533,376 bytes |
+| Chromium process family | 1,073,037,312 bytes |
+| Complete process tree | 1,254,883,328 bytes |
+
+The complete tree remained below the 1,342,177,280-byte envelope. Candidate
+readiness took 3.132 seconds for the monolithic view, 1.518 seconds for the
+left view, and 1.632 seconds for the right view after scene startup. These are
+capture readiness times, not complete campus throughput.
+
 Capture scheduling reserves at least 2 GiB and 25 percent of host memory, uses
 the smaller resulting capacity, divides by the measured per-grid envelope, and
 caps concurrency at four. It returns zero workers when no measured envelope
@@ -27,6 +44,24 @@ allocating a campus master image. See
 [Google reference capture](reference-capture.md) for the measured workload and
 [ADR 0007](../adr/0007-bounded-reference-capture.md) for the rejected 768 MiB
 tree assumption.
+
+A 24 GiB host can fit four measured envelopes arithmetically, but memory is not
+the only admission constraint. Four independent Chromium sessions would also
+multiply Google traversal, GPU residency, request rate, cache pressure, and
+failure recovery. The current recommendation is one serial session per
+registered macroblock during the pilot. Increase acquisition concurrency only
+after a long-session experiment measures peak memory, cache starvation,
+throughput, and request reuse. Rust comparison and post-capture processing may
+parallelize independently under their smaller per-cell budgets.
+
+The renderer cache uses a 128 MiB retention target and a 256 MiB ceiling. A
+smaller hard cap is not necessarily more efficient: an upstream renderer issue
+documents that a demanded working set larger than the admission cap can stall
+refinement and cause repeated parse and eviction work. This project observed
+72 failed responses and much lower selected geometry in its earlier 96 MiB
+camera-recentered control. The causal attribution is not independently
+qualified, but the fixed 256 MiB run completed all requests and retained the
+required detail.
 
 If profiling projects more than eight hours for the full estate, first remove
 algorithmic waste and validate parallel partitioning. Only then open the

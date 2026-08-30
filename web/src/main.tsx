@@ -7,9 +7,18 @@ if (!root) {
 }
 
 const application = createRoot(root);
+const overlapReviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review/overlap");
 const reviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review");
 
-if (reviewRoute) {
+if (overlapReviewRoute) {
+  void import("./OverlapReviewApp").then(({ OverlapReviewApp }) =>
+    application.render(
+      <StrictMode>
+        <OverlapReviewApp />
+      </StrictMode>,
+    ),
+  );
+} else if (reviewRoute) {
   void import("./ReviewApp").then(({ ReviewApp }) =>
     application.render(
       <StrictMode>

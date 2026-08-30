@@ -16,6 +16,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+pub mod overlap;
+
 /// Portable reference-manifest schema.
 pub const MANIFEST_SCHEMA: &str = "isometric-reference-manifest/v2";
 /// Canonical manifest filename inside a reference bundle.

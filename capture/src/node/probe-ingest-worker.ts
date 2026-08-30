@@ -8,6 +8,7 @@ import type {
   ProbeIngestWorkerMessage,
 } from "./probe-ingest-contracts.js";
 import { ProbeArtifactWriter } from "./probe-artifacts.js";
+import { RawLayerArchive } from "./raw-layer-archive.js";
 import { validateRustBundle } from "./rust-reference.js";
 import { startUploadServer } from "./upload-server.js";
 import type { UploadServer } from "./upload-server.js";
@@ -15,6 +16,7 @@ import type { UploadServer } from "./upload-server.js";
 interface CandidateState {
   artifacts: ProbeArtifactWriter;
   candidateId: string;
+  rawArchive: RawLayerArchive | undefined;
   request: CaptureRequest;
   upload: UploadServer;
   writer: BundleWriter;
@@ -55,6 +57,7 @@ async function abort(): Promise<void> {
 async function initialize(
   stagingDirectory: string,
   candidates: ProbeIngestCandidate[],
+  archiveRawLayers: boolean,
 ): Promise<void> {
   if (states.length !== 0 || candidates.length < 1 || candidates.length > 8) {
     throw new Error("probe ingest worker initialization is invalid");
@@ -73,16 +76,24 @@ async function initialize(
       resolve(stagingDirectory, "candidates", candidate.candidateId),
       candidate.request,
     );
+    const rawArchive = archiveRawLayers
+      ? new RawLayerArchive(
+          resolve(stagingDirectory, "raw", candidate.candidateId),
+          candidate.request,
+        )
+      : undefined;
     await writer.start();
     const upload = await startUploadServer({
       async acceptFile(name, path, byteLength, width, height, pixelFormat): Promise<void> {
         await artifacts.acceptFile(name, path, byteLength, width, height, pixelFormat);
+        await rawArchive?.acceptFile(name, path, byteLength, width, height, pixelFormat);
         await writer.acceptFile(name, path, byteLength, width, height, pixelFormat);
       },
     });
     states.push({
       artifacts,
       candidateId: candidate.candidateId,
+      rawArchive,
       request: candidate.request,
       upload,
       writer,
@@ -133,7 +144,11 @@ process.on("message", (message: ProbeIngestParentMessage) => {
   void (async () => {
     try {
       if (message.type === "initialize") {
-        await initialize(message.stagingDirectory, message.candidates);
+        await initialize(
+          message.stagingDirectory,
+          message.candidates,
+          message.archiveRawLayers,
+        );
       } else if (message.type === "finalize") {
         await finalize(message.evidence);
       } else {

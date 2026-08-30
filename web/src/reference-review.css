@@ -64,6 +64,40 @@ a:focus-visible {
   margin-inline: auto;
 }
 
+.overlap-metrics {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: 1rem 1.5rem 1.5rem;
+  border: 1px solid #3d4446;
+  border-top: 0;
+  background: #171b1d;
+}
+
+.overlap-metrics__scroll {
+  overflow-x: auto;
+}
+
+.overlap-metrics table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 0.72rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.overlap-metrics th,
+.overlap-metrics td {
+  padding: 0.65rem;
+  border-bottom: 1px solid #343a3c;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.overlap-metrics thead th {
+  color: #99a4a5;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .review-header {
   display: flex;
   align-items: end;

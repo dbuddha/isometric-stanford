@@ -2,7 +2,7 @@
 
 Google Photorealistic 3D Tiles are streamed 3D scenes, not precomposed image
 tiles. The root request returns an OGC 3D Tiles hierarchy and a session. Child
-JSON records select geometry and textured glTF binary payloads. A renderer must
+JSON records select geometry and textured GLB payloads containing glTF data. A renderer must
 load that hierarchy, position a camera, resolve the visible level of detail,
 and draw pixels. The official [3D Tiles overview](https://developers.google.com/maps/documentation/tile/3d-tiles-overview)
 and [renderer guide](https://developers.google.com/maps/documentation/tile/use-renderer)
@@ -93,6 +93,16 @@ content length, but it does not read response bodies solely for telemetry.
 an exact transfer total. Request counts, formats, statuses, memory, layer
 hashes, coverage, and bundle validity remain exact evidence.
 
+The independent fixed-camera overlap run used a 128 MiB cache-retention target
+and a 256 MiB hard ceiling. It completed 428 of 428 requests with zero blocked
+or failed responses: 395 GLB and 33 JSON. The monolithic capture retained
+226,785,670 bytes in the renderer cache. Node reached 85,606,400 bytes, the
+ingest worker reached 98,533,376 bytes, Chromium reached 1,073,037,312 bytes,
+and the complete tree reached 1,254,883,328 bytes. The run stayed within the
+1.25 GiB envelope by approximately 87 MB. The earlier 96 MiB ceiling is not a
+safe production setting because the selected working set can exceed a hard
+admission cap and starve refinement.
+
 ## Formats and evidence
 
 Each accepted camera produces these local private artifacts:
@@ -107,25 +117,69 @@ Each accepted camera produces these local private artifacts:
 | `coverage.png` | Gray8 PNG | Valid visible source coverage |
 | `reference.manifest.json` | JSON plus SHA-256 | Camera, source, attribution, and hash chain |
 
-The local review workbench verifies that manifest before displaying any layer.
-It supports synchronized split and wipe comparison, fit and 1:1 navigation,
-layer selection, immutable hashes, camera facts, coverage, and attribution.
-Raw Google layers remain local and cannot enter a public release.
+The optional private raw archive keeps exact `rgba8`, `gray8`, and
+`ISOD32V1` u32 little-endian depth bytes. It exists so Rust comparison can run
+without decoding PNGs or contacting Google again. Neither raw archives nor
+Google imagery are committed.
+
+The local `/review` workbench verifies one bundle before displaying any layer.
+The `/review/overlap` workbench verifies a one-session report and seven hashed
+comparison images. It supports synchronized split and wipe comparison, fit and
+1:1 navigation, source versus monolithic cores, independent guards, mismatch
+heatmaps, scoped gates, camera and geographic-grid facts, request formats,
+memory, coverage, and failure classes. Raw Google layers remain local and
+cannot enter a public release.
+
+```bash
+OVERLAP_EVIDENCE_DIRECTORY=/absolute/private/experiment \
+  npm --prefix web run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review/overlap`.
 
 ## Stitching boundary
 
-The current probe proves that two 512-pixel cells cropped from one guarded
-1,024-pixel core reassemble exactly. Both cells have zero mismatched pixels
-against the same monolithic source crop. This is the correct internal cell
-boundary because masks and local filters will operate on the guarded
-supertile before it is sliced.
+The original probe proved only that two cells cropped from one guarded core
+reassemble exactly. The 2026-08-30 overlap experiment tested the harder
+boundary with two geographically adjacent captures and a larger monolithic
+oracle from the same root session.
 
-This result does not yet prove the harder boundary between two independently
-captured supertiles. That later gate must render neighboring registered
-supertile cameras, compare their geographic overlap, and fail on coverage,
-camera, level-of-detail, or subpixel disagreement before Stanford-scale
-collection begins. Art seams remain a separate Rust gate: guarded deterministic
-stylization of adjacent cells must equal a monolithic stylization oracle.
+The first control reconstructed the camera at each geographic center. That
+approach failed despite a 0.023233-pixel geographic-grid error and a best
+registration offset of 0, 0 pixels. Independent-overlap failures reached
+147,698 ppm for depth and 171,539 ppm for normals. Reconstructing the camera
+changed screen-space LOD selection.
+
+The accepted mechanism constructs the camera once at the Hoover anchor. The
+exact world matrix stays fixed while each neighbor receives an off-axis
+orthographic frustum. The left, monolithic, and right views retain the same 4
+pixels/meter scale and use projection-center X values of approximately 0.8, 0,
+and -0.8. The saved 64-pixel seam corridor measured:
+
+| Source layer | Above tolerance | Gate | Result |
+| --- | ---: | ---: | --- |
+| Color | 30 ppm | 5,000 ppm | Pass |
+| Coverage | 0 ppm | 0 ppm | Pass |
+| Linear depth | 61 ppm | 100 ppm | Pass |
+| View normals | 91 ppm | 100 ppm | Pass |
+
+The corridor crosses 5,944 structural depth edges, including Hoover Tower, so
+the result is not a featureless-boundary pass. Visual 1:1 review shows no
+chopped tower or ordinary building at the saved join.
+
+The complete issue remains open. A separately traversed monolithic view chose
+slightly different source LOD: joined-seam depth measured 854 ppm and normals
+2,822 ppm. Captured fixed shadow measured 62,057 ppm and the old shadowed
+whitebox measured 100,143 ppm in the independent seam. The source-only
+independent seam therefore passes, while the monolithic source oracle and
+captured-lighting gates fail.
+
+The implementation now renders whitebox without shadows and anchors the
+diagnostic shadow grid to the initial macroblock. Synthetic tests cover that
+remediation, but it has not received another live session. Final artwork uses
+deterministic Rust lighting rather than captured Google brightness. Campus
+collection stays blocked until issue #167 is closed or an approved decision
+changes its complete oracle contract.
 
 ## Adversarial findings
 
@@ -147,8 +201,19 @@ stylization of adjacent cells must equal a monolithic stylization oracle.
   normal, and coverage edges remain unambiguous. A later review-only
   supersampled color preview may improve human inspection, but canonical masks
   and final pixel art must continue to use the registered hard-edge layers.
+- A full monolithic view and two smaller off-axis views can ask the dynamic
+  renderer for different refinement even when their camera matrix and pixel
+  scale match. The monolithic image is evidence, not automatically an exact
+  pixel oracle for every independently traversed source cell.
 
 Google's standard [usage and billing guide](https://developers.google.com/maps/documentation/tile/usage-and-billing)
 distinguishes billable root sessions from child tile requests. The repository
 still treats owner authorization and private handling as explicit project
 constraints rather than inferring derivative rights from billing behavior.
+This two-run experiment used two billable root events, 0.02 percent of the
+official 10,000-query default daily quota and 0.2 percent of the current
+1,000-event monthly free usage cap. Account-wide usage can be higher, so these
+fractions describe only this experiment.
+
+The complete source archaeology and raw measurements are retained in the
+[registered capture research package](../research/registered-capture/index.md).

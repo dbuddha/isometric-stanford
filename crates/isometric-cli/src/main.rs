@@ -20,6 +20,7 @@ const USAGE: &str = "Usage:
   isometric-stanford reference inspect [bundle-directory]
   isometric-stanford reference encode-png [raw] [output] [width] [height] [gray8|rgba8]
   isometric-stanford reference crop-png [raw] [output] [source-width] [source-height] [x] [y] [width] [height] [gray8|rgba8]
+  isometric-stanford reference compare-overlap [request.json]
   isometric-stanford mask inspect [artifact-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
@@ -185,6 +186,16 @@ fn run_reference(arguments: &[String]) -> Result<String, String> {
             height,
             color,
         ),
+        [command, request] if command == "compare-overlap" => {
+            let report =
+                isometric_reference::overlap::compare_registered_overlap_file(Path::new(request))
+                    .map_err(|error| error.to_string())?;
+            Ok(format!(
+                "registered overlap comparison complete: passed={}, classifications={}",
+                report.passed,
+                report.failure_classifications.join(",")
+            ))
+        }
         [command, ..] => Err(format!(
             "reference {command} is specified but not implemented yet"
         )),
