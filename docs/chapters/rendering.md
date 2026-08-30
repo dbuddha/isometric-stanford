@@ -72,6 +72,10 @@ renderer. Live upstream sessions are not expected to be byte-identical. Once
 accepted, the six-layer bundle is immutable and its hashes become the fixed
 input to mask fusion, obstruction repair, and Rust stylization.
 
+The measured Hoover camera and request study, retained formats, private review
+workflow, and unresolved independent-supertile seam gate are documented in
+[Google reference capture](reference-capture.md).
+
 The local reference workbench reads these immutable bytes sequentially under
 fixed limits and verifies the complete hash chain before visual review. It
 retains compressed bytes for the six inputs but decodes only the selected pair.

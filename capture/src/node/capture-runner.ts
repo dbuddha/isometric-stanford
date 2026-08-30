@@ -4,15 +4,17 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import type { Browser } from "@playwright/test";
-import { createServer as createViteServer } from "vite";
-import type { ViteDevServer } from "vite";
 import type { CaptureEvidence, CaptureRequest } from "../contracts.js";
 import { redactSecrets, validateCaptureRequest } from "../contracts.js";
 import { BundleWriter } from "./bundle-writer.js";
+import { GoogleRequestBudget, installGoogleRequestBudget } from "./request-budget.js";
+import { startStaticRendererServer } from "./static-renderer-server.js";
+import type { StaticRendererServer } from "./static-renderer-server.js";
 import { startUploadServer } from "./upload-server.js";
 
 const CAPTURE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const REPOSITORY_ROOT = resolve(CAPTURE_ROOT, "..");
+const LIVE_CAPTURE_REQUEST_LIMIT = 1_000;
 
 export async function readCaptureRequest(path: string): Promise<CaptureRequest> {
   const parsed: unknown = JSON.parse(await readFile(path, "utf8"));
@@ -20,7 +22,7 @@ export async function readCaptureRequest(path: string): Promise<CaptureRequest> 
   return parsed;
 }
 
-async function validateRustBundle(stagingDirectory: string): Promise<void> {
+export async function validateRustBundle(stagingDirectory: string): Promise<void> {
   const environment = { ...process.env };
   delete environment.GOOGLE_MAP_TILES_API_KEY;
   const result = spawnSync(
@@ -42,33 +44,25 @@ export async function captureBundle(
     throw new Error("only Google reference requests may be promoted as durable bundles");
   }
   const writer = new BundleWriter(outputDirectory, request);
+  const budget = new GoogleRequestBudget(LIVE_CAPTURE_REQUEST_LIMIT);
   await writer.start();
   let browser: Browser | undefined;
   let upload: Awaited<ReturnType<typeof startUploadServer>> | undefined;
-  let vite: ViteDevServer | undefined;
+  let rendererServer: StaticRendererServer | undefined;
   try {
     upload = await startUploadServer(writer);
-    vite = await createViteServer({
-      configFile: resolve(CAPTURE_ROOT, "vite.config.ts"),
-      logLevel: "error",
-      root: CAPTURE_ROOT,
-      server: { host: "127.0.0.1", port: 0, strictPort: false },
-    });
-    await vite.listen();
-    const address = vite.httpServer?.address();
-    if (address === null || address === undefined || typeof address === "string") {
-      throw new Error("capture renderer did not bind a TCP port");
-    }
+    rendererServer = await startStaticRendererServer(resolve(CAPTURE_ROOT, "dist"));
     browser = await chromium.launch({
       args: ["--disable-dev-shm-usage", "--use-gl=swiftshader"],
       headless: true,
     });
     const context = await browser.newContext({ deviceScaleFactor: 1 });
+    const observations = await installGoogleRequestBudget(context, budget);
     await context.addInitScript((googleApiKey: string) => {
       window.__CAPTURE_SECRETS__ = { googleApiKey };
     }, apiKey);
     const page = await context.newPage();
-    await page.goto(`http://127.0.0.1:${address.port}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(rendererServer.url, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => window.ISOMETRIC_CAPTURE?.ready === true);
     const evidence = await page.evaluate(
       async ({ captureRequest, uploadTarget }): Promise<CaptureEvidence> => {
@@ -84,15 +78,24 @@ export async function captureBundle(
     );
     await page.close();
     await context.close();
+    await Promise.all(observations);
     await upload.close();
+    if (budget.snapshot().blocked !== 0) {
+      throw new Error("capture exhausted its Google request budget");
+    }
     return await writer.finalize(evidence, validateRustBundle);
   } catch (error) {
     await writer.abort();
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(redactSecrets(message, [apiKey, upload?.token ?? ""]));
+    throw new Error(
+      redactSecrets(
+        `${message}; Google request telemetry: ${JSON.stringify(budget.snapshot())}`,
+        [apiKey, upload?.token ?? ""],
+      ),
+    );
   } finally {
     await upload?.close();
     await browser?.close();
-    await vite?.close();
+    await rendererServer?.close();
   }
 }

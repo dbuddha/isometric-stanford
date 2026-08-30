@@ -13,7 +13,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
-import type { CaptureRequest } from "../contracts.js";
+import type { CaptureRequest, SceneDiagnostics } from "../contracts.js";
 import { TileReadiness, waitForStableReadiness } from "../readiness.js";
 import type { RegisteredScene } from "./pass-renderer.js";
 
@@ -84,32 +84,49 @@ export function createGoogleScene(
     request.camera.nearMm / 1_000,
     request.camera.farMm / 1_000,
   );
-  WGS84_ELLIPSOID.getObjectFrame(
-    (request.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-    (request.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
-    request.camera.targetAltitudeMm / 1_000,
-    (request.camera.azimuthMillidegrees / 1_000) * MathUtils.DEG2RAD,
-    -(request.camera.elevationMillidegrees / 1_000) * MathUtils.DEG2RAD,
-    0,
-    camera.matrixWorld,
-    CAMERA_FRAME,
-  );
-  camera.matrixWorld.multiply(
-    new Matrix4().makeTranslation(0, 0, request.camera.cameraDistanceMm / 1_000),
-  );
-  camera.matrixWorld.premultiply(tiles.group.matrixWorld);
-  camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
-  camera.updateMatrixWorld(true);
-  camera.updateProjectionMatrix();
-  tiles.setCamera(camera);
-  tiles.setResolution(camera, width, height);
+  const applyCamera = (next: CaptureRequest): void => {
+    camera.near = next.camera.nearMm / 1_000;
+    camera.far = next.camera.farMm / 1_000;
+    WGS84_ELLIPSOID.getObjectFrame(
+      (next.tile.centerLatitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+      (next.tile.centerLongitudeE7 / 10_000_000) * MathUtils.DEG2RAD,
+      next.camera.targetAltitudeMm / 1_000,
+      (next.camera.azimuthMillidegrees / 1_000) * MathUtils.DEG2RAD,
+      -(next.camera.elevationMillidegrees / 1_000) * MathUtils.DEG2RAD,
+      0,
+      camera.matrixWorld,
+      CAMERA_FRAME,
+    );
+    camera.matrixWorld.multiply(
+      new Matrix4().makeTranslation(0, 0, next.camera.cameraDistanceMm / 1_000),
+    );
+    camera.matrixWorld.premultiply(tiles.group.matrixWorld);
+    camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
+    camera.updateMatrixWorld(true);
+    camera.updateProjectionMatrix();
+    tiles.setCamera(camera);
+    tiles.setResolution(camera, width, height);
+  };
+  applyCamera(request);
 
-  const readiness = new TileReadiness(request.readiness);
+  let currentRequest = request;
+  let readiness = new TileReadiness(request.readiness);
+  let rootLoaded = false;
+  let loading = true;
   let loadedModels = 0;
   let terminalError: Error | undefined;
-  tiles.addEventListener("load-root-tileset", () => readiness.rootLoaded());
-  tiles.addEventListener("tiles-load-start", () => readiness.loadStarted());
-  tiles.addEventListener("tiles-load-end", () => readiness.loadEnded());
+  tiles.addEventListener("load-root-tileset", () => {
+    rootLoaded = true;
+    readiness.rootLoaded();
+  });
+  tiles.addEventListener("tiles-load-start", () => {
+    loading = true;
+    readiness.loadStarted();
+  });
+  tiles.addEventListener("tiles-load-end", () => {
+    loading = false;
+    readiness.loadEnded();
+  });
   tiles.addEventListener("load-error", () => {
     readiness.loadFailed();
     terminalError = new Error("Google tile load failed");
@@ -141,7 +158,7 @@ export function createGoogleScene(
         }
         return snapshot;
       },
-      timeoutMs: request.readiness.timeoutMs,
+      timeoutMs: currentRequest.readiness.timeoutMs,
     });
     return {
       elapsedMs: ready.elapsedMs,
@@ -170,15 +187,54 @@ export function createGoogleScene(
         .getAttributions()
         .map(({ type, value }) => `${type}:${String(value)}`)
         .filter((value) => value.length > 1 && value.length <= 2_048);
-      return [...new Set(values)].slice(0, 64);
+      return ["Google Maps", ...new Set(values)].slice(0, 64);
     },
     camera,
+    diagnostics(): SceneDiagnostics {
+      const cache = tiles.lruCache as typeof tiles.lruCache & {
+        cachedBytes: number;
+        itemSet: Set<unknown>;
+      };
+      return {
+        cachedBytes: cache.cachedBytes,
+        cachedTiles: cache.itemSet.size,
+        errorTarget: tiles.errorTarget,
+        geometries: renderer.info.memory.geometries,
+        maxCachedBytes: cache.maxBytesSize,
+        textures: renderer.info.memory.textures,
+        triangles: renderer.info.render.triangles,
+      };
+    },
     dispose(): void {
       tiles.dispose();
       draco.dispose();
       renderer.dispose();
     },
     renderer,
+    reframe(next: CaptureRequest): void {
+      const sameGrid =
+        next.tile.centerLatitudeE7 === request.tile.centerLatitudeE7 &&
+        next.tile.centerLongitudeE7 === request.tile.centerLongitudeE7 &&
+        next.tile.coreWidthPx === request.tile.coreWidthPx &&
+        next.tile.coreHeightPx === request.tile.coreHeightPx &&
+        next.tile.guardPx === request.tile.guardPx &&
+        next.tile.millimetersPerPixel === request.tile.millimetersPerPixel &&
+        next.camera.orthographicWidthMm === request.camera.orthographicWidthMm &&
+        next.camera.orthographicHeightMm === request.camera.orthographicHeightMm;
+      if (!sameGrid) {
+        throw new Error("probe camera may not change its registered target or pixel grid");
+      }
+      currentRequest = next;
+      readiness = new TileReadiness(next.readiness);
+      if (rootLoaded) {
+        readiness.rootLoaded();
+      }
+      if (!loading) {
+        readiness.loadEnded();
+      }
+      terminalError = undefined;
+      applyCamera(next);
+    },
     scene,
     sunPosition: framePosition(
       request,

@@ -55,8 +55,12 @@ implemented. The pinned Three.js path holds one orthographic camera across six
 Google 3D Tiles passes, waits for a stable complete visible set, transfers raw
 layers through a tokenized loopback endpoint, and atomically promotes only a
 bundle accepted by the Rust validator. Ordinary CI proves this path with a
-synthetic 3D scene and never requests Google content. No live Hoover bundle has
-yet been accepted. The safe-Rust mask artifact contract is also implemented.
+synthetic 3D scene and never requests Google content. A private bounded Hoover
+probe has now produced three Rust-validated registered bundles and a working
+layer-review report. The selected engineering baseline is 330 degrees azimuth,
+42 degrees elevation, and 250 millimeters per source pixel. This is capture
+evidence only, not accepted art or a public Google artifact. The safe-Rust mask
+artifact contract is also implemented.
 It registers every mask to an exact reference manifest, preserves transient
 classes only in evidence and repair inputs, streams validation without loading
 the raster, and makes transient or source-artifact pixels invalid in persistent

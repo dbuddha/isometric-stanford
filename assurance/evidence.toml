@@ -171,7 +171,7 @@ status = "implemented"
 [[claim]]
 id = "REF-CAPTURE-001"
 statement = "The registered capture workspace holds one orthographic camera across six passes, fails closed on unstable or failed tile loading, keeps credentials out of artifacts and diagnostics, and atomically promotes only a Rust-validated complete bundle."
-evidence = ["npm --prefix capture run check", "npm --prefix capture test", "npm --prefix capture run test:e2e", "capture/specs/hoover-pilot.json", ".github/workflows/ci.yml"]
+evidence = ["npm --prefix capture run check", "npm --prefix capture test", "npm --prefix capture run test:e2e", "capture/specs/hoover-pilot.json", "capture/specs/hoover-camera-probe.json", "docs/chapters/reference-capture.md", ".github/workflows/ci.yml"]
 status = "implemented"
 
 [[claim]]
