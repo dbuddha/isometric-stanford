@@ -7,6 +7,7 @@ import { defineConfig } from "vitest/config";
 
 const BASE = "/isometric-stanford/";
 const LOCAL_REFERENCE_ROUTE = `${BASE}__reference__/`;
+const LOCAL_OVERLAP_ROUTE = `${BASE}__overlap__/`;
 const REFERENCE_FILES: Record<string, string> = {
   "color.png": "image/png",
   "coverage.png": "image/png",
@@ -16,10 +17,25 @@ const REFERENCE_FILES: Record<string, string> = {
   "reference.manifest.json": "application/json; charset=utf-8",
   "whitebox.png": "image/png",
 };
+const OVERLAP_FILES: Record<string, string> = {
+  "comparison/core-oracle-heatmap.png": "image/png",
+  "comparison/joined-core.png": "image/png",
+  "comparison/monolithic-core.png": "image/png",
+  "comparison/overlap-heatmap.png": "image/png",
+  "comparison/overlap-left.png": "image/png",
+  "comparison/overlap-monolithic.png": "image/png",
+  "comparison/overlap-right.png": "image/png",
+  "overlap-report.json": "application/json; charset=utf-8",
+};
 
-function localReferencePlugin(directory: string | undefined): Plugin {
+function localFilePlugin(
+  name: string,
+  routePrefix: string,
+  directory: string | undefined,
+  files: Record<string, string>,
+): Plugin {
   return {
-    name: "local-registered-reference",
+    name,
     apply: "serve",
     configureServer(server) {
       if (!directory) {
@@ -28,12 +44,12 @@ function localReferencePlugin(directory: string | undefined): Plugin {
       const root = resolve(directory);
       server.middlewares.use((request, response, next) => {
         const pathname = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
-        if (!pathname.startsWith(LOCAL_REFERENCE_ROUTE)) {
+        if (!pathname.startsWith(routePrefix)) {
           next();
           return;
         }
-        const filename = pathname.slice(LOCAL_REFERENCE_ROUTE.length);
-        const contentType = REFERENCE_FILES[filename];
+        const filename = pathname.slice(routePrefix.length);
+        const contentType = files[filename];
         if (!contentType || (request.method !== "GET" && request.method !== "HEAD")) {
           response.statusCode = contentType ? 405 : 404;
           response.end();
@@ -74,18 +90,42 @@ function localReferencePlugin(directory: string | undefined): Plugin {
   };
 }
 
+function localReferencePlugin(directory: string | undefined): Plugin {
+  return localFilePlugin(
+    "local-registered-reference",
+    LOCAL_REFERENCE_ROUTE,
+    directory,
+    REFERENCE_FILES,
+  );
+}
+
 export default defineConfig(() => {
   const referenceDirectory = process.env.REFERENCE_BUNDLE_DIRECTORY;
+  const overlapDirectory = process.env.OVERLAP_EVIDENCE_DIRECTORY;
+  const definedEnvironment: Record<string, string> = {};
+  if (referenceDirectory) {
+    definedEnvironment["import.meta.env.VITE_REFERENCE_URL"] = JSON.stringify(
+      `${LOCAL_REFERENCE_ROUTE}reference.manifest.json`,
+    );
+  }
+  if (overlapDirectory) {
+    definedEnvironment["import.meta.env.VITE_OVERLAP_REPORT_URL"] = JSON.stringify(
+      `${LOCAL_OVERLAP_ROUTE}overlap-report.json`,
+    );
+  }
   return {
-    plugins: [react(), localReferencePlugin(referenceDirectory)],
+    plugins: [
+      react(),
+      localReferencePlugin(referenceDirectory),
+      localFilePlugin(
+        "local-registered-overlap",
+        LOCAL_OVERLAP_ROUTE,
+        overlapDirectory,
+        OVERLAP_FILES,
+      ),
+    ],
     base: BASE,
-    define: referenceDirectory
-      ? {
-          "import.meta.env.VITE_REFERENCE_URL": JSON.stringify(
-            `${LOCAL_REFERENCE_ROUTE}reference.manifest.json`,
-          ),
-        }
-      : undefined,
+    define: Object.keys(definedEnvironment).length > 0 ? definedEnvironment : undefined,
     build: {
       target: "es2022",
       cssCodeSplit: true,

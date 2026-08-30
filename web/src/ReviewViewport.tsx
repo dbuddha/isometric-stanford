@@ -27,10 +27,12 @@ interface LayerAsset {
 }
 
 interface ReviewViewportProps {
+  label?: string;
   layer: LoadedReferenceLayer;
   onFailure: (message: string) => void;
   onFitScale?: (scale: number) => void;
   overlay?: LoadedReferenceLayer;
+  overlayLabel?: string;
   transform: ReviewTransform;
   updateTransform: (update: (current: ReviewTransform) => ReviewTransform) => void;
   wipePercent?: number;
@@ -157,10 +159,12 @@ function LayerImage({
 }
 
 export function ReviewViewport({
+  label,
   layer,
   onFailure,
   onFitScale,
   overlay,
+  overlayLabel,
   transform,
   updateTransform,
   wipePercent = 50,
@@ -259,7 +263,7 @@ export function ReviewViewport({
   return (
     <div
       ref={host}
-      aria-label={`${REFERENCE_LAYER_LABELS[layer.record.kind]} registered layer`}
+      aria-label={`${label ?? REFERENCE_LAYER_LABELS[layer.record.kind]} registered layer`}
       className="review-viewport"
       data-fit-scale={fitScale.toFixed(6)}
       data-pan-x={transform.panX.toFixed(3)}
@@ -299,10 +303,12 @@ export function ReviewViewport({
           />
         </div>
       )}
-      <span className="review-viewport__label">{REFERENCE_LAYER_LABELS[layer.record.kind]}</span>
+      <span className="review-viewport__label">
+        {label ?? REFERENCE_LAYER_LABELS[layer.record.kind]}
+      </span>
       {overlay && (
         <span className="review-viewport__label review-viewport__label--right">
-          {REFERENCE_LAYER_LABELS[overlay.record.kind]}
+          {overlayLabel ?? REFERENCE_LAYER_LABELS[overlay.record.kind]}
         </span>
       )}
       {overlay && (

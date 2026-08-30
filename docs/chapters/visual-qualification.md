@@ -26,6 +26,16 @@ redirected, corrupt, or misregistered inputs produce a blocking error instead
 of a partial visual. This stage permits inspection only. It does not permit
 mask correction or final-pixel painting.
 
+The separately routed `/review/overlap` surface compares two independent
+registered source cores with a monolithic reference. It can show joined and
+monolithic cores, left and right guards, structural and lighting heatmaps,
+per-layer tolerances, camera identity, grid error, cache and process memory,
+request formats, coverage, and failure classes. Its status is scoped: the
+2026-08-30 Hoover evidence reports an independent source-seam pass while the
+monolithic and captured-lighting gates remain failed. The workbench must not
+collapse that mixed result into either full qualification or total source
+failure.
+
 Candidate A is the first implementation of this contract. CI regenerates its
 four scenes, contact sheet, landmark masks, metrics, and deviations from locked
 inputs and uploads them as review evidence. Its engineering evidence is

@@ -21,6 +21,9 @@ export default defineConfig({
         env: {
           VITE_DZI_URL:
             process.env.E2E_DZI_URL ?? "/isometric-stanford/fixture/hero.dzi",
+          VITE_OVERLAP_REPORT_URL:
+            process.env.E2E_OVERLAP_REPORT_URL ??
+            "/isometric-stanford/fixture/overlap/overlap-report.json",
           VITE_REFERENCE_URL:
             process.env.E2E_REFERENCE_URL ??
             "/isometric-stanford/fixture/reference/reference.manifest.json",

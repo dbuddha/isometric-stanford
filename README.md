@@ -61,6 +61,15 @@ layer-review report. The selected engineering baseline is 330 degrees azimuth,
 42 degrees elevation, and 250 millimeters per source pixel. This is capture
 evidence only, not accepted art or a public Google artifact. The safe-Rust mask
 artifact contract is also implemented.
+
+A second bounded experiment now derives geographic neighbors, keeps one camera
+world matrix fixed, shifts only orthographic frusta, and compares two
+independent Hoover cores with a larger monolithic view. The independent source
+seam passes its color, coverage, depth, and normal gates and is visually clean
+at 1:1. Captured lighting and the separately traversed monolithic source oracle
+still fail, so the complete overlap requirement remains open. The local
+overlap workbench exposes the scoped result instead of presenting it as a full
+pass.
 It registers every mask to an exact reference manifest, preserves transient
 classes only in evidence and repair inputs, streams validation without loading
 the raster, and makes transient or source-artifact pixels invalid in persistent
@@ -145,6 +154,19 @@ all six lengths, hashes, encodings, and registered dimensions before showing
 anything. It decodes only the selected comparison pair, keeps pan and zoom in
 shared source-pixel coordinates, supports a wipe view and 1:1 inspection, and
 displays the immutable camera, source, attribution, coverage, and hash evidence.
+
+Review a complete private overlap experiment and its hashed comparison images:
+
+```sh
+OVERLAP_EVIDENCE_DIRECTORY="$PWD/artifacts/google-overlap/<run-id>" \
+  npm --prefix web run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review/overlap`. The workbench
+shows joined versus monolithic cores, independent guards, mismatch heatmaps,
+source and lighting gates, response formats, camera registration, grid error,
+coverage, and process memory. It rejects a corrupt report or image before
+displaying a viewport.
 
 Generate the original synthetic regression preview:
 

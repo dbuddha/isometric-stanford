@@ -70,6 +70,7 @@ function waitFor(
 export async function startProbeIngest(
   stagingDirectory: string,
   candidates: ProbeIngestCandidate[],
+  archiveRawLayers = false,
 ): Promise<ProbeIngestClient> {
   const environment = { ...process.env };
   delete environment.GOOGLE_MAP_TILES_API_KEY;
@@ -84,7 +85,7 @@ export async function startProbeIngest(
     stdio: ["ignore", "ignore", "pipe", "ipc"],
   });
   const readyPromise = waitFor(child, "ready");
-  send(child, { candidates, stagingDirectory, type: "initialize" });
+  send(child, { archiveRawLayers, candidates, stagingDirectory, type: "initialize" });
   const ready = await readyPromise;
   if (ready.type !== "ready") {
     throw new Error("probe ingest worker returned an invalid ready message");

@@ -21,7 +21,11 @@ fail-closed bundle validation. It requires one orthographic camera, guarded
 pixel grid, lighting contract, and exact color, whitebox, linear-depth,
 view-normal, fixed-shadow, and coverage records. It streams SHA-256 validation
 through a bounded buffer, verifies PNG and depth headers, rejects unsafe paths,
-and enforces the pilot coverage gate before downstream processing.
+and enforces the pilot coverage gate before downstream processing. The same
+crate compares bounded exact raw archives from independent and monolithic
+captures, performs a stable two-pixel registration search, separates source,
+lighting, and monolithic gates, classifies failures, and emits hash-identified
+PNG review evidence without retaining a complete campus raster.
 The `capture/` TypeScript workspace owns the noncanonical browser boundary. It
 uses pinned Three.js, 3d-tiles-renderer, and a direct Chromium headless shell to
 hold one orthographic camera while producing color, neutral whitebox, linear
@@ -45,13 +49,17 @@ before navigation, reuses one Google root tileset while reframing three camera
 orientations, records URL-free network, renderer, and process-separated memory
 telemetry, and writes private visual and exact crop-join evidence. The pinned
 baseline camera is 330 degrees azimuth, 42 degrees elevation, and 250
-millimeters per source pixel. Google geometry caching uses a 64 MiB retention
-target and a 96 MiB ceiling. The measured worker envelopes are 1 GiB for
+millimeters per source pixel. The camera probe used a 64 MiB retention target
+and 96 MiB ceiling. The independent-overlap path supersedes that older setting
+with a 128 MiB retention target and 256 MiB ceiling. The measured worker envelopes are 1 GiB for
 1,280-pixel grids and 1.25 GiB for 2,560-pixel grids. Host-memory policy
 reserves at least 2 GiB and 25 percent, caps acquisition at four workers, and
 returns zero when no worker fits. The current crop join proves cells inside one
-guarded supertile; independent supertile overlap remains a separate
-unimplemented gate.
+guarded supertile. Independent Hoover cores now reuse one fixed camera world
+matrix and move through off-axis orthographic frusta derived from one local
+metric grid. Their 64-pixel saved source seam passes bounded color, coverage,
+depth, and normal gates. A separately traversed monolithic source oracle and
+the captured-lighting layers still fail, so issue #167 remains open.
 `isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or
@@ -249,6 +257,15 @@ serves exactly seven allowlisted files from `REFERENCE_BUNDLE_DIRECTORY`; it is
 absent from production builds and never stages raw reference content for
 publication.
 
+The `/review/overlap` workbench consumes one immutable experiment report and
+seven hash-identified PNGs. It validates the production network,
+camera-registration, geographic-grid, process-tree, layer-comparison, and
+scoped-gate shapes before display. Saved and monolithic cores, guard overlaps,
+and mismatch heatmaps share source-pixel navigation. The UI reports an
+independent source pass separately from monolithic and captured-lighting
+failures. Its development-only server allowlists those eight files from
+`OVERLAP_EVIDENCE_DIRECTORY`; production builds expose no private evidence.
+
 Hosted browser checks use the Chrome channel maintained on the GitHub runner
 image, avoiding a network browser installation inside ordinary pull-request
 jobs. Local checks continue to use Playwright's installed Chromium. Browser
@@ -282,6 +299,10 @@ boundary does not enter the exact artwork hash chain.
     contain a transient or source-artifact class.
 13. Connectivity and watershed decisions are supertile artifacts. They may not
     be recomputed independently per publication cell.
+14. Neighboring registered source cells inside one macroblock share an exact
+    camera world matrix and source pixel scale. Only their orthographic frusta
+    may shift. Independent source seams and captured lighting have separate
+    qualification gates.
 
 ## Durable artifact chain
 
@@ -304,13 +325,15 @@ and a release marked published before qualification.
 ## Not implemented
 
 - Object storage and resumable remote acquisition
-- A live locked Hoover reference bundle and capture-quality visual approval
+- A qualified live Hoover reference bundle across source, monolithic, and
+  captured-lighting relations
 - Geometry kernels, semantic mask fusion, obstruction repair, and
   reference-derived Rust styling
 - Learned-model benchmark and correction workflow
 - Dirty-region propagation and full-estate evidence partitioning
 - Detailed ridge, tile, and complex-footprint roof grammar
-- Review dashboard, full visual metrics, and fixed-device qualification
+- Mask-correction and style-lab dashboard, full visual metrics, and
+  fixed-device qualification
 - H100 perception benchmark and full vertical-slice render
 
 Those boundaries are tracked as GitHub Research, Decision, Requirement, and

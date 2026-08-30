@@ -62,6 +62,22 @@ exercise readiness reset, timeout prerequisites, credential redaction, PNG
 color types, depth headers, and immutable-output behavior. A configured live
 Hoover run is separate evidence and must still pass the Rust bundle validator.
 
+Independent-overlap CI uses exact synthetic raw archives for left, right, and
+monolithic candidates. It verifies bounded file sizes and headers, relative
+path safety, six layer-specific tolerances, a stable two-pixel registration
+search, 64-pixel saved seam corridors, failure classification, deterministic
+PNG evidence, and exact image hashes. The report exposes separate independent
+source, monolithic source, captured-lighting, and all-relation gates. A source
+pass cannot be hidden by a lighting failure, and a partial pass cannot be
+promoted to complete qualification.
+
+Desktop and mobile browser tests load the hashed overlap report, exercise fit
+and native-pixel core comparison, switch to guard overlaps and mismatch
+heatmaps, and reject one corrupt image before any viewport appears. The E2E
+fixture mirrors the production process-tree and network schema. A dogfood run
+against the private fixed-camera evidence is retained outside Git because the
+underlying images are Google-derived.
+
 The hero compiler runs twice in the Rust test suite and compares complete JSON
 bytes. The second comparison checks the generated manifest against the
 committed `world.manifest.json`, which pins the world SHA-256, all seven source

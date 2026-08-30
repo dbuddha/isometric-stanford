@@ -8,6 +8,7 @@ export interface ProbeIngestCandidate {
 
 export type ProbeIngestParentMessage =
   | {
+      archiveRawLayers: boolean;
       candidates: ProbeIngestCandidate[];
       stagingDirectory: string;
       type: "initialize";

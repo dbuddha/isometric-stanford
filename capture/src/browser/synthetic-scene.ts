@@ -67,6 +67,12 @@ export function createSyntheticScene(canvas: HTMLCanvasElement, request: Capture
     },
     renderer,
     scene,
+    shadowGrid: {
+      heightPx: height,
+      horizontalMeters,
+      verticalMeters,
+      widthPx: width,
+    },
     sunPosition: new Vector3(-150, 300, 150),
     sunTarget: new Vector3(0, 0, 0),
     async waitUntilReady() {

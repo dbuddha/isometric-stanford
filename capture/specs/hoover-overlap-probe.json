@@ -1,0 +1,42 @@
+{
+  "schema": "isometric-reference-overlap-probe/v1",
+  "requestLimit": 450,
+  "capture": {
+    "schema": "isometric-reference-capture/v1",
+    "bundleId": "hoover-overlap",
+    "provider": "google-photorealistic-3d-tiles",
+    "sourceEpoch": "live-google-session",
+    "tile": {
+      "regionId": "hoover-overlap",
+      "column": 0,
+      "row": 0,
+      "coreWidthPx": 2048,
+      "coreHeightPx": 1024,
+      "guardPx": 128,
+      "millimetersPerPixel": 250,
+      "centerLongitudeE7": -1221670000,
+      "centerLatitudeE7": 374276111
+    },
+    "camera": {
+      "projection": "orthographic",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "targetAltitudeMm": 20000,
+      "nearMm": 1000,
+      "farMm": 5000000,
+      "orthographicWidthMm": 576000,
+      "orthographicHeightMm": 320000,
+      "cameraDistanceMm": 2000000
+    },
+    "lighting": {
+      "sunAzimuthMillidegrees": 315000,
+      "sunElevationMillidegrees": 42000
+    },
+    "readiness": {
+      "timeoutMs": 120000,
+      "stableFrames": 45,
+      "stableDurationMs": 1500,
+      "minimumVisibleTiles": 4
+    }
+  }
+}
