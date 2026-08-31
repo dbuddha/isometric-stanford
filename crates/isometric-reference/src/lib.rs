@@ -16,6 +16,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+pub mod atlas;
 pub mod overlap;
 
 /// Portable reference-manifest schema.

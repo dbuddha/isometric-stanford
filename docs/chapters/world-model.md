@@ -1,5 +1,10 @@
 # Canonical world model
 
+> Historical comparison boundary. The active Google-only pipeline uses a
+> registered ReferenceAtlas, masks, and a GoogleSurfaceGraph. This semantic
+> world cannot supply geographic data to active masking, stylization, or
+> publication.
+
 The canonical world is an immutable semantic artifact partitioned by spatial
 bounds and version. Coordinates use integer millimeters relative to a declared
 local origin. Object identity is stable across ingestion order and localized
@@ -37,7 +42,7 @@ the first polygon, hole, multipolygon, building-part, confidence, source, and
 unknown examples and is parsed directly by the Rust world model. Its companion
 negative fixtures prove that undeclared provenance fails closed.
 
-## Hero semantic compilation
+## Historical hero semantic compilation
 
 `isometric-stanford world compile` validates the source and perception locks,
 verifies the OSM and Overture artifacts plus frozen NAIP and LiDAR evidence,

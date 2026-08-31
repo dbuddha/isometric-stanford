@@ -155,6 +155,6 @@
       "raw_content_in_final_output": false
     }
   ],
-  "status": "prototype-sources-locked",
+  "status": "legacy-procedural-baseline-only",
   "google_content_permitted": true
 }

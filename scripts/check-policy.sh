@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-required_files='README.md AGENTS.md ARCHITECTURE.md ATTRIBUTION.md source.lock.json perception.lock.json world.manifest.json style.lock.json render.manifest.json release.json assurance/evidence.toml .github/ISSUE_TEMPLATE/capability.yml .github/ISSUE_TEMPLATE/requirement.yml .github/ISSUE_TEMPLATE/task.yml'
+required_files='README.md AGENTS.md ARCHITECTURE.md ATTRIBUTION.md reference-policy.json source.lock.json perception.lock.json world.manifest.json style.lock.json render.manifest.json release.json assurance/evidence.toml .github/ISSUE_TEMPLATE/capability.yml .github/ISSUE_TEMPLATE/requirement.yml .github/ISSUE_TEMPLATE/task.yml'
 
 for required_file in $required_files; do
     if [ ! -f "$required_file" ]; then
@@ -15,10 +15,7 @@ if find styles fixtures -type f | grep -Eiq '(^|/)(car|cars|person|people|vehicl
     exit 1
 fi
 
-if ! grep -q '"google_content_permitted": true' source.lock.json; then
-    echo 'the owner-authorized Google reference-capture decision must remain explicit' >&2
-    exit 1
-fi
+python3 scripts/validate_google_only.py
 
 if grep -R -n -E '^\*\*\* (Add|Update|Delete) File:' .github; then
     echo 'issue templates contain an unexpanded patch marker' >&2

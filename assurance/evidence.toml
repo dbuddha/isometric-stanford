@@ -182,9 +182,21 @@ status = "implemented"
 
 [[claim]]
 id = "REF-OVERLAP-001"
-statement = "The registered overlap path derives geographic neighbors, keeps one camera world matrix across off-axis frusta, archives six bounded raw layers, separates source, monolithic, and lighting gates, and reproduced a clean bounded independent Hoover source seam without claiming complete qualification."
+statement = "The registered overlap path derives fixed-grid neighbors, keeps one camera world matrix across off-axis frusta, archives six bounded raw layers, separates source, monolithic, and lighting gates, and reproduced a clean bounded independent Hoover source seam without claiming complete qualification."
 evidence = ["cargo test -p isometric-reference overlap", "npm --prefix capture test", "npm --prefix web run test:e2e -- overlap-review.spec.ts", "capture/specs/hoover-overlap-probe.json", "docs/research/registered-capture/index.md", "docs/chapters/reference-capture.md"]
 status = "implemented"
+
+[[claim]]
+id = "REF-ATLAS-001"
+statement = "The safe-Rust ReferenceAtlas compiler validates and canonicalizes frozen registered Google bundles, assigns exactly one guarded source owner to every saved pixel, streams six registered layer tiles with bounded row memory, rejects gaps and contract drift, and reproduces identical hashes independent of request order."
+evidence = ["cargo test -p isometric-reference atlas::tests", "cargo clippy -p isometric-reference --all-targets --all-features -- -D warnings", "python3 scripts/test_validate_google_only.py", "reference-policy.json", "docs/chapters/reference-capture.md", "ARCHITECTURE.md"]
+status = "implemented"
+
+[[claim]]
+id = "REF-ATLAS-QUAL-001"
+statement = "A private 2 by 2 Hoover Google bundle set compiles three times into one visually inspected canonical atlas with identical hashes, complete coverage, valid ownership, and measured bounded memory."
+evidence = []
+status = "not-implemented"
 
 [[claim]]
 id = "REF-OVERLAP-QUAL-001"

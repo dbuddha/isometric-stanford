@@ -2,8 +2,8 @@
 
 Isometric Stanford is an evidence-driven project to build an original,
 deterministic isometric artwork and web map of Stanford campus. Registered
-orthographic Google 3D reference layers, geographic evidence, and reviewed
-masks feed a safe-Rust stylizer that produces crisp, late-1990s
+orthographic Google 3D reference layers and reviewed masks feed a safe-Rust
+stylizer that produces crisp, late-1990s
 city-builder-style pixel art. A static OpenSeadragon viewer serves the accepted
 DZI/WebP pyramid efficiently on desktop and mobile.
 
@@ -28,8 +28,10 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
   regions are never publication artifacts.
 - People, cars, buses, cranes, and temporary equipment are excluded from the
   final world and renderer assets.
-- Google Photorealistic 3D Tiles are the primary registered visual reference.
-  Open vectors, imagery, and LiDAR supply semantic and geographic evidence.
+- Google Photorealistic 3D Tiles are the sole geographic source for the active
+  masking and stylization pipeline.
+- Open-source libraries, pretrained CV weights, and original non-geographic art
+  assets may process registered Google layers.
 - Qwen does not produce final artwork.
 - A deterministic fixed-point CPU renderer is the v1 rendering boundary.
 - OpenSeadragon and static DZI/WebP are the v1 browser boundary.
@@ -38,7 +40,7 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 ## Status
 
 Repository foundation and the prototype-first delivery model are established.
-The Rust compiler now fuses locked OSM, Overture, NAIP, and USGS LiDAR into a
+The historical Rust compiler fuses locked OSM, Overture, NAIP, and USGS LiDAR into a
 deterministic, inspectable hero world. The current artifact contains 2,820
 objects across 72 spatial partitions, including measured Hoover Tower geometry
 and OSM geometry for Memorial Church. Frozen model-free perception reduces
@@ -48,7 +50,8 @@ transient semantic classes. The deterministic renderer publishes a complete
 Candidate C has been exercised end to end in the responsive viewer. Style
 approval, fixed-device qualification, and release publication remain
 unfinished. The prototype is not qualified, and no map release has been
-published.
+published. That procedural world is retained as rejected comparison evidence
+and cannot enter the active Google-only production lineage.
 
 The registered reference contract and browser capture runtime are now
 implemented. The pinned Three.js path holds one orthographic camera across six
@@ -66,12 +69,13 @@ SSE 4 adds no requests, geometry, or pixels. This is capture evidence only,
 not accepted art or a public Google artifact. The safe-Rust mask artifact
 contract is also implemented.
 
-A second bounded experiment now derives geographic neighbors, keeps one camera
+A second bounded experiment now derives fixed-grid neighbors, keeps one camera
 world matrix fixed, shifts only orthographic frusta, and compares two
 independent Hoover cores with a larger monolithic view. The independent source
 seam passes its color, coverage, depth, and normal gates and is visually clean
 at 1:1. Captured lighting and the separately traversed monolithic source oracle
-still fail, so the complete overlap requirement remains open. The local
+remain diagnostic failures. The active requirement now compiles frozen
+registered captures into one exact canonical atlas. The local
 overlap workbench exposes the scoped result instead of presenting it as a full
 pass.
 It registers every mask to an exact reference manifest, preserves transient
@@ -127,6 +131,22 @@ cargo run --locked -- reference inspect artifacts/reference/hoover
 The inspector requires registered color, whitebox, linear-depth, view-normal,
 fixed-shadow, and coverage layers with one camera, complete hashes, and at
 least 99.5 percent valid core coverage.
+
+Compile frozen neighboring bundles into the canonical atlas consumed by masks
+and stylization:
+
+```sh
+cargo run --locked -- reference atlas-compile \
+  artifacts/reference-atlas/request.json \
+  artifacts/reference-atlas/hoover
+cargo run --locked -- reference atlas-inspect artifacts/reference-atlas/hoover
+```
+
+The compiler streams each registered layer, assigns every saved pixel to one
+source bundle by a stable overlap priority, writes an ownership tile for every
+atlas cell, and atomically publishes only a complete validated atlas. Repeating
+the build from the same frozen bundles produces the same manifest and tile
+hashes.
 
 Inspect a frozen semantic mask without loading the complete raster into memory:
 
@@ -191,9 +211,12 @@ Generate the original synthetic regression preview:
 cargo run --locked -- render fixture artifacts/reference.ppm
 ```
 
-Synchronize the pinned prototype source bundle, an approximately 440 MB network
-transfer plus one committed 7.2 MB licensed NAIP fixture, into the ignored
-content-addressed cache:
+The following commands reproduce the rejected historical open-data comparison.
+They are prohibited from feeding the active Google-only masking, stylization,
+or publication path.
+
+Synchronize that historical source bundle into the ignored content-addressed
+cache:
 
 ```sh
 cargo run --locked -- source sync

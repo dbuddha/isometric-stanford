@@ -3,7 +3,57 @@
 This document records implemented truth. Planned production behavior remains in
 GitHub issues and mdBook design chapters until code makes it current.
 
-## Implemented bootstrap
+## Active Google-only pipeline
+
+Google Photorealistic 3D Tiles are the sole geographic source for the active
+masking and stylization pipeline. The capture workspace emits frozen registered
+color, whitebox, linear-depth, view-normal, captured-shadow diagnostic, and
+coverage layers from one fixed orthographic camera. No OSM, Overture, NAIP,
+LiDAR, or other geographic artifact may enter the active atlas, masks, surface
+graph, stylizer, or release lineage.
+
+`isometric-reference::atlas` compiles a bounded rectangular set of validated
+Google bundles into one canonical tiled ReferenceAtlas. It requires one Google
+provider, camera, renderer version, source epoch, session, source sampling,
+core, and guard contract. Source order is canonicalized by grid coordinate,
+bundle identity, and manifest hash. Every saved pixel receives one `u16` source
+owner selected from valid overlapping guards by edge distance, structural
+depth-and-normal validity, sampling density, and stable source order.
+
+PNG input is decoded by row into private temporary raw files. Each canonical
+core is then streamed into registered color, whitebox, depth, normal,
+captured-shadow, and coverage tiles plus its dense ownership tile. The compiler
+never allocates a campus-sized image, rejects gaps and duplicate grid cells,
+and atomically promotes output only after verifying every path, header, length,
+hash, ownership value, and source-guard relation. Reordered inputs produce the
+same manifest and ownership hashes. The CLI exposes `reference atlas-compile`
+and `reference atlas-inspect`.
+
+```mermaid
+flowchart LR
+    google["Google Photorealistic 3D Tiles"]
+    capture["Registered fixed-camera capture"]
+    atlas["Canonical ReferenceAtlas"]
+    mask["Reviewed masks and surface graph"]
+    stylize["Deterministic Rust stylizer"]
+    publish["DZI and OpenSeadragon"]
+
+    google --> capture --> atlas --> mask --> stylize --> publish
+```
+
+`reference-policy.json` records this production boundary. The policy job rejects
+active reference, mask, style, or stylization crates that directly or
+transitively depend on the legacy source, perception, or world compilers.
+The existing `isometric-publish` crate remains part of the historical
+procedural path until it is decoupled from `isometric-world`; it is not yet an
+active Google-only publication path. Public CI uses original synthetic
+registered fixtures; private Google bundles and atlas tiles remain outside Git.
+
+## Historical deterministic baseline and shared infrastructure
+
+The open-data procedural world and Candidates A through C remain buildable
+historical comparison evidence. They do not supply geographic input to the
+active pipeline.
 
 The Rust workspace contains eleven safe-Rust crates with a one-way dependency
 graph. `isometric-source` validates the approved source lock and synchronizes
@@ -60,7 +110,7 @@ matrix and move through off-axis orthographic frusta derived from one local
 metric grid. Their 64-pixel saved source seam passes bounded color, coverage,
 depth, and normal gates. A separately traversed monolithic source oracle and
 the captured-lighting layers still fail, so issue #167 remains open.
-`isometric-perception` decodes the locked NAIP GeoTIFF, streams locked LAZ
+The historical `isometric-perception` crate decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or
 transient classes. `isometric-core`
@@ -86,9 +136,9 @@ dependency radius. Connectivity and flood kernels operate once on the full
 registered supertile before any 512-pixel cell is sliced. `isometric-render`
 owns the deterministic CPU comparison
 projection, procedural grammar, and bounded fixed-point triangle and
-integer-depth raster core. The planned `isometric-stylize` crate will consume
-validated reference and mask bundles without changing the DZI delivery
-boundary.
+integer-depth raster core. The planned active `isometric-stylize` crate will
+consume validated ReferenceAtlas tiles, Google-only masks, and original
+non-geographic assets without changing the DZI delivery boundary.
 `isometric-publish` owns lossless WebP encoding, canonical indexed pyramid
 tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
@@ -96,6 +146,9 @@ tiles, complete artifact validation, and atomic DZI assembly.
 and mask artifacts, and
 compiles the fused hero world, executes reference rendering and validation, and
 rejects unfinished commands.
+
+The following diagram records the historical comparison pipeline. It is not a
+permitted source path for active Google-derived art.
 
 ```mermaid
 flowchart LR
