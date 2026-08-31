@@ -109,7 +109,7 @@ export async function installQualityFixture(page: Page, corruptHash = false) {
     },
     network: {
       attempted: 784,
-      billableRootRequests: 1,
+      rootTilesetRequests: 1,
       blocked: 0,
       completed: 784,
       failed: 0,

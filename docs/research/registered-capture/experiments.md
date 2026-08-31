@@ -156,3 +156,36 @@ The local dashboard was exercised at desktop and 390 by 844 mobile viewports.
 It loaded the exact five frozen candidates, changed crop and comparison state,
 showed no browser exception or failed request, and exposed a keyboard-focusable
 scroll container for the wide evidence table.
+
+## E-005: first 2 by 2 atlas acquisition attempt
+
+Method: derive four 2,048-pixel Hoover cores with 256-pixel guards at 125
+millimeters per pixel. Hold the selected 330 degree azimuth, 42 degree
+elevation camera world matrix fixed. Move only off-axis frusta. Reuse one root
+session and stop before exceeding 1,000 attempted Google tile requests.
+
+Sanitized terminal telemetry:
+
+| Metric | Result |
+| --- | ---: |
+| Root tileset requests | 1 |
+| Attempted requests | 1,000 |
+| Completed successful responses | 987 |
+| Blocked before dispatch | 10 |
+| Recorded request failures | 0 |
+| Classified GLB requests | 582 |
+| Classified JSON requests | 418 |
+| Retained artifact | None |
+
+The request budget fired before a complete four-bundle set could pass the
+atomic promotion boundary. Three requests were still unresolved when the
+capture failed closed, so completed plus blocked is intentionally lower than
+attempted. No raw layer, partial bundle, atlas, request URL, key, provider
+session URL, or root response body was retained.
+
+Disposition: the former 1,000-attempt ceiling is rejected for this exact 2 by
+2 maximum-detail profile. Raise the hard ceiling to 4,000 without changing SSE
+8, 125 millimeter sampling, camera, guard, coverage, or memory requirements.
+Google's public pricing makes every returned 3D tile a billable event. With no
+free tier remaining, a 4,000-event run has a public-list-price upper bound of
+USD 24. Do not run it without an explicit bounded-cost decision.

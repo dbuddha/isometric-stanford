@@ -81,7 +81,7 @@ test("credential-free ingest worker promotes one complete isolated probe bundle"
       layerOrder: [...REQUIRED_LAYER_NAMES],
       networkAfterCandidate: {
         attempted: 2,
-        billableRootRequests: 1,
+        rootTilesetRequests: 1,
         blocked: 0,
         completed: 2,
         failed: 0,

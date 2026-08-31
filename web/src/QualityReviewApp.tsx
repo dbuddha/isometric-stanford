@@ -191,7 +191,7 @@ export function QualityReviewApp() {
                 <div><dt>Recommended source</dt><dd>125 mm/px · SSE 8</dd></div>
                 <div><dt>Baseline</dt><dd>250 mm/px · SSE 20</dd></div>
                 <div><dt>Google requests</dt><dd>{report.network.attempted} / {report.network.requestLimit}</dd></div>
-                <div><dt>Root sessions</dt><dd>{report.network.billableRootRequests}</dd></div>
+                <div><dt>Root sessions</dt><dd>{report.network.rootTilesetRequests}</dd></div>
                 <div><dt>Failed / blocked</dt><dd>{report.network.failed} / {report.network.blocked}</dd></div>
                 <div><dt>Peak process RSS</dt><dd>{bytes(report.runtime.processTree.peak.treeBytes)}</dd></div>
                 <div><dt>Camera</dt><dd>330° azimuth · 42° elevation</dd></div>

@@ -208,7 +208,7 @@ export function OverlapReviewApp() {
               </h2>
               <dl className="review-facts">
                 <div><dt>Google requests</dt><dd>{report.network.attempted} / {report.network.requestLimit}</dd></div>
-                <div><dt>Root sessions</dt><dd>{report.network.billableRootRequests}</dd></div>
+                <div><dt>Root sessions</dt><dd>{report.network.rootTilesetRequests}</dd></div>
                 <div><dt>Completed / failed</dt><dd>{report.network.completed} / {report.network.failed}</dd></div>
                 <div><dt>Response formats</dt><dd>{report.network.formats.glb} GLB · {report.network.formats.json} JSON</dd></div>
                 <div><dt>Content-Length lower bound</dt><dd>{bytes(report.network.responseBodyBytes)}</dd></div>

@@ -4,7 +4,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, resolve } from "node:path";
-import type { ProbeExecutionResult } from "../contracts.js";
+import { redactSecrets, type ProbeExecutionResult } from "../contracts.js";
 import type { ProbeCoordinator } from "./probe-coordinator.js";
 
 interface HeadlessBrowserExecutable {
@@ -281,7 +281,7 @@ export async function runDirectChromiumProbe(
       ]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const safeDiagnostics = diagnostics.replaceAll(coordinator.token, "[REDACTED]").trim();
+      const safeDiagnostics = redactSecrets(diagnostics, [coordinator.token]).trim();
       throw new Error(
         `${message}${safeDiagnostics.length > 0 ? `; Chromium diagnostics: ${safeDiagnostics}` : ""}`,
       );

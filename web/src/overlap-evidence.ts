@@ -109,7 +109,7 @@ export interface OverlapExperimentReport {
   };
   network: {
     attempted: number;
-    billableRootRequests: number;
+    rootTilesetRequests: number;
     blocked: number;
     completed: number;
     failed: number;
@@ -522,7 +522,12 @@ function parseReport(value: unknown): OverlapExperimentReport {
     },
     network: {
       attempted,
-      billableRootRequests: integer(network.billableRootRequests, 1, 1, "billable root request count"),
+      rootTilesetRequests: integer(
+        network.rootTilesetRequests ?? network.billableRootRequests,
+        1,
+        1,
+        "root tileset request count",
+      ),
       blocked,
       completed,
       failed,

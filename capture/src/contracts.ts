@@ -1,4 +1,5 @@
 export const CAPTURE_SCHEMA = "isometric-reference-capture/v1";
+export const MAX_GOOGLE_REQUESTS_PER_CAPTURE = 4_000;
 export const REQUIRED_LAYER_NAMES = [
   "color",
   "whitebox",
@@ -94,7 +95,7 @@ export interface SceneDiagnostics {
 
 export interface GoogleNetworkTelemetry {
   attempted: number;
-  billableRootRequests: number;
+  rootTilesetRequests: number;
   blocked: number;
   completed: number;
   failed: number;
@@ -267,10 +268,19 @@ export function validateCaptureRequest(value: unknown): asserts value is Capture
 }
 
 export function redactSecrets(message: string, secrets: readonly string[]): string {
-  let redacted = message.replaceAll(
-    /([?&](?:key|token|api_key|session)=)[^&\s]+/gi,
-    "$1[REDACTED]",
-  );
+  let redacted = message
+    .replaceAll(
+      /https:\/\/tile\.googleapis\.com\/[^\s"'<>)}\]]+/gi,
+      "[REDACTED_GOOGLE_TILE_URL]",
+    )
+    .replaceAll(
+      /\/v1\/3dtiles\/[^\s"'<>)}\]]+/gi,
+      "[REDACTED_GOOGLE_TILE_PATH]",
+    )
+    .replaceAll(
+      /([?&](?:key|token|api_key|session)=)[^&\s]+/gi,
+      "$1[REDACTED]",
+    );
   for (const secret of secrets) {
     if (secret.length >= 6) {
       redacted = redacted.replaceAll(secret, "[REDACTED]");

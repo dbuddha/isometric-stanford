@@ -122,6 +122,13 @@ Rust-validated bundles, emits a replayable non-secret session request, and
 invokes the canonical ReferenceAtlas compiler. Public CI exercises the same
 bundle and compiler boundary with original synthetic pixels and no Google call.
 Live private atlas qualification remains open under issue #167.
+The first live attempt exhausted its former 1,000-request ceiling after 987
+successful responses and retained no partial output. The exact atlas profile
+now admits at most 4,000 attempted tile requests. Telemetry records one root
+tileset session separately from successful returned tile events because root
+quota and tile billing are distinct service controls. Failure diagnostics
+redact complete Google provider URLs and child paths in addition to keys and
+session values.
 The historical `isometric-perception` crate decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or

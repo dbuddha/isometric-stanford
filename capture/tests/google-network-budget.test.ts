@@ -21,7 +21,7 @@ describe("browser Google request budget", () => {
     expect(urls).toHaveLength(2);
     expect(budget.snapshot()).toEqual({
       attempted: 2,
-      billableRootRequests: 1,
+      rootTilesetRequests: 1,
       blocked: 1,
       completed: 2,
       failed: 0,
@@ -46,10 +46,15 @@ describe("browser Google request budget", () => {
     await expect(budget.fetch(root)).rejects.toThrow("changed within one browser capture session");
     expect(budget.snapshot()).toMatchObject({
       attempted: 2,
-      billableRootRequests: 2,
+      rootTilesetRequests: 2,
       completed: 2,
       failed: 1,
     });
     expect(JSON.stringify(budget.snapshot())).not.toContain("secret");
+  });
+
+  it("accepts the bounded atlas ceiling and rejects larger captures", () => {
+    expect(() => new BrowserGoogleRequestBudget(4_000, fetch)).not.toThrow();
+    expect(() => new BrowserGoogleRequestBudget(4_001, fetch)).toThrow(/request limit/);
   });
 });

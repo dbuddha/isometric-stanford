@@ -11,7 +11,12 @@ import type {
   ProbeCandidate,
   ProbeCandidateEvidence,
 } from "../contracts.js";
-import { redactSecrets, totalHeight, totalWidth } from "../contracts.js";
+import {
+  MAX_GOOGLE_REQUESTS_PER_CAPTURE,
+  redactSecrets,
+  totalHeight,
+  totalWidth,
+} from "../contracts.js";
 import {
   captureWorkerEnvelopeBytes,
   deriveCaptureWorkerCount,
@@ -132,7 +137,7 @@ function assertNetworkSession(network: GoogleNetworkTelemetry, requestLimit: num
     network.completed !== network.attempted ||
     network.blocked !== 0 ||
     network.failed !== 0 ||
-    network.billableRootRequests !== 1 ||
+    network.rootTilesetRequests !== 1 ||
     network.rootTilesetSha256 === null ||
     !SHA256_PATTERN.test(network.rootTilesetSha256) ||
     formatCount !== network.attempted ||
@@ -235,7 +240,7 @@ export async function readAtlasCaptureSpec(path: string): Promise<AtlasCaptureSp
     value.schema !== ATLAS_CAPTURE_SPEC_SCHEMA ||
     !isSafeIdentifier(value.atlasId) ||
     value.capture === undefined ||
-    value.requestLimit !== 1_000 ||
+    value.requestLimit !== MAX_GOOGLE_REQUESTS_PER_CAPTURE ||
     value.workerEnvelopeMiB !== 2_048
   ) {
     throw new Error("atlas capture spec identity or resource ceiling is invalid");
