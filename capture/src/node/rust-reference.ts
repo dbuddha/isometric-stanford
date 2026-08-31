@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 const REPOSITORY_ROOT = existsSync(resolve(process.cwd(), "Cargo.toml"))
   ? resolve(process.cwd())
   : resolve(process.cwd(), "..");
-function runReferenceCommand(arguments_: string[]): void {
+function runReferenceCommand(arguments_: string[]): string {
   const environment = { ...process.env };
   delete environment.GOOGLE_MAP_TILES_API_KEY;
   const result = spawnSync(
@@ -21,6 +21,7 @@ function runReferenceCommand(arguments_: string[]): void {
   if (result.status !== 0) {
     throw new Error(`Rust reference image command failed: ${result.stderr.trim()}`);
   }
+  return result.stdout.trim();
 }
 
 export function validateRustBundle(stagingDirectory: string): void {
@@ -70,4 +71,12 @@ export function cropRustPng(
 
 export function compareRustOverlap(requestPath: string): void {
   runReferenceCommand(["compare-overlap", requestPath]);
+}
+
+export function compileRustAtlas(requestPath: string, outputDirectory: string): string {
+  return runReferenceCommand(["atlas-compile", requestPath, outputDirectory]);
+}
+
+export function inspectRustAtlas(outputDirectory: string): string {
+  return runReferenceCommand(["atlas-inspect", outputDirectory]);
 }

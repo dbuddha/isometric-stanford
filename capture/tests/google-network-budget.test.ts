@@ -28,7 +28,27 @@ describe("browser Google request budget", () => {
       formats: { glb: 1, json: 1 },
       requestLimit: 2,
       responseBodyBytes: 8,
+      rootTilesetSha256: "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
       statuses: { "200": 2 },
+    });
+    expect(JSON.stringify(budget.snapshot())).not.toContain("secret");
+  });
+
+  it("rejects a changed root response within one browser session", async () => {
+    let call = 0;
+    const fakeFetch: typeof fetch = async () => {
+      call += 1;
+      return new Response(new Uint8Array([call]), { status: 200 });
+    };
+    const budget = new BrowserGoogleRequestBudget(2, fakeFetch);
+    const root = "https://tile.googleapis.com/v1/3dtiles/root.json?key=secret";
+    await budget.fetch(root);
+    await expect(budget.fetch(root)).rejects.toThrow("changed within one browser capture session");
+    expect(budget.snapshot()).toMatchObject({
+      attempted: 2,
+      billableRootRequests: 2,
+      completed: 2,
+      failed: 1,
     });
     expect(JSON.stringify(budget.snapshot())).not.toContain("secret");
   });

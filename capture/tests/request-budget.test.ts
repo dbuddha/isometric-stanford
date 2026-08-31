@@ -32,6 +32,7 @@ describe("Google request budget", () => {
       formats: { glb: 1, json: 1 },
       requestLimit: 2,
       responseBodyBytes: 8_192,
+      rootTilesetSha256: null,
       statuses: { "200": 2 },
     });
     expect(JSON.stringify(budget.snapshot())).not.toContain("secret");

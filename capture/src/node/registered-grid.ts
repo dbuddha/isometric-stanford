@@ -57,6 +57,36 @@ export interface RegisteredOverlapRequests {
   right: CaptureRequest;
 }
 
+export interface RegisteredAtlasGridCandidateReport {
+  actualCenterOffsetPixels: { x: number; y: number };
+  candidateId: string;
+  centerLatitudeE7: number;
+  centerLongitudeE7: number;
+  column: number;
+  expectedCenterOffsetPixels: { x: number; y: number };
+  maximumPixelCenterErrorPixels: number;
+  row: number;
+}
+
+export interface RegisteredAtlasGridReport {
+  anchorLatitudeE7: number;
+  anchorLongitudeE7: number;
+  atlasCenterLatitudeE7: number;
+  atlasCenterLongitudeE7: number;
+  cameraScreenRightBearingMillidegrees: number;
+  candidates: RegisteredAtlasGridCandidateReport[];
+  checkedSavedPixelCenters: number;
+  columns: 2;
+  maximumPixelCenterErrorPixels: number;
+  rows: 2;
+  schema: "isometric-registered-atlas-grid-report/v1";
+}
+
+export interface RegisteredAtlasRequests {
+  grid: RegisteredAtlasGridReport;
+  ordered: CaptureRequest[];
+}
+
 function add(left: Vector3, right: Vector3): Vector3 {
   return { x: left.x + right.x, y: left.y + right.y, z: left.z + right.z };
 }
@@ -198,6 +228,88 @@ function roundedTarget(
   };
 }
 
+function roundedGroundTarget(
+  anchorRequest: CaptureRequest,
+  screenOffsetMeters: { x: number; y: number },
+): { latitudeE7: number; longitudeE7: number } {
+  const anchor = geodeticFor(anchorRequest);
+  const anchorEcef = geodeticToEcef(anchor);
+  const basis = localBasis(anchor);
+  const axes = cameraAxes(anchor, anchorRequest);
+  const rightEast = dot(axes.right, basis.east);
+  const rightNorth = dot(axes.right, basis.north);
+  const upEast = dot(axes.up, basis.east);
+  const upNorth = dot(axes.up, basis.north);
+  const determinant = rightEast * upNorth - rightNorth * upEast;
+  if (!Number.isFinite(determinant) || Math.abs(determinant) < 1e-9) {
+    throw new Error("registered atlas camera cannot resolve a ground-plane grid");
+  }
+  const eastMeters =
+    (screenOffsetMeters.x * upNorth - rightNorth * screenOffsetMeters.y) /
+    determinant;
+  const northMeters =
+    (rightEast * screenOffsetMeters.y - screenOffsetMeters.x * upEast) /
+    determinant;
+  const shifted = ecefToGeodetic(
+    add(anchorEcef, add(scale(basis.east, eastMeters), scale(basis.north, northMeters))),
+  );
+  return {
+    latitudeE7: Math.round(shifted.latitudeRadians * RADIANS_TO_DEGREES * 10_000_000),
+    longitudeE7: Math.round(shifted.longitudeRadians * RADIANS_TO_DEGREES * 10_000_000),
+  };
+}
+
+function cloneAtlasCell(
+  base: CaptureRequest,
+  row: number,
+  column: number,
+  target: { latitudeE7: number; longitudeE7: number },
+): CaptureRequest {
+  const request = structuredClone(base);
+  request.bundleId = `${base.bundleId}-r${row}c${column}`;
+  request.tile.row = base.tile.row + row;
+  request.tile.column = base.tile.column + column;
+  request.tile.centerLatitudeE7 = target.latitudeE7;
+  request.tile.centerLongitudeE7 = target.longitudeE7;
+  validateCaptureRequest(request);
+  return request;
+}
+
+function atlasCandidateReport(
+  candidate: CaptureRequest,
+  anchor: CaptureRequest,
+  row: number,
+  column: number,
+): RegisteredAtlasGridCandidateReport {
+  const anchorPosition = geodeticFor(anchor);
+  const anchorEcef = geodeticToEcef(anchorPosition);
+  const axes = cameraAxes(anchorPosition, anchor);
+  const centerDelta = subtract(geodeticToEcef(geodeticFor(candidate)), anchorEcef);
+  const millimetersPerPixel = candidate.tile.millimetersPerPixel;
+  const actualCenterOffsetPixels = {
+    x: dot(centerDelta, axes.right) * 1_000 / millimetersPerPixel,
+    y: dot(centerDelta, axes.up) * 1_000 / millimetersPerPixel,
+  };
+  const expectedCenterOffsetPixels = {
+    x: column * candidate.tile.coreWidthPx,
+    y: row === 0 ? 0 : -row * candidate.tile.coreHeightPx,
+  };
+  const maximumPixelCenterErrorPixels = Math.hypot(
+    actualCenterOffsetPixels.x - expectedCenterOffsetPixels.x,
+    actualCenterOffsetPixels.y - expectedCenterOffsetPixels.y,
+  );
+  return {
+    actualCenterOffsetPixels,
+    candidateId: `r${row}c${column}`,
+    centerLatitudeE7: candidate.tile.centerLatitudeE7,
+    centerLongitudeE7: candidate.tile.centerLongitudeE7,
+    column,
+    expectedCenterOffsetPixels,
+    maximumPixelCenterErrorPixels,
+    row,
+  };
+}
+
 function candidateGridReport(
   role: "left" | "right",
   candidate: CaptureRequest,
@@ -302,5 +414,88 @@ export function deriveRegisteredOverlapRequests(baseValue: unknown): RegisteredO
     monolithic: base,
     ordered: [base, left, right],
     right,
+  };
+}
+
+export function deriveRegisteredAtlasRequests(baseValue: unknown): RegisteredAtlasRequests {
+  validateCaptureRequest(baseValue);
+  const base = structuredClone(baseValue);
+  const approvedProfile =
+    base.schema === CAPTURE_SCHEMA &&
+    base.provider === "google-photorealistic-3d-tiles" &&
+    base.tile.coreWidthPx === 2_048 &&
+    base.tile.coreHeightPx === 2_048 &&
+    base.tile.guardPx === 256 &&
+    base.tile.millimetersPerPixel === 125 &&
+    base.camera.azimuthMillidegrees === 330_000 &&
+    base.camera.elevationMillidegrees === 42_000 &&
+    base.quality.maxScreenSpaceErrorPx === 8;
+  if (!approvedProfile) {
+    throw new Error("registered atlas capture requires the approved 2048 square Hoover profile");
+  }
+
+  const atlasCenterLatitudeE7 = base.tile.centerLatitudeE7;
+  const atlasCenterLongitudeE7 = base.tile.centerLongitudeE7;
+  const halfCoreMeters =
+    base.tile.coreWidthPx * base.tile.millimetersPerPixel / 2_000;
+  const topLeftTarget = roundedGroundTarget(base, {
+    x: -halfCoreMeters,
+    y: halfCoreMeters,
+  });
+  const anchor = cloneAtlasCell(base, 0, 0, topLeftTarget);
+  const coreWidthMeters =
+    base.tile.coreWidthPx * base.tile.millimetersPerPixel / 1_000;
+  const targets = [
+    { column: 0, row: 0, target: topLeftTarget },
+    {
+      column: 1,
+      row: 0,
+      target: roundedGroundTarget(anchor, { x: coreWidthMeters, y: 0 }),
+    },
+    {
+      column: 0,
+      row: 1,
+      target: roundedGroundTarget(anchor, { x: 0, y: -coreWidthMeters }),
+    },
+    {
+      column: 1,
+      row: 1,
+      target: roundedGroundTarget(anchor, { x: coreWidthMeters, y: -coreWidthMeters }),
+    },
+  ] as const;
+  const ordered = targets.map(({ row, column, target }) =>
+    cloneAtlasCell(base, row, column, target),
+  );
+  const candidates = ordered.map((candidate, index) => {
+    const target = targets[index];
+    if (target === undefined) {
+      throw new Error("registered atlas target ordering is incomplete");
+    }
+    return atlasCandidateReport(candidate, anchor, target.row, target.column);
+  });
+  const maximumPixelCenterErrorPixels = Math.max(
+    ...candidates.map((candidate) => candidate.maximumPixelCenterErrorPixels),
+  );
+  if (maximumPixelCenterErrorPixels > 0.5) {
+    throw new Error(
+      `registered atlas grid exceeds 0.5 source pixel: ${maximumPixelCenterErrorPixels}`,
+    );
+  }
+  return {
+    grid: {
+      anchorLatitudeE7: anchor.tile.centerLatitudeE7,
+      anchorLongitudeE7: anchor.tile.centerLongitudeE7,
+      atlasCenterLatitudeE7,
+      atlasCenterLongitudeE7,
+      cameraScreenRightBearingMillidegrees:
+        (base.camera.azimuthMillidegrees + 90_000) % 360_000,
+      candidates,
+      checkedSavedPixelCenters: 4 * base.tile.coreWidthPx * base.tile.coreHeightPx,
+      columns: 2,
+      maximumPixelCenterErrorPixels,
+      rows: 2,
+      schema: "isometric-registered-atlas-grid-report/v1",
+    },
+    ordered,
   };
 }

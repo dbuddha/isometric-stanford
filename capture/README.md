@@ -121,6 +121,28 @@ image samples but no source geometry. Use SSE 8 and 125 millimeters per pixel
 for maximum-detail inspection. Use SSE 8 and 250 millimeters per pixel when a
 smaller reference is sufficient.
 
+The canonical Hoover atlas capture uses that accepted SSE 8 and 125 millimeter
+profile for four 2,048-pixel cores. It creates the Google root tileset once,
+holds one camera world matrix, shifts four off-axis projection windows, and
+compiles all promoted bundles into one 4,096 by 4,096 ReferenceAtlas:
+
+```bash
+atlas_key="$(security find-generic-password -a "$USER" -s isometric-stanford-map-tiles -w)"
+GOOGLE_MAP_TILES_API_KEY="$atlas_key" npm --prefix capture run atlas-capture -- \
+  --spec specs/hoover-atlas-capture.json \
+  --output ../artifacts/google-atlas/<new-run-id>
+unset atlas_key
+```
+
+The private output contains four validated registered bundles,
+`atlas-request.json`, the canonical tiled `atlas/` directory, and
+`atlas-capture-report.json`. The report contains only a SHA-256 digest of the
+root response, a non-secret session identity, fixed-camera and projection
+proofs, coverage, request counts, timing, and process-tree memory. It stores no
+key, session URL, response body, or request URL. The command rejects a second
+root request, a missing root digest, camera movement, projection drift, coverage
+below 99.5 percent, output reuse, or a process tree above 2 GiB.
+
 The 400-request camera ceiling was measured rather than guessed. A 100-request run
 loaded 4.12 MiB successfully and then blocked 26 required child requests. The
 accepted Hoover run used 282 requests and one billable root session. The probe

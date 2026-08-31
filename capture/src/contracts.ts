@@ -101,6 +101,7 @@ export interface GoogleNetworkTelemetry {
   formats: Record<string, number>;
   requestLimit: number;
   responseBodyBytes: number;
+  rootTilesetSha256: string | null;
   statuses: Record<string, number>;
 }
 

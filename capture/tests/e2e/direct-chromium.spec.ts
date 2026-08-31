@@ -26,7 +26,7 @@ test("direct Chromium returns credential-free evidence without a Playwright prot
           browserMemory: {jsHeapSizeLimitBytes: 1, jsHeapTotalBytes: 1, jsHeapUsedBytes: 1},
           probe: {
             candidates: [],
-            network: {attempted: 0, billableRootRequests: 0, blocked: 0, completed: 0, failed: 0, formats: {}, requestLimit: 1, responseBodyBytes: 0, statuses: {}}
+            network: {attempted: 0, billableRootRequests: 0, blocked: 0, completed: 0, failed: 0, formats: {}, requestLimit: 1, responseBodyBytes: 0, rootTilesetSha256: null, statuses: {}}
           }
         })
       });
