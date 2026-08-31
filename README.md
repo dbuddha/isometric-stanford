@@ -78,6 +78,12 @@ remain diagnostic failures. The active requirement now compiles frozen
 registered captures into one exact canonical atlas. The local
 overlap workbench exposes the scoped result instead of presenting it as a full
 pass.
+The acquisition workspace now derives a fixed 2 by 2 Hoover grid at 125
+millimeters per pixel and SSE 8, hashes one Google root response, captures all
+four guarded cells through one unchanged camera world matrix, and compiles the
+promoted bundles through the Rust ReferenceAtlas CLI. Public CI proves that
+source-to-atlas path with original synthetic cells. A new private Google run and
+visual atlas inspection are still required before atlas qualification passes.
 It registers every mask to an exact reference manifest, preserves transient
 classes only in evidence and repair inputs, streams validation without loading
 the raster, and makes transient or source-artifact pixels invalid in persistent

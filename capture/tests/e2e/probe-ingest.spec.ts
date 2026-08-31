@@ -88,6 +88,7 @@ test("credential-free ingest worker promotes one complete isolated probe bundle"
         formats: { glb: 1, json: 1 },
         requestLimit: 10,
         responseBodyBytes: 0,
+        rootTilesetSha256: "0000000000000000000000000000000000000000000000000000000000000000",
         statuses: { "200": 2 },
       },
       projectionMatrix: Array.from({ length: 16 }, (_, index) => (index % 5 === 0 ? 1 : 0)),

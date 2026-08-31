@@ -1,0 +1,50 @@
+{
+  "schema": "isometric-reference-atlas-capture/v1",
+  "atlasId": "hoover-google-reference-atlas",
+  "requestLimit": 1000,
+  "workerEnvelopeMiB": 2048,
+  "capture": {
+    "schema": "isometric-reference-capture/v1",
+    "bundleId": "hoover-atlas",
+    "provider": "google-photorealistic-3d-tiles",
+    "sourceEpoch": "live-google-session",
+    "tile": {
+      "regionId": "hoover-reference-atlas",
+      "column": 0,
+      "row": 0,
+      "coreWidthPx": 2048,
+      "coreHeightPx": 2048,
+      "guardPx": 256,
+      "millimetersPerPixel": 125,
+      "centerLongitudeE7": -1221670000,
+      "centerLatitudeE7": 374276111
+    },
+    "camera": {
+      "projection": "orthographic",
+      "azimuthMillidegrees": 330000,
+      "elevationMillidegrees": 42000,
+      "targetAltitudeMm": 20000,
+      "nearMm": 1000,
+      "farMm": 5000000,
+      "orthographicWidthMm": 320000,
+      "orthographicHeightMm": 320000,
+      "cameraDistanceMm": 2000000
+    },
+    "quality": {
+      "maxScreenSpaceErrorPx": 8,
+      "minimumTileCacheMiB": 512,
+      "maximumTileCacheMiB": 2048,
+      "textureMipmaps": false
+    },
+    "lighting": {
+      "sunAzimuthMillidegrees": 315000,
+      "sunElevationMillidegrees": 42000
+    },
+    "readiness": {
+      "timeoutMs": 180000,
+      "stableFrames": 60,
+      "stableDurationMs": 2000,
+      "minimumVisibleTiles": 4
+    }
+  }
+}

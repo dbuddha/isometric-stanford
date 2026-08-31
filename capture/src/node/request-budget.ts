@@ -98,6 +98,7 @@ export class GoogleRequestBudget {
       formats: Object.fromEntries([...this.#formats.entries()].sort()),
       requestLimit: this.#limit,
       responseBodyBytes: this.#responseBodyBytes,
+      rootTilesetSha256: null,
       statuses: Object.fromEntries(
         [...this.#statuses.entries()].sort(([left], [right]) => left - right).map(([key, value]) => [String(key), value]),
       ),

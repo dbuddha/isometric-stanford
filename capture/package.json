@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json && vite build",
+    "atlas-capture": "node --expose-gc dist-node/src/node/atlas-capture-cli.js",
     "capture": "node --expose-gc dist-node/src/node/capture-cli.js",
     "probe": "node --expose-gc dist-node/src/node/probe-cli.js",
     "quality-review": "node dist-node/src/node/quality-review-cli.js",

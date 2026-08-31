@@ -28,6 +28,10 @@ function format(pathname: string): string {
   return "other";
 }
 
+function hex(bytes: ArrayBuffer): string {
+  return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export class BrowserGoogleRequestBudget {
   readonly #formats = new Map<string, number>();
   readonly #limit: number;
@@ -39,6 +43,7 @@ export class BrowserGoogleRequestBudget {
   #completed = 0;
   #failed = 0;
   #responseBodyBytes = 0;
+  #rootTilesetSha256: string | null = null;
 
   public constructor(limit: number, originalFetch: typeof fetch = window.fetch.bind(window)) {
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1_000) {
@@ -83,6 +88,14 @@ export class BrowserGoogleRequestBudget {
       if (Number.isSafeInteger(contentLength) && contentLength > 0) {
         this.#responseBodyBytes += contentLength;
       }
+      if (parsed.pathname === "/v1/3dtiles/root.json" && response.ok) {
+        const body = await response.clone().arrayBuffer();
+        const digest = hex(await crypto.subtle.digest("SHA-256", body));
+        if (this.#rootTilesetSha256 !== null && this.#rootTilesetSha256 !== digest) {
+          throw new Error("Google root tileset changed within one browser capture session");
+        }
+        this.#rootTilesetSha256 = digest;
+      }
       return response;
     } catch (error) {
       this.#failed += 1;
@@ -100,6 +113,7 @@ export class BrowserGoogleRequestBudget {
       formats: Object.fromEntries([...this.#formats.entries()].sort()),
       requestLimit: this.#limit,
       responseBodyBytes: this.#responseBodyBytes,
+      rootTilesetSha256: this.#rootTilesetSha256,
       statuses: Object.fromEntries(
         [...this.#statuses.entries()]
           .sort(([left], [right]) => left - right)

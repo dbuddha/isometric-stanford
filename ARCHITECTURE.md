@@ -110,6 +110,18 @@ matrix and move through off-axis orthographic frusta derived from one local
 metric grid. Their 64-pixel saved source seam passes bounded color, coverage,
 depth, and normal gates. A separately traversed monolithic source oracle and
 the captured-lighting layers still fail, so issue #167 remains open.
+
+The one-session atlas acquisition path derives a row-major 2 by 2 Hoover grid
+of 2,048-pixel cores at 125 millimeters per pixel with 256-pixel guards and SSE
+8. It creates one Google scene, retains one camera world matrix, and moves only
+off-axis frusta. Browser telemetry hashes the exact successful root tileset
+response without retaining its body or URL. The runner rejects more than one
+root request, incomplete coverage, grid or projection drift, credential
+retention, mutable output, and process-tree memory above 2 GiB. It promotes four
+Rust-validated bundles, emits a replayable non-secret session request, and
+invokes the canonical ReferenceAtlas compiler. Public CI exercises the same
+bundle and compiler boundary with original synthetic pixels and no Google call.
+Live private atlas qualification remains open under issue #167.
 The historical `isometric-perception` crate decodes the locked NAIP GeoTIFF, streams locked LAZ
 points through a bounded buffer, transforms audited source coordinates, masks
 vector-owned cells, and emits frozen semantic evidence with no source pixels or

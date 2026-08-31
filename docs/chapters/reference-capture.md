@@ -289,6 +289,31 @@ tiles stay outside Git. Downstream masks and art consume only the canonical
 atlas, so a raw provider overlap can remain visible evidence without becoming a
 saved-art seam.
 
+### One-session atlas acquisition
+
+The capture workspace now derives the four Hoover cells from one accepted
+geographic center. Cell `r0c0` becomes the fixed camera anchor. The other three
+targets are solved on its local ground tangent so their centers land at exact
+2,048-pixel horizontal and vertical offsets. The browser does not reconstruct
+or rotate the camera between cells. It changes only the off-axis orthographic
+frustum while retaining the 330 degree azimuth, 42 degree elevation, SSE 8,
+125 millimeter source grid, 256-pixel guard, and 2,560-pixel processing window.
+
+The browser hashes the successful `/v1/3dtiles/root.json` response through Web
+Crypto before discarding the temporary body clone. Accepted telemetry contains
+exactly one billable root request and its 64-character digest. The compiler
+request stores a derived non-secret session identifier, that digest, and the
+three-hour acquisition interval. It never stores the root body, key, request
+URL, or provider session URL.
+
+Public browser assurance renders four original synthetic cells, promotes them
+through the same registered bundle writer, and compiles their Google-shaped
+container contract through the real Rust atlas CLI. Unit tests separately
+prove row-major identities, all 16,777,216 saved pixel-center translations,
+the fixed world matrix, projection scale and centers, root hashing, secret
+redaction, and rejection of profile drift. A live private run remains required
+before `REF-ATLAS-QUAL-001` can pass.
+
 ## Adversarial findings
 
 - Two live captures with the same request differed in 0.0003 to 0.0007 percent
