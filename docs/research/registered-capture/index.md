@@ -48,9 +48,17 @@ The fixed-camera experiment reproduced a visually clean two-cell Hoover join.
 Within the 64-pixel saved seam corridor, color, coverage, linear depth, and
 view normals passed their bounded source gates. A camera-recentered control
 failed badly because screen-space traversal selected different Google levels
-of detail. Captured whitebox and shadow layers also failed, so source
-registration is reproduced but the complete requirement is not qualified.
-Issue #167 stays open.
+of detail. Captured whitebox and shadow layers also failed. The accepted
+architecture therefore treats raw overlap as diagnostic and compiles one
+canonical ReferenceAtlas with deterministic guarded-pixel ownership before
+masks or styling begin.
+
+The compiler and one-session acquisition path are implemented. The first live
+2 by 2 attempt exhausted its former 1,000-request ceiling after 987 successful
+responses and retained no partial output. The exact profile now has a 4,000
+attempt ceiling, honest per-tile billing telemetry, and provider-URL redaction.
+Issue #167 stays open until a bounded-cost live rerun produces four complete
+bundles, a visually inspected atlas, and three identical compiler hash chains.
 
 ## Renderer and application comparison
 

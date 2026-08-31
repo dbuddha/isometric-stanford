@@ -43,4 +43,17 @@ describe("capture contracts", () => {
     expect(redacted).toContain("key=[REDACTED]");
     expect(redacted).toContain("session=[REDACTED]");
   });
+
+  it("removes Google provider URLs and paths from diagnostics", () => {
+    const message = [
+      "GET https://tile.googleapis.com/v1/3dtiles/datasets/example.glb?session=value failed",
+      "source /v1/3dtiles/datasets/another.json?session=value",
+    ].join("\n");
+    const redacted = redactSecrets(message, []);
+    expect(redacted).not.toContain("tile.googleapis.com");
+    expect(redacted).not.toContain("datasets/example");
+    expect(redacted).not.toContain("datasets/another");
+    expect(redacted).toContain("[REDACTED_GOOGLE_TILE_URL]");
+    expect(redacted).toContain("[REDACTED_GOOGLE_TILE_PATH]");
+  });
 });

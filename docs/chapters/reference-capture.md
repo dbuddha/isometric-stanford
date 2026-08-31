@@ -44,7 +44,7 @@ The private 2026-08-30 run measured three cameras:
 | 315 degrees azimuth, 42 degrees elevation | 75 | 155.7 MiB | 1.62 seconds | 99.99% |
 
 The complete session made 282 successful requests under a 400-request ceiling:
-one billable root request, 33 JSON records, and 249 GLB payloads. It transferred
+one root tileset request, 33 JSON records, and 249 GLB payloads. It transferred
 15.39 MiB. No request failed or was blocked. A preceding 100-request experiment
 completed all 100 responses but blocked 26 more, proving that a 100-request
 ceiling cannot load this guarded view reliably.
@@ -301,7 +301,7 @@ frustum while retaining the 330 degree azimuth, 42 degree elevation, SSE 8,
 
 The browser hashes the successful `/v1/3dtiles/root.json` response through Web
 Crypto before discarding the temporary body clone. Accepted telemetry contains
-exactly one billable root request and its 64-character digest. The compiler
+exactly one root tileset request and its 64-character digest. The compiler
 request stores a derived non-secret session identifier, that digest, and the
 three-hour acquisition interval. It never stores the root body, key, request
 URL, or provider session URL.
@@ -311,8 +311,15 @@ through the same registered bundle writer, and compiles their Google-shaped
 container contract through the real Rust atlas CLI. Unit tests separately
 prove row-major identities, all 16,777,216 saved pixel-center translations,
 the fixed world matrix, projection scale and centers, root hashing, secret
-redaction, and rejection of profile drift. A live private run remains required
-before `REF-ATLAS-QUAL-001` can pass.
+redaction, and rejection of profile drift.
+
+The first live private run stopped safely at the former 1,000-request ceiling.
+It attempted 1,000 requests, completed 987 successful responses, blocked 10,
+and retained no bundle or atlas output. This demonstrates that one maximum-detail
+cell's request budget cannot be multiplied linearly or inferred from the earlier
+single-view probe. The qualified profile now permits at most 4,000 attempted
+requests, keeps one root session, and preserves every quality control. A live
+private rerun remains required before `REF-ATLAS-QUAL-001` can pass.
 
 ## Adversarial findings
 
@@ -346,13 +353,18 @@ before `REF-ATLAS-QUAL-001` can pass.
   pixel oracle for every independently traversed source cell.
 
 Google's standard [usage and billing guide](https://developers.google.com/maps/documentation/tile/usage-and-billing)
-distinguishes billable root sessions from child tile requests. The repository
-still treats owner authorization and private handling as explicit project
-constraints rather than inferring derivative rights from billing behavior.
-This two-run experiment used two billable root events, 0.02 percent of the
-official 10,000-query default daily quota and 0.2 percent of the current
-1,000-event monthly free usage cap. Account-wide usage can be higher, so these
-fractions describe only this experiment.
+separates the root quota from renderer requests. Root tileset requests count
+toward the default 10,000-per-day quota. Child renderer requests do not consume
+that daily root quota and one root session can serve requests for at least three
+hours. Google's [price sheet](https://developers.google.com/maps/billing-and-pricing/pricing)
+defines each returned Photorealistic 3D tile as a billable event, lists a
+1,000-event monthly free usage cap, and lists USD 6 per 1,000 events in the
+first paid tier. The project had previously mislabeled only root calls as
+billable. Telemetry now calls them `rootTilesetRequests`, while `completed`
+tracks successful returned tile events. The repository still treats owner
+authorization and private handling as explicit project constraints rather than
+inferring derivative rights from billing behavior. Account-wide usage and
+negotiated pricing can differ from the public sheet.
 
 The complete source archaeology and raw measurements are retained in the
 [registered capture research package](../research/registered-capture/index.md).

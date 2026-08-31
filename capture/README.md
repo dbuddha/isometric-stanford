@@ -143,9 +143,23 @@ key, session URL, response body, or request URL. The command rejects a second
 root request, a missing root digest, camera movement, projection drift, coverage
 below 99.5 percent, output reuse, or a process tree above 2 GiB.
 
+The atlas profile has a hard ceiling of 4,000 attempted Google tile requests.
+The first live 2 by 2 attempt exhausted the former 1,000-request ceiling after
+987 successful responses and retained no output. The higher ceiling does not
+change SSE, sampling, camera, or coverage requirements. It remains far below
+Google's documented 12,000 renderer requests per minute service limit, and the
+browser still blocks the next request before exceeding the configured ceiling.
+
+Billing and root quota are separate. A root tileset request starts the reusable
+session and counts toward the 10,000 per-day root quota. Every successful
+returned 3D tile is a billable event. The current public price sheet lists a
+1,000-event monthly free usage cap and USD 6 per 1,000 events after that tier.
+The 4,000-attempt ceiling therefore represents at most USD 24 when no free tier
+remains. Account-wide usage and negotiated pricing may differ.
+
 The 400-request camera ceiling was measured rather than guessed. A 100-request run
 loaded 4.12 MiB successfully and then blocked 26 required child requests. The
-accepted Hoover run used 282 requests and one billable root session. The probe
+accepted Hoover run used 282 tile requests and one root tileset request. The probe
 stores no request URLs, keys, or session values.
 
 Live capture launches the browser directly and retains no Playwright protocol

@@ -71,7 +71,7 @@ describe("registered Hoover atlas grid", () => {
       await readFile(resolve("specs/hoover-atlas-capture.json"), "utf8"),
     ) as { capture: unknown; requestLimit: number; schema: string; workerEnvelopeMiB: number };
     expect(spec.schema).toBe("isometric-reference-atlas-capture/v1");
-    expect(spec.requestLimit).toBe(1_000);
+    expect(spec.requestLimit).toBe(4_000);
     expect(spec.workerEnvelopeMiB).toBe(2_048);
     const requests = deriveRegisteredAtlasRequests(spec.capture);
     expect(requests.ordered.map((request) => request.bundleId)).toEqual([

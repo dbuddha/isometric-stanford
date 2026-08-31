@@ -69,7 +69,7 @@ export interface QualityReviewReport {
   };
   network: {
     attempted: number;
-    billableRootRequests: number;
+    rootTilesetRequests: number;
     blocked: number;
     completed: number;
     failed: number;
@@ -239,9 +239,10 @@ export function parseQualityReviewReport(value: unknown): QualityReviewReport {
   }
   const network = record(report.network, "quality network evidence");
   const attempted = integer(network.attempted, 1, 1_000, "quality attempted requests");
+  const rootTilesetRequests = network.rootTilesetRequests ?? network.billableRootRequests;
   const parsedNetwork = {
     attempted,
-    billableRootRequests: integer(network.billableRootRequests, 1, 1, "quality root requests"),
+    rootTilesetRequests: integer(rootTilesetRequests, 1, 1, "quality root requests"),
     blocked: integer(network.blocked, 0, 0, "quality blocked requests"),
     completed: integer(network.completed, attempted, attempted, "quality completed requests"),
     failed: integer(network.failed, 0, 0, "quality failed requests"),

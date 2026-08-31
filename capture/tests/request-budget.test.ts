@@ -9,7 +9,7 @@ const SIZES = {
 };
 
 describe("Google request budget", () => {
-  it("counts one billable root separately and aborts before exceeding its limit", () => {
+  it("counts the root session separately and aborts before exceeding its limit", () => {
     const budget = new GoogleRequestBudget(2);
     expect(budget.authorize("http://127.0.0.1/local")).toBe(true);
     const root = "https://tile.googleapis.com/v1/3dtiles/root.json?key=secret";
@@ -25,7 +25,7 @@ describe("Google request budget", () => {
     budget.recordFinished(child, SIZES);
     expect(budget.snapshot()).toEqual({
       attempted: 2,
-      billableRootRequests: 1,
+      rootTilesetRequests: 1,
       blocked: 1,
       completed: 2,
       failed: 0,
@@ -40,6 +40,7 @@ describe("Google request budget", () => {
 
   it("rejects unbounded or empty limits", () => {
     expect(() => new GoogleRequestBudget(0)).toThrow(/request limit/);
-    expect(() => new GoogleRequestBudget(1_001)).toThrow(/request limit/);
+    expect(() => new GoogleRequestBudget(4_000)).not.toThrow();
+    expect(() => new GoogleRequestBudget(4_001)).toThrow(/request limit/);
   });
 });

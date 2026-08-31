@@ -1,4 +1,5 @@
 import {
+  MAX_GOOGLE_REQUESTS_PER_CAPTURE,
   REQUIRED_LAYER_NAMES,
   cameraFingerprint,
   redactSecrets,
@@ -100,7 +101,11 @@ export function installCaptureRuntime(canvas: HTMLCanvasElement): BrowserCapture
         }
       }
       const apiKey = window.__CAPTURE_SECRETS__?.googleApiKey ?? "";
-      if (!Number.isSafeInteger(requestLimit) || Number(requestLimit) < 1 || Number(requestLimit) > 1_000) {
+      if (
+        !Number.isSafeInteger(requestLimit) ||
+        Number(requestLimit) < 1 ||
+        Number(requestLimit) > MAX_GOOGLE_REQUESTS_PER_CAPTURE
+      ) {
         throw new Error("capture probe browser request limit is invalid");
       }
       const network = new BrowserGoogleRequestBudget(Number(requestLimit));

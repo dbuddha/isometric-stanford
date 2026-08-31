@@ -12,6 +12,7 @@ import type {
   ProbeCandidateEvidence,
 } from "../contracts.js";
 import {
+  MAX_GOOGLE_REQUESTS_PER_CAPTURE,
   redactSecrets,
   totalHeight,
   totalWidth,
@@ -101,7 +102,7 @@ export async function readProbeSpec(path: string): Promise<ProbeSpec> {
     value.schema !== PROBE_SCHEMA ||
     !Number.isSafeInteger(value.requestLimit) ||
     Number(value.requestLimit) < 1 ||
-    Number(value.requestLimit) > 1_000 ||
+    Number(value.requestLimit) > MAX_GOOGLE_REQUESTS_PER_CAPTURE ||
     (value.workerEnvelopeMiB !== undefined &&
       (!Number.isSafeInteger(value.workerEnvelopeMiB) ||
         value.workerEnvelopeMiB < 512 ||
@@ -223,7 +224,7 @@ function reportHtml(report: ProbeReport): string {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hoover camera probe</title>
 <style>body{font-family:system-ui,sans-serif;margin:0;background:#141414;color:#f4f1e8}main{max-width:1180px;margin:auto;padding:24px}article{background:#222;border:1px solid #444;border-radius:12px;margin:24px 0;padding:18px}.image-frame{position:relative;max-width:1024px}.image-frame:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent calc(50% - .5px),#ff3b30 calc(50% - .5px),#ff3b30 calc(50% + .5px),transparent calc(50% + .5px)),linear-gradient(0deg,transparent calc(50% - .5px),#ff3b30 calc(50% - .5px),#ff3b30 calc(50% + .5px),transparent calc(50% + .5px));pointer-events:none}img{display:block;max-width:100%;height:auto;image-rendering:auto}.attribution{font-size:12px;color:#ddd}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#090909;padding:16px;border-radius:8px}</style></head>
-<body><main><h1>Hoover Tower orthographic camera probe</h1><p>One Google root session, ${report.network.attempted}/${report.network.requestLimit} total Google requests, ${report.network.billableRootRequests} billable root request.</p>${cards}<h2>Machine-readable evidence</h2><pre>${escapeHtml(JSON.stringify(report, null, 2))}</pre></main></body></html>\n`;
+<body><main><h1>Hoover Tower orthographic camera probe</h1><p>One Google root session, ${report.network.attempted}/${report.network.requestLimit} attempted Google tile requests, ${report.network.rootTilesetRequests} root tileset request.</p>${cards}<h2>Machine-readable evidence</h2><pre>${escapeHtml(JSON.stringify(report, null, 2))}</pre></main></body></html>\n`;
 }
 
 async function assertAbsent(path: string): Promise<void> {

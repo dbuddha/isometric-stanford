@@ -50,12 +50,12 @@ function evidence(
     layerOrder: [...REQUIRED_LAYER_NAMES],
     networkAfterCandidate: {
       attempted: 1,
-      billableRootRequests: 1,
+      rootTilesetRequests: 1,
       blocked: 0,
       completed: 1,
       failed: 0,
       formats: { json: 1 },
-      requestLimit: 1_000,
+      requestLimit: 4_000,
       responseBodyBytes: 1,
       rootTilesetSha256: "0".repeat(64),
       statuses: { "200": 1 },
@@ -71,7 +71,7 @@ describe("one-session Hoover atlas capture contract", () => {
     const spec = await readAtlasCaptureSpec(resolve("specs/hoover-atlas-capture.json"));
     expect(spec).toMatchObject({
       atlasId: "hoover-google-reference-atlas",
-      requestLimit: 1_000,
+      requestLimit: 4_000,
       schema: "isometric-reference-atlas-capture/v1",
       workerEnvelopeMiB: 2_048,
     });

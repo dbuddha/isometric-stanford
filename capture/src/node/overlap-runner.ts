@@ -269,7 +269,7 @@ export async function runOverlapExperiment(
     const browserResult: ProbeBrowserResult = execution.probe;
     if (
       browserResult.network.blocked !== 0 ||
-      browserResult.network.billableRootRequests !== 1 ||
+      browserResult.network.rootTilesetRequests !== 1 ||
       browserResult.network.attempted > spec.requestLimit
     ) {
       throw new Error("registered overlap violated its one-session Google request budget");

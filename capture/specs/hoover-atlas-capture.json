@@ -1,7 +1,7 @@
 {
   "schema": "isometric-reference-atlas-capture/v1",
   "atlasId": "hoover-google-reference-atlas",
-  "requestLimit": 1000,
+  "requestLimit": 4000,
   "workerEnvelopeMiB": 2048,
   "capture": {
     "schema": "isometric-reference-capture/v1",

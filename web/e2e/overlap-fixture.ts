@@ -155,7 +155,7 @@ function fixture(options: FixtureOptions) {
     },
     network: {
       attempted: 282,
-      billableRootRequests: 1,
+      rootTilesetRequests: 1,
       blocked: 0,
       completed: 278,
       failed: 4,

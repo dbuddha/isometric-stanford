@@ -1,4 +1,7 @@
-import type { GoogleNetworkTelemetry } from "../contracts.js";
+import {
+  MAX_GOOGLE_REQUESTS_PER_CAPTURE,
+  type GoogleNetworkTelemetry,
+} from "../contracts.js";
 
 function googleUrl(value: string): URL | undefined {
   try {
@@ -38,7 +41,7 @@ export class BrowserGoogleRequestBudget {
   readonly #originalFetch: typeof fetch;
   readonly #statuses = new Map<number, number>();
   #attempted = 0;
-  #billableRootRequests = 0;
+  #rootTilesetRequests = 0;
   #blocked = 0;
   #completed = 0;
   #failed = 0;
@@ -46,8 +49,14 @@ export class BrowserGoogleRequestBudget {
   #rootTilesetSha256: string | null = null;
 
   public constructor(limit: number, originalFetch: typeof fetch = window.fetch.bind(window)) {
-    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1_000) {
-      throw new Error("browser Google request limit must be an integer from 1 through 1000");
+    if (
+      !Number.isSafeInteger(limit) ||
+      limit < 1 ||
+      limit > MAX_GOOGLE_REQUESTS_PER_CAPTURE
+    ) {
+      throw new Error(
+        `browser Google request limit must be an integer from 1 through ${MAX_GOOGLE_REQUESTS_PER_CAPTURE}`,
+      );
     }
     this.#limit = limit;
     this.#originalFetch = originalFetch;
@@ -76,7 +85,7 @@ export class BrowserGoogleRequestBudget {
     }
     this.#attempted += 1;
     if (parsed.pathname === "/v1/3dtiles/root.json") {
-      this.#billableRootRequests += 1;
+      this.#rootTilesetRequests += 1;
     }
     const kind = format(parsed.pathname);
     this.#formats.set(kind, (this.#formats.get(kind) ?? 0) + 1);
@@ -106,7 +115,7 @@ export class BrowserGoogleRequestBudget {
   public snapshot(): GoogleNetworkTelemetry {
     return {
       attempted: this.#attempted,
-      billableRootRequests: this.#billableRootRequests,
+      rootTilesetRequests: this.#rootTilesetRequests,
       blocked: this.#blocked,
       completed: this.#completed,
       failed: this.#failed,
