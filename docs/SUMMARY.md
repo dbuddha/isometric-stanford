@@ -29,3 +29,4 @@
   - [ADR 0005: Observable style analogue contract](./adr/0005-observable-style-analogue.md)
   - [ADR 0006: Registered reference-derived stylization](./adr/0006-registered-reference-stylization.md)
   - [ADR 0007: Bounded reference capture processes](./adr/0007-bounded-reference-capture.md)
+  - [ADR 0008: Google-only geographic source](./adr/0008-google-only-geographic-source.md)

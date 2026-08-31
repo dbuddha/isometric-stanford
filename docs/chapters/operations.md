@@ -1,5 +1,10 @@
 # Operations and updates
 
+The active pipeline begins with Google reference capture and canonical
+ReferenceAtlas compilation. The source synchronization workflow below is
+retained for reproducibility of the rejected procedural comparison and cannot
+feed active masking, stylization, or publication.
+
 An update begins with `isometric-stanford source sync`. The command validates
 the complete lock before transfer, downloads through a fixed 64 KiB buffer,
 verifies the declared length and SHA-256 hash, and atomically promotes each

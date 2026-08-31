@@ -1,21 +1,21 @@
 # Procedural art system
 
-The production software that converts the registered world view into art is
-the planned `isometric-stylize` crate combined with `isometric-style`, accepted
-masks, and bounded procedural overlays from `isometric-render`. The style pack
-specifies the logical pixel scale, indexed palette, material ramps, fixed
-lighting, outline rules, patterns, detail thresholds, and stable variation
-rules. The stylizer simplifies registered color through depth, normal,
-semantic, obstruction, and shadow evidence rather than recreating every
-building from a coarse footprint.
+The active software that converts the registered Google view into art is the
+planned `isometric-stylize` crate combined with `isometric-style`, accepted
+Google-only masks, and bounded procedural overlays from `isometric-render`.
+The style pack specifies the logical pixel scale, indexed palette, material
+ramps, fixed lighting, outline rules, patterns, detail thresholds, and stable
+variation rules. The stylizer simplifies canonical ReferenceAtlas color using
+the registered depth and normal layers, semantic and obstruction masks,
+repaired surfaces, and original non-geographic assets.
 
-For a building, the compiler supplies a reviewed footprint, height, roof class,
-material evidence, stable ID, and confidence. The style chooses a simplified
-massing grammar, roof and facade palette ramps, window cadence, outline width,
-and allowed detail density. The renderer projects vertices in fixed point,
-clips them, resolves depth, paints indexed faces, adds hard world-space shadows,
-and applies world-anchored patterns. The saved tile contains only approved
-palette indexes before WebP encoding.
+For a building, the Google surface graph supplies visible planes, repaired
+boundaries, material evidence, stable identity, and confidence. The style
+chooses simplified roof and facade palette ramps, window cadence, outline
+width, and allowed detail density. The renderer relights repaired surfaces,
+paints indexed materials, adds hard globally anchored shadows, and applies
+world-anchored patterns. The saved tile contains only approved palette indexes
+before WebP encoding.
 
 Ordinary structures use reusable material grammar. Named landmarks receive a
 higher detail budget while retaining their registered silhouettes. Procedural
@@ -23,8 +23,9 @@ components may correct unreadable details, markings, or masked regions, but
 they do not replace the reference geometry or permit manually painted output
 tiles.
 
-The prototype implements the first three as independently authored parameters
-inside `stanford_v1`. Hoover Tower uses a footprint base, narrow shaft, stable
+The historical procedural comparison implemented three independently authored
+landmark interpretations inside `stanford_v1`. Hoover Tower uses a footprint
+base, narrow shaft, stable
 window rows and dark bands, overhanging crown, lantern, and pyramidal cap.
 Memorial Church uses its source footprint for the lower shell and adds a
 campus-aligned gable, repeated side openings, a portal, and a dark rose-window
@@ -34,7 +35,7 @@ meter visual mass, and repeats pointed openings along sufficiently large inner
 courtyard rings. These are procedural interpretations for visual review, not
 claims of survey-grade architectural detail.
 
-Prototype style candidates A, B, and C use the fixed four-scene set: Hoover
+Historical style candidates A, B, and C use the fixed four-scene set: Hoover
 Tower, Memorial Church and the Main Quad, roads and empty parking, and dense
 canopy with mixed ordinary buildings. The later qualification slice expands to
 twelve scenes. Automated metrics constrain drift, but the owner decides whether

@@ -1,45 +1,47 @@
 # Data rights and provenance
 
-The semantic and geographic baseline is open data. The prototype source
-families are 2024
-USDA NAIP imagery, approved 2020 Santa Clara County or USGS LiDAR,
-OpenStreetMap, Overture 2026-06-17.0 Buildings, and original owner-approved
-Stanford overrides. Each exact artifact requires a source-lock record before
-use. Overture already incorporates complementary open building sources, so the
-prototype does not ingest a separate Microsoft footprint layer.
+Google Photorealistic 3D Tiles are the sole geographic source for the active
+masking and stylization pipeline. Registered Google captures supply visible
+geometry, texture, object placement, terrain, buildings, roads, and vegetation.
+OSM, Overture, NAIP, LiDAR, and other geographic datasets cannot enter the
+ReferenceAtlas, semantic masks, surface graph, stylizer, or release lineage.
 
-Source precedence is:
+Open-source libraries, pretrained CV weights, and original non-geographic art
+assets may process the registered atlas. Each dependency, model weight, and art
+asset requires an immutable identity, license, provenance record, and downstream
+dependency record. Qwen and other image generators do not produce final pixels.
 
-1. Approved authoritative Stanford data
-2. OpenStreetMap and Overture
-3. LiDAR-derived geometry
-4. NAIP semantic predictions
-5. Deterministic heuristics
-6. Explicit unknown
+The repository records this boundary in `reference-policy.json`. CI validates
+that active production crates do not depend on the historical open-data source,
+perception, or world compilers. `source.lock.json` and its derived artifacts are
+retained only to reproduce the rejected procedural comparison baseline. They
+are not active geographic inputs.
 
-Google Photorealistic 3D Tiles are the owner-authorized registered visual
-reference. Dynamic capture is isolated from the generic source synchronizer.
-Every retained reference bundle records provider, epoch, camera, renderer,
-layer hashes, coverage, and downstream experiment identity.
+Every registered Google bundle records:
 
-That owner authorization does not by itself establish a Google contractual
-exception. Google's current [Map Tiles API policy](https://developers.google.com/maps/documentation/tile/policies)
-limits the default product to visualization and prohibits unauthorized caching,
+- provider and source epoch;
+- fixed camera and world-grid cell;
+- renderer and version;
+- attribution;
+- coverage;
+- exact layer sizes and hashes;
+- acquisition experiment identity.
+
+The canonical ReferenceAtlas additionally records the provider session, root
+tileset hash, validated source manifests, deterministic per-pixel ownership,
+canonical layer-tile hashes, and the complete ownership-map hash. Downstream
+artifacts retain that atlas digest rather than independently selecting raw
+capture pixels.
+
+The owner has asserted permission for the private internal processing workflow.
+Google's published [Map Tiles API policy](https://developers.google.com/maps/documentation/tile/policies)
+otherwise limits the default product to visualization and restricts caching,
 offline use, image analysis, machine interpretation, object detection, and
-derived geodata. The bounded Hoover experiments therefore remain private
-technical evidence under the owner's asserted authorization. Campus collection,
-computer-vision processing, derived-art publication, and public display remain
-permission-gated until a written Google agreement or exception is retained in
-the provenance record and reviewed against the exact workflow. An API key and
-a Google employee's informal permission are not substitutes for that evidence.
+derived geodata. Public transformed-art publication therefore remains blocked
+until permission for the exact publication workflow is retained in the project
+provenance record. An API key is a credential, not the rights record.
 
-If that permission is not obtained, the production pipeline must replace the
-Google reference with licensed open imagery, LiDAR, and vector-derived renders.
-No Google-derived geometry, texture, mask, or measurement may silently enter
-the open-data world model.
-
-`source.lock.json` records immutable semantic-source URLs, bounds, dates,
-licenses, hashes, decisions, and required notices. Reference manifests own
-dynamic capture identity. Derived manifests retain both chains. Publication
-fails closed if any released output cannot trace to accepted sources, masks,
-and original style assets.
+Raw Google captures, atlas tiles, masks derived from them, and private review
+screenshots remain outside Git and public CI. Public CI uses original synthetic
+registered fixtures. Publication fails closed if a released pixel cannot trace
+through an accepted atlas, masks, deterministic style, and original assets.

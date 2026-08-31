@@ -33,19 +33,22 @@ must have a GitHub task with observable acceptance evidence before coding.
 
 ## Hard boundaries
 
-- Final art is produced by the deterministic Rust reference-derived stylizer.
+- Final art is produced by the deterministic Rust Google-reference-derived stylizer.
   The procedural renderer remains a comparison baseline and supplies bounded
   material, marking, and small-feature grammar.
-- Source imagery may enter final artwork only through a validated registered
-  reference bundle, accepted masks, and the deterministic palette transform.
+- Source imagery may enter final artwork only through a validated canonical
+  Google ReferenceAtlas, accepted masks, and the deterministic palette transform.
   Raw reference tiles and unmodified photographic regions cannot be published.
 - The final-world schema and style assets cannot represent people, vehicles,
   buses, cranes, or temporary equipment.
-- Google Photorealistic 3D Tiles are the owner-authorized reference provider.
-  They use the separate registered capture path and never enter the generic
-  content-addressed source synchronizer.
-- Open data and third-party assets require an approved source record, immutable
-  hash, license, attribution, and downstream dependency record.
+- Google Photorealistic 3D Tiles are the sole geographic source for the active
+  masking and stylization pipeline. OSM, Overture, NAIP, LiDAR, and other
+  geographic data cannot enter its atlas, masks, surface graph, stylizer, or
+  release lineage. The older open-data world remains historical comparison
+  evidence only.
+- Open-source software, pretrained CV weights, and original non-geographic art
+  assets require an approved source or asset record, immutable hash, license,
+  and downstream dependency record.
 - Never copy Isometric NYC imagery, weights, datasets, code, or unlicensed
   assets. Independently implement observable techniques and original assets.
 - Canonical exact image hashes come from the pinned Linux CPU renderer.

@@ -25,6 +25,7 @@ jobs:
           python-version: "3.12"
       - run: scripts/check-policy.sh
       - run: python scripts/test_validate_pr.py
+      - run: python scripts/test_validate_google_only.py
       - run: python scripts/test_measure_prototype.py
       - run: python scripts/test_assemble_preview.py
       - if: github.event_name == 'pull_request'

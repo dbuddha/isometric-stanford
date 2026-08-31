@@ -1,0 +1,19 @@
+{
+  "schema": "isometric-reference-policy/v1",
+  "geographic_source": "google-photorealistic-3d-tiles",
+  "other_geographic_sources": "prohibited",
+  "processing": {
+    "open_source_libraries": true,
+    "pretrained_cv_weights": true,
+    "original_non_geographic_art_assets": true,
+    "qwen_final_pixels": false
+  },
+  "authorization": {
+    "internal_processing": "owner-asserted",
+    "public_release": "blocked-pending-recorded-publication-permission"
+  },
+  "legacy_open_data": {
+    "status": "historical-comparison-only",
+    "source_lock": "source.lock.json"
+  }
+}

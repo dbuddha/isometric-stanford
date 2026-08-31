@@ -21,6 +21,8 @@ const USAGE: &str = "Usage:
   isometric-stanford reference encode-png [raw] [output] [width] [height] [gray8|rgba8]
   isometric-stanford reference crop-png [raw] [output] [source-width] [source-height] [x] [y] [width] [height] [gray8|rgba8]
   isometric-stanford reference compare-overlap [request.json]
+  isometric-stanford reference atlas-compile [request.json] [output-directory]
+  isometric-stanford reference atlas-inspect [atlas-directory]
   isometric-stanford mask inspect [artifact-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
@@ -196,6 +198,21 @@ fn run_reference(arguments: &[String]) -> Result<String, String> {
                 report.failure_classifications.join(",")
             ))
         }
+        [command, request, output] if command == "atlas-compile" => {
+            let report = isometric_reference::atlas::compile_atlas_file(
+                Path::new(request),
+                Path::new(output),
+            )
+            .map_err(|error| error.to_string())?;
+            Ok(format!(
+                "reference atlas compiled: {} tiles, {} bytes, peak row buffers {} bytes, manifest {}",
+                report.tile_count,
+                report.total_bytes,
+                report.peak_row_buffer_bytes,
+                report.manifest_sha256
+            ))
+        }
+        [command, input] if command == "atlas-inspect" => inspect_reference_atlas(Path::new(input)),
         [command, ..] => Err(format!(
             "reference {command} is specified but not implemented yet"
         )),
@@ -312,6 +329,19 @@ fn inspect_reference(root: &Path) -> Result<String, String> {
         report.layer_sha256.len(),
         report.total_layer_bytes,
         report.manifest_sha256
+    ))
+}
+
+fn inspect_reference_atlas(root: &Path) -> Result<String, String> {
+    let manifest = isometric_reference::atlas::read_atlas_manifest(
+        &root.join(isometric_reference::atlas::ATLAS_MANIFEST_FILENAME),
+    )
+    .map_err(|error| error.to_string())?;
+    let report = isometric_reference::atlas::validate_atlas(root, &manifest)
+        .map_err(|error| error.to_string())?;
+    Ok(format!(
+        "reference atlas {} passed: {} tiles, {} bytes, manifest {}",
+        manifest.atlas_id, report.tile_count, report.total_bytes, report.manifest_sha256
     ))
 }
 

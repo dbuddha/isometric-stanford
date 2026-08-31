@@ -1,6 +1,6 @@
 # ADR 0003: Open-data production baseline
 
-- Status: Accepted by the repository bootstrap plan
+- Status: Superseded for the active pipeline by ADR 0008
 - Date: 2026-08-16
 
 ## Context
@@ -19,3 +19,9 @@ storage, and public redistribution.
 
 Open sources may require more fusion and correction work. Provenance failure
 blocks publication. A source-rights exception remains human-owned.
+
+## Supersession
+
+On 2026-08-30 the owner selected Google Photorealistic 3D Tiles as the sole
+geographic source for the active masking and stylization pipeline. This record
+remains the rationale for the historical procedural baseline. See ADR 0008.

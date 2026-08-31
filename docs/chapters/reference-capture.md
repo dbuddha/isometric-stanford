@@ -114,8 +114,9 @@ The Photorealistic 3D Tiles root API documents no capture date or historical
 imagery parameter. Google updates the dataset and returns attribution per
 visible tile, but the client cannot request a pre-construction epoch. Street
 View's separate metadata date is not a 3D Tiles selector. Construction must be
-masked or replaced using licensed non-Google semantic evidence unless Google
-adds a documented historical 3D product.
+classified from the registered Google layers, removed when an underlying
+surface can be recovered, or retained as explicit unknown. The active pipeline
+cannot consult a second geographic source to invent the hidden state.
 
 ## Bounded capture execution
 
@@ -238,19 +239,55 @@ The corridor crosses 5,944 structural depth edges, including Hoover Tower, so
 the result is not a featureless-boundary pass. Visual 1:1 review shows no
 chopped tower or ordinary building at the saved join.
 
-The complete issue remains open. A separately traversed monolithic view chose
+The raw comparison remains diagnostic. A separately traversed monolithic view chose
 slightly different source LOD: joined-seam depth measured 854 ppm and normals
 2,822 ppm. Captured fixed shadow measured 62,057 ppm and the old shadowed
 whitebox measured 100,143 ppm in the independent seam. The source-only
-independent seam therefore passes, while the monolithic source oracle and
-captured-lighting gates fail.
+independent seam therefore passes, while the monolithic source comparison and
+captured-lighting comparisons record adaptive traversal drift.
 
 The implementation now renders whitebox without shadows and anchors the
 diagnostic shadow grid to the initial macroblock. Synthetic tests cover that
 remediation, but it has not received another live session. Final artwork uses
-deterministic Rust lighting rather than captured Google brightness. Campus
-collection stays blocked until issue #167 is closed or an approved decision
-changes its complete oracle contract.
+deterministic Rust lighting rather than captured Google brightness.
+
+## Canonical ReferenceAtlas
+
+Issue #167 now establishes exactness after frozen registered capture rather
+than requiring a fresh monolithic Google traversal to select identical LOD.
+The `isometric-reference` atlas compiler validates every source bundle, requires
+one provider, camera, renderer, source epoch, sampling scale, core, guard, and
+session identity, then sorts inputs by stable grid and bundle identity.
+
+Every saved atlas pixel receives exactly one source owner. Selection prefers:
+
+1. valid coverage;
+2. greater distance from the capture edge;
+3. valid depth and normal structure;
+4. finer source sampling;
+5. stable source order as the final tie-break.
+
+The compiler streams PNG decode by row into private temporary raw layers. It
+materializes one canonical core tile for color, whitebox, depth, normals,
+captured shadow diagnostics, and coverage, plus one dense `u16` ownership tile.
+It never allocates a campus-sized image. Output is promoted atomically only
+after the complete atlas manifest, file hashes, layer headers, rectangular grid,
+and every ownership pixel pass validation.
+
+```bash
+cargo run --locked -- reference atlas-compile \
+  /absolute/private/atlas-request.json \
+  /absolute/private/hoover-atlas
+
+cargo run --locked -- reference atlas-inspect \
+  /absolute/private/hoover-atlas
+```
+
+Public CI compiles an original synthetic 2 by 2 fixture and proves that source
+permutations produce the same manifest hash. Private Google bundles and atlas
+tiles stay outside Git. Downstream masks and art consume only the canonical
+atlas, so a raw provider overlap can remain visible evidence without becoming a
+saved-art seam.
 
 ## Adversarial findings
 
