@@ -138,7 +138,10 @@ screen coordinates, and palette indexes. `isometric-world` owns an immutable,
 spatially partitioned polygonal world with holes, building parts, heights,
 roofs, materials, confidence, provenance, reviewed overrides, fixed
 EPSG:26910 origin, and conservative screen bounds. Its class enum intentionally
-has no transient people or vehicle variants. `isometric-style` owns the bounded
+has no transient people or vehicle variants. The active reference ontology
+permits registered passenger cars while continuing to reject people, bicycles,
+buses, trucks, and construction equipment from persistent artifacts.
+`isometric-style` owns the bounded
 indexed palette, projection scales, and versioned ordinary-scene grammar.
 `isometric-mask` owns the 24-class registered pixel ontology, fixed-width mask
 encoding, reference hash chain, evidence flags, instance consistency, and
@@ -153,11 +156,18 @@ marker-controlled watershed, and quantized line evidence. Finite-radius
 kernels may operate on guarded cells whose guard covers their complete
 dependency radius. Connectivity and flood kernels operate once on the full
 registered supertile before any 512-pixel cell is sliced. `isometric-render`
-owns the deterministic CPU comparison
-projection, procedural grammar, and bounded fixed-point triangle and
-integer-depth raster core. The planned active `isometric-stylize` crate will
-consume validated ReferenceAtlas tiles, Google-only masks, and original
-non-geographic assets without changing the DZI delivery boundary.
+owns the deterministic CPU comparison projection, procedural grammar, and
+bounded fixed-point triangle and integer-depth raster core.
+`isometric-stylize` owns the implemented post-capture experiment over
+registered Google color, depth, and normal layers. It emits an RGB-only
+baseline, a geometry-guided comparison, and a narrow high-confidence canopy
+repair candidate through integer edge-aware smoothing, fixed relighting,
+structural outlines, explicit palettes, and deterministic logical-pixel
+reduction. Its immutable report records exact image hashes, objective metrics,
+memory estimates, passenger-car preservation, and blockers. It does not claim
+semantic roof, construction, or facade repair and cannot qualify expansion by
+itself. The next accepted version will consume canonical ReferenceAtlas tiles
+and reviewed Google-only masks without changing the DZI delivery boundary.
 `isometric-publish` owns lossless WebP encoding, canonical indexed pyramid
 tiles, complete artifact validation, and atomic DZI assembly.
 `isometric-validate` owns fail-closed semantic and style checks.
@@ -290,7 +300,9 @@ building-evidence cells remain explicit unknowns, giving 5,202 ppm unknown
 coverage. The manifest pins all seven source hashes and the perception artifact
 hash with no deferred prototype source. OSM construction features are omitted,
 unclassified low elevated LiDAR returns cannot become persistent classes, and
-neither the schema nor the compiler can emit people or vehicles.
+neither the historical schema nor compiler can emit people or vehicles. The
+active Google-reference stylizer may preserve passenger cars already present in
+an accepted reference without reconstructing or adding them.
 
 The web workspace implements a responsive, accessible viewer shell. It creates
 an OpenSeadragon instance only when a DZI URL is configured, keeps browser
@@ -357,7 +369,8 @@ boundary does not enter the exact artwork hash chain.
 5. Reference-output dimensions are non-zero and at most 16,384 pixels per
    image. Production raster surfaces are capped at 4,096 pixels per side.
 6. Projection arithmetic checks overflow and fails without partial output.
-7. Final renderable semantic types cannot express people or vehicles.
+7. Final renderable semantic types cannot express people, bicycles, buses,
+   trucks, or construction equipment. Registered passenger cars are permitted.
 8. Unknown semantic objects fail qualification instead of becoming invented
    geometry.
 9. External artifacts are content-addressed and referenced through manifests,

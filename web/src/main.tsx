@@ -9,9 +9,18 @@ if (!root) {
 const application = createRoot(root);
 const overlapReviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review/overlap");
 const qualityReviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review/quality");
+const repairReviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review/repair");
 const reviewRoute = window.location.pathname.replace(/\/+$/, "").endsWith("/review");
 
-if (qualityReviewRoute) {
+if (repairReviewRoute) {
+  void import("./RepairReviewApp").then(({ RepairReviewApp }) =>
+    application.render(
+      <StrictMode>
+        <RepairReviewApp />
+      </StrictMode>,
+    ),
+  );
+} else if (qualityReviewRoute) {
   void import("./QualityReviewApp").then(({ QualityReviewApp }) =>
     application.render(
       <StrictMode>

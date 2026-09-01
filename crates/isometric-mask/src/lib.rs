@@ -28,7 +28,7 @@ pub use geometry::{
 /// Portable semantic-mask manifest schema.
 pub const MANIFEST_SCHEMA: &str = "isometric-mask-manifest/v1";
 /// Stable semantic ontology identifier.
-pub const ONTOLOGY_ID: &str = "isometric-stanford-semantics/v1";
+pub const ONTOLOGY_ID: &str = "isometric-stanford-semantics/v2";
 /// Canonical manifest filename inside a mask artifact.
 pub const MANIFEST_FILENAME: &str = "mask.manifest.json";
 /// Canonical binary mask filename inside a mask artifact.
@@ -92,7 +92,7 @@ pub enum SemanticClass {
     Person = 18,
     /// Transient bicycle obstruction.
     Bicycle = 19,
-    /// Transient car obstruction.
+    /// Persistent passenger car that may remain from the registered reference.
     Car = 20,
     /// Transient bus or truck obstruction.
     BusOrTruck = 21,
@@ -136,11 +136,7 @@ impl SemanticClass {
     pub const fn is_transient(self) -> bool {
         matches!(
             self,
-            Self::Person
-                | Self::Bicycle
-                | Self::Car
-                | Self::BusOrTruck
-                | Self::ConstructionEquipment
+            Self::Person | Self::Bicycle | Self::BusOrTruck | Self::ConstructionEquipment
         )
     }
 
@@ -1195,7 +1191,7 @@ mod tests {
         assert_eq!(first_report, second_report);
         assert_eq!(first_report.pixel_count, 6);
         assert_eq!(first_report.unknown_pixels, 1);
-        assert_eq!(first_report.transient_pixels, 1);
+        assert_eq!(first_report.transient_pixels, 0);
         assert_eq!(first_report.instance_count, 4);
         assert_eq!(
             fs::read(first.join(MASK_FILENAME)).expect("first bytes"),
@@ -1233,6 +1229,19 @@ mod tests {
         let report = validate_artifact(&root, &load_manifest(&root)).expect("validate persistent");
         assert_eq!(report.unknown_pixels, 6);
         assert_eq!(report.transient_pixels, 0);
+    }
+
+    #[test]
+    fn persistent_artifact_accepts_passenger_cars() {
+        let root = create_fixture(
+            "persistent-car",
+            ArtifactRole::Persistent,
+            vec![pixel(SemanticClass::Car, 1); 6],
+        );
+        let manifest = load_manifest(&root);
+        let report = validate_artifact(&root, &manifest).expect("validate passenger cars");
+        assert_eq!(report.transient_pixels, 0);
+        assert_eq!(report.instance_count, 1);
     }
 
     #[test]

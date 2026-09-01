@@ -9,8 +9,9 @@ stylization technique must succeed.
 The target combines an orthographic 2:1 view, crisp logical pixels, a restrained
 palette, hard directional shadows, readable surface orientations, simplified
 ordinary buildings, authored landmark silhouettes, chunky tree crowns, clean
-hardscape, and intentional flat water. Raw photographic regions, people, cars,
-buses, cranes, and temporary equipment do not appear in the final image.
+hardscape, and intentional flat water. Raw photographic regions, people,
+bicycles, buses, trucks, cranes, and temporary equipment do not appear in the
+final image. Passenger cars from accepted registered references may remain.
 
 The first gate is the accepted continuous approximately 600 by 600 meter hero
 prototype containing Hoover Tower, Memorial Church, and the Main Quad. It must

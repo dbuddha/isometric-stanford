@@ -10,6 +10,7 @@ members = [
     "crates/isometric-render",
     "crates/isometric-source",
     "crates/isometric-style",
+    "crates/isometric-stylize",
     "crates/isometric-validate",
     "crates/isometric-world",
 ]

@@ -6,6 +6,7 @@ import { ProbeArtifactWriter } from "../src/node/probe-artifacts.js";
 import { syntheticRequest } from "./fixtures.js";
 
 const roots: string[] = [];
+const RUST_PROCESS_TEST_TIMEOUT_MS = 15_000;
 
 afterEach(async () => {
   await Promise.all(roots.splice(0).map(async (root) => rm(root, { force: true, recursive: true })));
@@ -73,7 +74,7 @@ describe("probe cell evidence", () => {
     ]) {
       expect((await stat(resolve(root, "candidate", filename))).size).toBeGreaterThan(0);
     }
-  });
+  }, RUST_PROCESS_TEST_TIMEOUT_MS);
 
   it("streams the 2560-pixel pilot supertile without a full Node raster", async () => {
     const root = await mkdtemp(resolve(tmpdir(), "isometric-probe-pilot-cells-"));

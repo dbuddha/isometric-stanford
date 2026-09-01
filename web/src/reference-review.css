@@ -309,6 +309,9 @@ a:focus-visible {
   color: #f4f2e9;
   background: rgb(13 16 17 / 82%);
   font-size: 0.68rem;
+  line-height: 1.25;
+  max-width: calc(50% - 1.5rem);
+  overflow-wrap: anywhere;
   text-transform: uppercase;
   pointer-events: none;
 }
@@ -316,6 +319,7 @@ a:focus-visible {
 .review-viewport__label--right {
   right: 0.75rem;
   left: auto;
+  text-align: right;
 }
 
 .review-evidence {

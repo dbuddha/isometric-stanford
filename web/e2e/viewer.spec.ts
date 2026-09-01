@@ -54,7 +54,7 @@ test("released viewer is accessible and paints artwork", async ({ page }, testIn
   await expect(page.getByRole("note")).toContainText("Unqualified engineering preview");
   await expect(page.getByRole("note")).toContainText("not received final visual");
   await expect(page.getByRole("button", { name: "Zoom in" })).toBeVisible();
-  await expect(page.getByText(/No captured people or vehicles/)).toBeVisible();
+  await expect(page.getByText(/Passenger cars may remain/)).toBeVisible();
   const canvas = page.locator(".viewer canvas");
   await expect(canvas).toBeVisible();
   expect((await canvas.screenshot()).byteLength).toBeGreaterThan(100);

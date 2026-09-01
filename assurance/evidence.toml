@@ -7,6 +7,24 @@ evidence = ["cargo test -p isometric-render reference_render_is_byte_determinist
 status = "implemented"
 
 [[claim]]
+id = "REF-REPAIR-001"
+statement = "The safe-Rust reference-repair experiment transforms a frozen registered Google color, depth, and normal bundle into three controlled palette candidates, a canopy mask, structural edges, exact image hashes, objective metrics, and explicit blockers without a network request or generative final pixels."
+evidence = ["cargo test -p isometric-stylize", "cargo test -p isometric-cli", "docs/chapters/reference-repair.md", "docs/research/reference-repair/index.md"]
+status = "implemented"
+
+[[claim]]
+id = "REF-REPAIR-REVIEW-001"
+statement = "The local repair cockpit verifies every report and image hash before display, exposes source and controlled candidates through correctly oriented split and wipe comparisons, keeps evidence labels separate on desktop and mobile, and rejects modified bytes."
+evidence = ["npm --prefix web run test:e2e -- repair-review.spec.ts", "web/e2e/repair-review.spec.ts", "docs/chapters/reference-repair.md"]
+status = "implemented"
+
+[[claim]]
+id = "REF-REPAIR-QUAL-001"
+statement = "The reference-derived Hoover result satisfies final visual style, accepted semantic repair, and expansion qualification gates."
+evidence = []
+status = "not-implemented"
+
+[[claim]]
 id = "BOOT-STYLE-001"
 statement = "Every bootstrap pixel is an index into a palette containing at most 128 colors."
 evidence = ["cargo test -p isometric-render every_pixel_is_in_the_palette", "cargo test -p isometric-style"]

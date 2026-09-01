@@ -26,8 +26,9 @@ before the original 2.8 by 2.0 kilometer qualification slice resumes.
 - Final artwork is a deterministic palette transform of registered source
   layers and accepted masks. Raw reference tiles and unmodified photographic
   regions are never publication artifacts.
-- People, cars, buses, cranes, and temporary equipment are excluded from the
-  final world and renderer assets.
+- People, bicycles, buses, trucks, cranes, and temporary equipment are excluded
+  from final art. Passenger cars in accepted registered references may remain
+  and are not obstruction-repair targets by default.
 - Google Photorealistic 3D Tiles are the sole geographic source for the active
   masking and stylization pipeline.
 - Open-source libraries, pretrained CV weights, and original non-geographic art
@@ -67,7 +68,15 @@ and output sampling. It shows that SSE 8, rather than the renderer plugin's SSE
 maximum-detail review master uses 125 millimeters per output pixel at SSE 8.
 SSE 4 adds no requests, geometry, or pixels. This is capture evidence only,
 not accepted art or a public Google artifact. The safe-Rust mask artifact
-contract is also implemented.
+contract is also implemented. A bounded Hoover reference-repair experiment now
+compares an RGB-only filter, a depth-and-normal-guided abstraction, and a
+narrow canopy-repair pass over the same frozen Google bundle. Three clean runs
+produce identical image and report hashes. Candidate C retains 97.30 percent of
+accepted structural edge evidence while reducing accepted canopy interior edge
+density by 36.7 percent relative to Candidate A. It preserves registered
+passenger cars. The result remains blocked from expansion because construction
+has no accepted instance mask and roofs, windows, and other architectural
+details are not yet semantically regularized.
 
 A second bounded experiment now derives fixed-grid neighbors, keeps one camera
 world matrix fixed, shifts only orthographic frusta, and compares two
@@ -163,7 +172,8 @@ cargo run --locked -- mask inspect artifacts/masks/hoover
 The mask inspector verifies reference registration, the complete 24-class
 ontology, confidence and evidence encoding, instance-class consistency,
 summary counts, byte length, and SHA-256. A persistent artifact containing a
-person, vehicle, construction object, or broken-source pixel fails closed.
+person, bicycle, bus, truck, construction object, or broken-source pixel fails
+closed. Registered passenger cars are a persistent class and may remain.
 Safe-Rust geometry kernels now provide deterministic depth and normal edges,
 morphology, connected components, chamfer distance, watershed, and line
 evidence. Finite-radius operations have guarded-crop equivalence tests, while
@@ -210,6 +220,29 @@ Open `http://127.0.0.1:5173/isometric-stanford/review/quality`. The lab verifies
 every image hash before exposing synchronized split, wipe, 1:1, Hoover, tree,
 roof, and construction inspection. Its measurements separate source LOD from
 output raster sampling and state the remaining source defects explicitly.
+
+Generate the bounded deterministic repair study from an already frozen and
+validated Google bundle without making a network request:
+
+```sh
+cargo run --release --locked -- reference repair-study \
+  artifacts/google-quality/hoover-quality-2026-08-30/bundles/sample-sse8-125mm \
+  artifacts/reference-repair/<new-run-id>
+cargo run --locked -- reference repair-inspect \
+  artifacts/reference-repair/<new-run-id>
+```
+
+Review the source, three candidates, canopy mask, structural edges, metrics,
+and blockers through the hash-validating evidence cockpit:
+
+```sh
+REPAIR_EVIDENCE_DIRECTORY="$PWD/artifacts/reference-repair/<run-id>" \
+  npm --prefix web run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/isometric-stanford/review/repair`. Private Google
+and transformed evidence remains under ignored `artifacts/` storage and is not
+copied into a deployable web build.
 
 Generate the original synthetic regression preview:
 
