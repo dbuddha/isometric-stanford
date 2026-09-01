@@ -317,7 +317,7 @@ export function App() {
       </section>
 
       <footer>
-        <p>Original deterministic procedural artwork. No captured people or vehicles.</p>
+        <p>Original deterministic artwork. Passenger cars may remain; people and temporary equipment do not.</p>
         <a href="https://github.com/dbuddha/isometric-stanford">Source and evidence</a>
       </footer>
     </main>

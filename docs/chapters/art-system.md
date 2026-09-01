@@ -1,13 +1,22 @@
 # Procedural art system
 
 The active software that converts the registered Google view into art is the
-planned `isometric-stylize` crate combined with `isometric-style`, accepted
+implemented `isometric-stylize` crate combined with `isometric-style`, accepted
 Google-only masks, and bounded procedural overlays from `isometric-render`.
 The style pack specifies the logical pixel scale, indexed palette, material
 ramps, fixed lighting, outline rules, patterns, detail thresholds, and stable
 variation rules. The stylizer simplifies canonical ReferenceAtlas color using
 the registered depth and normal layers, semantic and obstruction masks,
 repaired surfaces, and original non-geographic assets.
+
+The first implemented `reference-repair-rust/v1` experiment deliberately stops
+short of that complete design. Candidate A establishes the RGB-only filter
+ceiling. Candidate B adds registered depth and normal guidance, fixed
+relighting, and structural outlines. Candidate C keeps Candidate A's
+architectural abstraction while replacing only high-confidence canopy with a
+controlled seven-band treatment. This progression isolates what each added
+source layer contributes. It does not disguise unsupported construction, roof,
+window, or facade repair.
 
 For a building, the Google surface graph supplies visible planes, repaired
 boundaries, material evidence, stable identity, and confidence. The style

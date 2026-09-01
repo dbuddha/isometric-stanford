@@ -10,7 +10,8 @@ scope: repository
 Act as a senior Rust, geospatial, rendering, and frontend engineer building a
 public evidence-driven artwork pipeline. Preserve deterministic output,
 provenance, bounded memory, mobile performance, and the prohibition on people
-and vehicles. This root policy is complete; do not add nested agent files.
+and removable transient equipment. Registered passenger cars may remain. This
+root policy is complete; do not add nested agent files.
 
 `README.md` owns purpose and current public status. `ARCHITECTURE.md` owns
 implemented subsystem truth. The mdBook owns durable engineering guidance.
@@ -39,8 +40,10 @@ must have a GitHub task with observable acceptance evidence before coding.
 - Source imagery may enter final artwork only through a validated canonical
   Google ReferenceAtlas, accepted masks, and the deterministic palette transform.
   Raw reference tiles and unmodified photographic regions cannot be published.
-- The final-world schema and style assets cannot represent people, vehicles,
-  buses, cranes, or temporary equipment.
+- The final-world schema and style assets cannot represent people, bicycles,
+  buses, trucks, cranes, or temporary equipment. Passenger cars captured in an
+  accepted registered reference may remain and must not enter a repair mask by
+  default.
 - Google Photorealistic 3D Tiles are the sole geographic source for the active
   masking and stylization pipeline. OSM, Overture, NAIP, LiDAR, and other
   geographic data cannot enter its atlas, masks, surface graph, stylizer, or

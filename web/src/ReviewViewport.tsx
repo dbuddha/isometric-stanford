@@ -297,7 +297,7 @@ export function ReviewViewport({
         <div
           className="review-viewport__wipe"
           data-testid="wipe-overlay"
-          style={{ clipPath: `inset(0 ${100 - wipePercent}% 0 0)` }}
+          style={{ clipPath: `inset(0 0 0 ${wipePercent}%)` }}
         >
           <LayerImage
             asset={secondary}

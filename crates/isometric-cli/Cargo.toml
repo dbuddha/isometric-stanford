@@ -20,6 +20,7 @@ isometric-reference = { path = "../isometric-reference", version = "0.1.0" }
 isometric-render = { path = "../isometric-render", version = "0.1.0" }
 isometric-source = { path = "../isometric-source", version = "0.1.0" }
 isometric-style = { path = "../isometric-style", version = "0.1.0" }
+isometric-stylize = { path = "../isometric-stylize", version = "0.1.0" }
 isometric-validate = { path = "../isometric-validate", version = "0.1.0" }
 isometric-world = { path = "../isometric-world", version = "0.1.0" }
 serde_json.workspace = true

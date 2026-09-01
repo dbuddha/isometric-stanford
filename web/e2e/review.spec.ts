@@ -20,7 +20,7 @@ test("registered workbench verifies, compares, and explains all six layers", asy
   await expect(page.locator("img[data-layer-kind=linear-depth]")).toBeVisible();
   await page.getByRole("button", { name: "Wipe" }).click();
   await page.getByLabel("Comparison wipe").fill("63");
-  await expect(page.getByTestId("wipe-overlay")).toHaveCSS("clip-path", "inset(0px 37% 0px 0px)");
+  await expect(page.getByTestId("wipe-overlay")).toHaveCSS("clip-path", "inset(0px 0px 0px 63%)");
   await page.screenshot({ path: testInfo.outputPath("reference-review-workbench.png"), fullPage: true });
 });
 

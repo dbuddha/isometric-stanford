@@ -1,0 +1,18 @@
+[package]
+name = "isometric-stylize"
+description = "Deterministic, geometry-guided reference abstraction for Isometric Stanford"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+isometric-reference = { path = "../isometric-reference", version = "0.1.0" }
+png.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+
+[lints]
+workspace = true

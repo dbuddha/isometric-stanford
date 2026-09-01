@@ -23,6 +23,8 @@ const USAGE: &str = "Usage:
   isometric-stanford reference compare-overlap [request.json]
   isometric-stanford reference atlas-compile [request.json] [output-directory]
   isometric-stanford reference atlas-inspect [atlas-directory]
+  isometric-stanford reference repair-study [bundle-directory] [output-directory]
+  isometric-stanford reference repair-inspect [output-directory]
   isometric-stanford mask inspect [artifact-directory]
   isometric-stanford perceive run [output-directory]
   isometric-stanford world compile [output-directory]
@@ -44,6 +46,8 @@ Implemented commands:
   source sync verifies approved artifacts in a content-addressed cache.
   reference inspect validates a registered multipass reference bundle and its
   complete layer hash chain without decoding source imagery into final art.
+  reference repair-study compares bounded RGB-only, geometry-guided, and
+  high-confidence canopy-repair candidates without making live provider calls.
   mask inspect streams and validates an immutable registered semantic mask,
   its ontology summaries, transient policy, instances, and complete hash chain.
   perceive run compiles locked NAIP and streamed LiDAR into a transient-safe
@@ -213,6 +217,30 @@ fn run_reference(arguments: &[String]) -> Result<String, String> {
             ))
         }
         [command, input] if command == "atlas-inspect" => inspect_reference_atlas(Path::new(input)),
+        [command, input, output] if command == "repair-study" => {
+            let report =
+                isometric_stylize::run_reference_repair(Path::new(input), Path::new(output))
+                    .map_err(|error| error.to_string())?;
+            Ok(format!(
+                "reference repair study complete: {} images, peak estimate {} bytes, expansion qualified={}, report {}",
+                report.image_count,
+                report.estimated_peak_working_bytes,
+                report.qualified_for_expansion,
+                report.report_sha256
+            ))
+        }
+        [command, input] if command == "repair-inspect" => {
+            let root = Path::new(input);
+            let report =
+                isometric_stylize::read_report(&root.join(isometric_stylize::REVIEW_FILENAME))
+                    .map_err(|error| error.to_string())?;
+            let validated = isometric_stylize::validate_report(root, &report)
+                .map_err(|error| error.to_string())?;
+            Ok(format!(
+                "reference repair study passed: {} images, expansion qualified={}, report {}",
+                validated.image_count, validated.qualified_for_expansion, validated.report_sha256
+            ))
+        }
         [command, ..] => Err(format!(
             "reference {command} is specified but not implemented yet"
         )),
@@ -831,7 +859,7 @@ mod tests {
 
         let report = inspect_mask(&root).expect("inspect CLI mask fixture");
         assert!(report.contains("cli-synthetic-mask (evidence) passed"));
-        assert!(report.contains("4 pixels, 3 instances, 1 unknown, 1 transient"));
+        assert!(report.contains("4 pixels, 3 instances, 1 unknown, 0 transient"));
     }
 
     #[test]

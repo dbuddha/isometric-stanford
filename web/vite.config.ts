@@ -9,6 +9,7 @@ const BASE = "/isometric-stanford/";
 const LOCAL_REFERENCE_ROUTE = `${BASE}__reference__/`;
 const LOCAL_OVERLAP_ROUTE = `${BASE}__overlap__/`;
 const LOCAL_QUALITY_ROUTE = `${BASE}__quality__/`;
+const LOCAL_REPAIR_ROUTE = `${BASE}__repair__/`;
 const REFERENCE_FILES: Record<string, string> = {
   "color.png": "image/png",
   "coverage.png": "image/png",
@@ -35,6 +36,15 @@ const QUALITY_FILES: Record<string, string> = {
   "candidates/lod-sse4-250mm/core.png": "image/png",
   "candidates/sample-sse8-125mm/core.png": "image/png",
   "candidates/maximum-sse4-125mm/core.png": "image/png",
+};
+const REPAIR_FILES: Record<string, string> = {
+  "repair-review.json": "application/json; charset=utf-8",
+  "source-logical.png": "image/png",
+  "candidate-a-rgb.png": "image/png",
+  "candidate-b-geometry.png": "image/png",
+  "candidate-c-canopy-repair.png": "image/png",
+  "canopy-mask.png": "image/png",
+  "structural-edges.png": "image/png",
 };
 
 function localFilePlugin(
@@ -112,6 +122,7 @@ export default defineConfig(() => {
   const referenceDirectory = process.env.REFERENCE_BUNDLE_DIRECTORY;
   const overlapDirectory = process.env.OVERLAP_EVIDENCE_DIRECTORY;
   const qualityDirectory = process.env.QUALITY_EVIDENCE_DIRECTORY;
+  const repairDirectory = process.env.REPAIR_EVIDENCE_DIRECTORY;
   const definedEnvironment: Record<string, string> = {};
   if (referenceDirectory) {
     definedEnvironment["import.meta.env.VITE_REFERENCE_URL"] = JSON.stringify(
@@ -126,6 +137,11 @@ export default defineConfig(() => {
   if (qualityDirectory) {
     definedEnvironment["import.meta.env.VITE_QUALITY_REPORT_URL"] = JSON.stringify(
       `${LOCAL_QUALITY_ROUTE}quality-review.json`,
+    );
+  }
+  if (repairDirectory) {
+    definedEnvironment["import.meta.env.VITE_REPAIR_REPORT_URL"] = JSON.stringify(
+      `${LOCAL_REPAIR_ROUTE}repair-review.json`,
     );
   }
   return {
@@ -143,6 +159,12 @@ export default defineConfig(() => {
         LOCAL_QUALITY_ROUTE,
         qualityDirectory,
         QUALITY_FILES,
+      ),
+      localFilePlugin(
+        "local-reference-repair",
+        LOCAL_REPAIR_ROUTE,
+        repairDirectory,
+        REPAIR_FILES,
       ),
     ],
     base: BASE,

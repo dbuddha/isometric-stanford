@@ -305,6 +305,7 @@ dependencies = [
  "isometric-render",
  "isometric-source",
  "isometric-style",
+ "isometric-stylize",
  "isometric-validate",
  "isometric-world",
  "serde_json",
@@ -381,6 +382,17 @@ dependencies = [
 [[package]]
 name = "isometric-style"
 version = "0.1.0"
+
+[[package]]
+name = "isometric-stylize"
+version = "0.1.0"
+dependencies = [
+ "isometric-reference",
+ "png",
+ "serde",
+ "serde_json",
+ "sha2",
+]
 
 [[package]]
 name = "isometric-validate"

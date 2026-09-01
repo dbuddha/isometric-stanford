@@ -24,7 +24,7 @@ test("overlap workbench verifies and compares independent joins at source pixels
   await expect(page.getByLabel("Right evidence")).toHaveValue("overlap-right");
   await page.getByLabel("Right evidence").selectOption("overlap-heatmap");
   await page.getByLabel("Comparison wipe").fill("68");
-  await expect(page.getByTestId("wipe-overlay")).toHaveCSS("clip-path", "inset(0px 32% 0px 0px)");
+  await expect(page.getByTestId("wipe-overlay")).toHaveCSS("clip-path", "inset(0px 0px 0px 68%)");
   await expect(page.getByRole("table")).toContainText("linear-depth");
   await page.screenshot({ path: testInfo.outputPath("overlap-workbench.png"), fullPage: true });
 });

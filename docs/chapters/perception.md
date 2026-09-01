@@ -56,9 +56,10 @@ transient totals, instance bounds, producer identity, encoding, byte length,
 and content hash.
 
 There are three explicit artifact roles. `evidence` and `repair-input` may
-contain cars, people, bicycles, buses, trucks, construction equipment, and
-source artifacts because downstream repair must know where they are.
-`persistent` output rejects all of those classes. Unknown pixels remain
+contain people, bicycles, buses, trucks, construction equipment, and source
+artifacts because downstream repair must know where they are. Passenger cars
+are persistent-compatible and are preserved by default. `persistent` output
+rejects every removable transient and source-artifact class. Unknown pixels remain
 representable so later qualification can fail honestly rather than inventing a
 surface. The validator streams records through a 64 KiB reader and uses a
 fixed-size instance table, so memory does not scale with mask raster bytes.
